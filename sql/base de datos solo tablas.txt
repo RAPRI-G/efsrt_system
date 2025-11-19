@@ -1,0 +1,1997 @@
+--
+-- Estructura de tabla para la tabla `alerta_ia`
+--
+
+CREATE TABLE `alerta_ia` (
+  `id` int(11) NOT NULL,
+  `documento` int(11) DEFAULT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `nivel` int(11) DEFAULT NULL,
+  `titulo` varchar(255) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `clausula` text DEFAULT NULL,
+  `sugerencia` text DEFAULT NULL,
+  `fecha` datetime DEFAULT NULL,
+  `resuelta` int(11) DEFAULT NULL,
+  `resuelto_por` int(11) DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `asistencias`
+--
+
+CREATE TABLE `asistencias` (
+  `id` int(11) NOT NULL,
+  `practicas` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_entrada` time DEFAULT NULL,
+  `hora_salida` time DEFAULT NULL,
+  `horas_acumuladas` int(11) DEFAULT NULL,
+  `actividad` text DEFAULT NULL,
+  `visto_bueno_empresa` varchar(150) DEFAULT NULL,
+  `visto_bueno_docente` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `asistencia_cap`
+--
+
+CREATE TABLE `asistencia_cap` (
+  `id` int(11) NOT NULL,
+  `asistencia` tinyint(1) DEFAULT NULL,
+  `certificacion` tinyint(1) DEFAULT NULL,
+  `certificado_archivo` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `auditoria`
+--
+
+CREATE TABLE `auditoria` (
+  `id` int(11) NOT NULL,
+  `usuario` int(11) DEFAULT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `accion` varchar(20) DEFAULT NULL,
+  `tabla` varchar(100) DEFAULT NULL,
+  `registro_id` int(11) DEFAULT NULL,
+  `datos_anteriores` text DEFAULT NULL,
+  `datos_nuevos` text DEFAULT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `fecha` datetime DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `auditoria_cap`
+--
+
+CREATE TABLE `auditoria_cap` (
+  `id` int(11) NOT NULL,
+  `tabla_afectada` varchar(50) DEFAULT NULL,
+  `id_registro_afectado` int(11) DEFAULT NULL,
+  `accion` enum('insert','update','delete') DEFAULT NULL,
+  `fecha_accion` datetime DEFAULT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `beneficiarios`
+--
+
+CREATE TABLE `beneficiarios` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) NOT NULL,
+  `resoluciones` int(11) NOT NULL,
+  `porcentaje_descuento` decimal(5,2) NOT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `registrado_por` int(11) DEFAULT NULL,
+  `registrado_en` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cache_sunat`
+--
+
+CREATE TABLE `cache_sunat` (
+  `id` int(11) NOT NULL,
+  `ruc` varchar(11) DEFAULT NULL,
+  `razon_social` varchar(255) DEFAULT NULL,
+  `nombre_comercial` varchar(255) DEFAULT NULL,
+  `direccion_fiscal` text DEFAULT NULL,
+  `departamento` varchar(100) DEFAULT NULL,
+  `provincia` varchar(100) DEFAULT NULL,
+  `distrito` varchar(100) DEFAULT NULL,
+  `ubigeo` varchar(6) DEFAULT NULL,
+  `estado` varchar(50) DEFAULT NULL,
+  `condicion` varchar(50) DEFAULT NULL,
+  `representante_legal` varchar(255) DEFAULT NULL,
+  `representante_cargo` varchar(150) DEFAULT NULL,
+  `representante_desde` date DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `fecha_inscripcion` date DEFAULT NULL,
+  `fecha_inicio_actividades` date DEFAULT NULL,
+  `fecha_consulta` datetime DEFAULT NULL,
+  `fecha_expiracion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `comunicacion`
+--
+
+CREATE TABLE `comunicacion` (
+  `id` int(11) NOT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `tipo` varchar(50) DEFAULT NULL,
+  `asunto` varchar(255) DEFAULT NULL,
+  `contenido` text DEFAULT NULL,
+  `enviado_por` int(11) DEFAULT NULL,
+  `fecha_envio` datetime DEFAULT NULL,
+  `fecha_respuesta` datetime DEFAULT NULL,
+  `respondido` int(11) DEFAULT NULL,
+  `archivo` varchar(500) DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `condicion_academica`
+--
+
+CREATE TABLE `condicion_academica` (
+  `id` int(11) NOT NULL,
+  `nombre_condicion` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `condicion_laboral`
+--
+
+CREATE TABLE `condicion_laboral` (
+  `id` int(11) NOT NULL,
+  `nombre_condicion` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `convenio`
+--
+
+CREATE TABLE `convenio` (
+  `id` int(11) NOT NULL,
+  `instituto` int(11) DEFAULT NULL,
+  `empresa` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `estado` int(11) DEFAULT NULL,
+  `codigo` varchar(50) DEFAULT NULL,
+  `iniciado_por` varchar(20) DEFAULT NULL,
+  `objetivo` text DEFAULT NULL,
+  `beneficios_instituto` text DEFAULT NULL,
+  `beneficios_empresa` text DEFAULT NULL,
+  `duracion_meses` int(11) DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `renovacion_automatica` int(11) DEFAULT NULL,
+  `condiciones_especiales` text DEFAULT NULL,
+  `archivo_fisico` varchar(255) DEFAULT NULL,
+  `qr` varchar(500) DEFAULT NULL,
+  `fecha_creacion` datetime DEFAULT NULL,
+  `fecha_activacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `curso`
+--
+
+CREATE TABLE `curso` (
+  `id` int(11) NOT NULL,
+  `nom_curso` varchar(60) NOT NULL,
+  `modalidad_curso` enum('presencial','virtual') NOT NULL,
+  `descripcion_curso` text DEFAULT NULL,
+  `fechini_curso` date DEFAULT NULL,
+  `fechfin_curso` date DEFAULT NULL,
+  `hora_curso` varchar(50) DEFAULT NULL,
+  `lugar_curso` varchar(100) DEFAULT NULL,
+  `estado_curso` enum('vigente','finalizado') DEFAULT 'vigente',
+  `organizador_curso` varchar(100) DEFAULT NULL,
+  `certificacion_curso` tinyint(1) DEFAULT 0,
+  `duracion_curso` varchar(50) DEFAULT NULL,
+  `costo_curso` decimal(5,2) DEFAULT NULL,
+  `creditos_curso` char(3) DEFAULT NULL,
+  `foto_curso` varchar(255) DEFAULT NULL,
+  `tipo_curso` int(11) DEFAULT NULL,
+  `creado_por` int(11) DEFAULT NULL,
+  `fecha_creacion` datetime DEFAULT NULL,
+  `fecha_modificacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `documento`
+--
+
+CREATE TABLE `documento` (
+  `id` int(11) NOT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `reunion` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `archivo` varchar(500) DEFAULT NULL,
+  `version` int(11) DEFAULT NULL,
+  `tamano` bigint(20) DEFAULT NULL,
+  `hash` varchar(64) DEFAULT NULL,
+  `firmado_instituto` int(11) DEFAULT NULL,
+  `firmado_empresa` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `empleado`
+--
+
+CREATE TABLE `empleado` (
+  `id` int(11) NOT NULL,
+  `prog_estudios` int(11) DEFAULT NULL,
+  `dni_emp` char(8) DEFAULT NULL,
+  `apnom_emp` varchar(60) DEFAULT NULL,
+  `sex_emp` char(1) DEFAULT NULL,
+  `cel_emp` char(9) DEFAULT NULL,
+  `ubigeodir_emp` char(6) DEFAULT NULL,
+  `ubigeonac_emp` char(6) DEFAULT NULL,
+  `dir_emp` varchar(40) DEFAULT NULL,
+  `mailp_emp` varchar(40) DEFAULT NULL,
+  `maili_emp` varchar(40) DEFAULT NULL,
+  `fecnac_emp` date DEFAULT NULL,
+  `cargo_emp` char(1) DEFAULT NULL,
+  `cond_emp` char(1) DEFAULT NULL,
+  `id_progest` char(3) DEFAULT NULL,
+  `fecinc_emp` date DEFAULT NULL,
+  `foto_emp` varchar(40) DEFAULT NULL,
+  `estado` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `empresa`
+--
+
+CREATE TABLE `empresa` (
+  `id` int(11) NOT NULL,
+  `ruc` varchar(11) DEFAULT NULL,
+  `razon_social` varchar(255) DEFAULT NULL,
+  `nombre_comercial` varchar(255) DEFAULT NULL,
+  `direccion_fiscal` text DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `sector` varchar(100) DEFAULT NULL,
+  `validado` int(11) DEFAULT NULL,
+  `registro_manual` int(11) DEFAULT NULL,
+  `estado` varchar(50) DEFAULT NULL,
+  `condicion_sunat` varchar(20) DEFAULT NULL,
+  `ubigeo` varchar(10) DEFAULT NULL,
+  `departamento` varchar(100) DEFAULT NULL,
+  `provincia` varchar(100) DEFAULT NULL,
+  `distrito` varchar(100) DEFAULT NULL,
+  `fecha_creacion` datetime DEFAULT NULL,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estado_convenio`
+--
+
+CREATE TABLE `estado_convenio` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `color` varchar(20) DEFAULT NULL,
+  `orden` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estado_renovacion`
+--
+
+CREATE TABLE `estado_renovacion` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estudiante`
+--
+
+CREATE TABLE `estudiante` (
+  `id` int(11) NOT NULL,
+  `ubdistrito` int(11) DEFAULT NULL,
+  `dni_est` char(8) DEFAULT NULL,
+  `ap_est` varchar(40) DEFAULT NULL,
+  `am_est` varchar(40) DEFAULT NULL,
+  `nom_est` varchar(40) DEFAULT NULL,
+  `sex_est` char(1) DEFAULT NULL,
+  `cel_est` char(9) DEFAULT NULL,
+  `ubigeodir_est` char(6) DEFAULT NULL,
+  `ubigeonac_est` char(6) DEFAULT NULL,
+  `dir_est` varchar(40) DEFAULT NULL,
+  `mailp_est` varchar(40) DEFAULT NULL,
+  `maili_est` varchar(40) DEFAULT NULL,
+  `fecnac_est` date DEFAULT NULL,
+  `foto_est` varchar(40) DEFAULT NULL,
+  `estado` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+
+--
+-- Estructura de tabla para la tabla `evaluaciones`
+--
+
+CREATE TABLE `evaluaciones` (
+  `id` int(11) NOT NULL,
+  `practicas` int(11) NOT NULL,
+  `puntaje_total` int(11) DEFAULT NULL,
+  `escala` char(1) DEFAULT NULL,
+  `apreciacion` enum('Muy Buena','Buena','Aceptable','Deficiente') DEFAULT NULL,
+  `observaciones` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `evidencias`
+--
+
+CREATE TABLE `evidencias` (
+  `id` int(11) NOT NULL,
+  `practicas` int(11) NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL,
+  `archivo_url` varchar(255) DEFAULT NULL,
+  `fecha_subida` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `firma`
+--
+
+CREATE TABLE `firma` (
+  `id` int(11) NOT NULL,
+  `documento` int(11) DEFAULT NULL,
+  `usuario` int(11) DEFAULT NULL,
+  `representante` int(11) DEFAULT NULL,
+  `tipo` varchar(20) DEFAULT NULL,
+  `fecha` datetime DEFAULT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `metodo` varchar(30) DEFAULT NULL,
+  `hash_documento` varchar(64) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `historial_descuentos`
+--
+
+CREATE TABLE `historial_descuentos` (
+  `id` int(11) NOT NULL,
+  `beneficiario_id` int(11) NOT NULL,
+  `monto_original` decimal(10,2) NOT NULL,
+  `porcentaje_descuento` decimal(5,2) NOT NULL,
+  `monto_descuento` decimal(10,2) NOT NULL,
+  `monto_final` decimal(10,2) NOT NULL,
+  `aplicado_por` int(11) DEFAULT NULL,
+  `aplicado_en` datetime DEFAULT NULL,
+  `observaciones` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `historial_laboral`
+--
+
+CREATE TABLE `historial_laboral` (
+  `id` int(11) NOT NULL,
+  `situacion` int(11) DEFAULT NULL,
+  `tiempo_primer_empleo` varchar(30) DEFAULT NULL,
+  `razon_desempleo` varchar(30) DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `fecha_registro` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `historial_solicitudes`
+--
+
+CREATE TABLE `historial_solicitudes` (
+  `id` int(11) NOT NULL,
+  `solicitud_id` int(11) NOT NULL,
+  `estado` varchar(50) NOT NULL,
+  `fecha` datetime DEFAULT NULL,
+  `empleado` int(11) DEFAULT NULL,
+  `comentarios` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `inscripcion`
+--
+
+CREATE TABLE `inscripcion` (
+  `id` int(11) NOT NULL,
+  `noms_ins` varchar(50) DEFAULT NULL,
+  `apaterno_ins` varchar(50) DEFAULT NULL,
+  `amaterno_ins` varchar(50) DEFAULT NULL,
+  `dni_ins` char(8) DEFAULT NULL,
+  `telefono_ins` char(9) DEFAULT NULL,
+  `correo_ins` varchar(50) DEFAULT NULL,
+  `institucion_ins` varchar(100) DEFAULT NULL,
+  `lugar_ins` varchar(100) DEFAULT NULL,
+  `asistencia_cap` int(11) DEFAULT NULL,
+  `curso` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `instituto`
+--
+
+CREATE TABLE `instituto` (
+  `id` int(11) NOT NULL,
+  `ruc` varchar(11) DEFAULT NULL,
+  `razon_social` varchar(255) DEFAULT NULL,
+  `nombre_comercial` varchar(255) DEFAULT NULL,
+  `direccion` text DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `logo` varchar(500) DEFAULT NULL,
+  `activa` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `invitado_reunion`
+--
+
+CREATE TABLE `invitado_reunion` (
+  `id` int(11) NOT NULL,
+  `reunion` int(11) DEFAULT NULL,
+  `nombre_completo` varchar(255) DEFAULT NULL,
+  `cargo` varchar(100) DEFAULT NULL,
+  `entidad` varchar(255) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `asistio` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `matricula`
+--
+
+CREATE TABLE `matricula` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) DEFAULT NULL,
+  `prog_estudios` int(11) DEFAULT NULL,
+  `id_matricula` char(9) DEFAULT NULL,
+  `per_lectivo` varchar(7) DEFAULT NULL,
+  `per_acad` varchar(3) DEFAULT NULL,
+  `per_acad2` int(1) DEFAULT NULL,
+  `seccion` char(1) DEFAULT NULL,
+  `turno` char(1) DEFAULT NULL,
+  `fec_matricula` date DEFAULT NULL,
+  `cond_matricula` char(1) DEFAULT NULL,
+  `est_matricula` char(1) DEFAULT NULL,
+  `est_perlec` char(1) DEFAULT NULL,
+  `obs_matricula` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `medio_consecucion`
+--
+
+CREATE TABLE `medio_consecucion` (
+  `id` int(11) NOT NULL,
+  `nombre_medio` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `nivel_alerta`
+--
+
+CREATE TABLE `nivel_alerta` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(20) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `color` varchar(10) DEFAULT NULL,
+  `bloquea` int(11) DEFAULT NULL,
+  `prioridad` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `notificacion`
+--
+
+CREATE TABLE `notificacion` (
+  `id` int(11) NOT NULL,
+  `usuario` int(11) DEFAULT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `comunicacion` int(11) DEFAULT NULL,
+  `tipo` varchar(20) DEFAULT NULL,
+  `prioridad` varchar(20) DEFAULT NULL,
+  `titulo` varchar(255) DEFAULT NULL,
+  `mensaje` text DEFAULT NULL,
+  `leida` int(11) DEFAULT NULL,
+  `fecha_envio` datetime DEFAULT NULL,
+  `email_enviado` int(11) DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pagos`
+--
+
+CREATE TABLE `pagos` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) NOT NULL,
+  `solicitudes` int(11) DEFAULT NULL,
+  `tipo_pago` int(11) NOT NULL,
+  `monto_original` decimal(10,2) NOT NULL,
+  `monto_descuento` decimal(10,2) DEFAULT 0.00,
+  `monto_final` decimal(10,2) NOT NULL,
+  `fecha_pago` datetime DEFAULT NULL,
+  `comprobante` varchar(255) DEFAULT NULL,
+  `registrado_por` int(11) DEFAULT NULL,
+  `registrado_en` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pago_cap`
+--
+
+CREATE TABLE `pago_cap` (
+  `id` int(11) NOT NULL,
+  `monto_pago` decimal(5,2) DEFAULT NULL,
+  `fecha_pago` date DEFAULT NULL,
+  `estado_pago` enum('porconfirmar','confirmado') DEFAULT NULL,
+  `inscripcion` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `participante_reunion`
+--
+
+CREATE TABLE `participante_reunion` (
+  `id` int(11) NOT NULL,
+  `reunion` int(11) DEFAULT NULL,
+  `usuario` int(11) DEFAULT NULL,
+  `rol` varchar(20) DEFAULT NULL,
+  `confirmo` int(11) DEFAULT NULL,
+  `asistio` int(11) DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `practicas`
+--
+
+CREATE TABLE `practicas` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) NOT NULL,
+  `empleado` int(11) DEFAULT NULL,
+  `empresa` int(11) DEFAULT NULL,
+  `modulo` varchar(100) DEFAULT NULL,
+  `periodo_academico` varchar(50) DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `total_horas` int(11) DEFAULT 0,
+  `estado` enum('En curso','Finalizado','Pendiente') DEFAULT 'Pendiente'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `prog_estudios`
+--
+
+CREATE TABLE `prog_estudios` (
+  `id` int(11) NOT NULL,
+  `nom_progest` varchar(40) DEFAULT NULL,
+  `perfilingre_progest` text DEFAULT NULL,
+  `perfilegre_progest` text DEFAULT NULL,
+  `id_progest` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `recordatorio`
+--
+
+CREATE TABLE `recordatorio` (
+  `id` int(11) NOT NULL,
+  `notificacion` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `evento` varchar(50) DEFAULT NULL,
+  `dias_antes` int(11) DEFAULT NULL,
+  `fecha_programada` datetime DEFAULT NULL,
+  `enviado` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `renovacion`
+--
+
+CREATE TABLE `renovacion` (
+  `id` int(11) NOT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `estado` int(11) DEFAULT NULL,
+  `iniciado_por` varchar(20) DEFAULT NULL,
+  `fecha_inicio` datetime DEFAULT NULL,
+  `fecha_aprobacion` datetime DEFAULT NULL,
+  `meses_extension` int(11) DEFAULT NULL,
+  `requiere_reunion` int(11) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `representante`
+--
+
+CREATE TABLE `representante` (
+  `id` int(11) NOT NULL,
+  `instituto` int(11) DEFAULT NULL,
+  `empresa` int(11) DEFAULT NULL,
+  `nombre_completo` varchar(255) DEFAULT NULL,
+  `cargo` varchar(100) DEFAULT NULL,
+  `documento` varchar(20) DEFAULT NULL,
+  `tipo_documento` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `puede_firmar` int(11) DEFAULT NULL,
+  `fecha_desde` date DEFAULT NULL,
+  `fecha_hasta` date DEFAULT NULL,
+  `activo` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `resoluciones`
+--
+
+CREATE TABLE `resoluciones` (
+  `id` int(11) NOT NULL,
+  `numero_resolucion` varchar(50) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `texto_respaldo` text DEFAULT NULL,
+  `ruta_documento` varchar(255) DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `creado_por` int(11) DEFAULT NULL,
+  `creado_en` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `reunion`
+--
+
+CREATE TABLE `reunion` (
+  `id` int(11) NOT NULL,
+  `convenio` int(11) DEFAULT NULL,
+  `fecha` datetime DEFAULT NULL,
+  `duracion` int(11) DEFAULT NULL,
+  `modalidad` varchar(20) DEFAULT NULL,
+  `link_virtual` varchar(500) DEFAULT NULL,
+  `lugar` varchar(255) DEFAULT NULL,
+  `estado` varchar(20) DEFAULT NULL,
+  `acta` varchar(500) DEFAULT NULL,
+  `propuesta_por` int(11) DEFAULT NULL,
+  `fecha_propuesta` datetime DEFAULT NULL,
+  `fecha_confirmacion` datetime DEFAULT NULL,
+  `tipouser` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sector`
+--
+
+CREATE TABLE `sector` (
+  `id` int(11) NOT NULL,
+  `nombre_sector` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `seguimiento`
+--
+
+CREATE TABLE `seguimiento` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL,
+  `fecha` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `situacion_laboral`
+--
+
+CREATE TABLE `situacion_laboral` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) DEFAULT NULL,
+  `empresa` int(11) DEFAULT NULL,
+  `trabaja` int(11) DEFAULT NULL,
+  `labora_programa_estudios` int(11) DEFAULT NULL,
+  `cargo_actual` varchar(200) DEFAULT NULL,
+  `condicion_laboral` int(11) DEFAULT NULL,
+  `ingreso_bruto_mensual` decimal(10,2) DEFAULT NULL,
+  `satisfaccion_trabajo` varchar(50) DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `situacion_medio`
+--
+
+CREATE TABLE `situacion_medio` (
+  `situacion` int(11) NOT NULL,
+  `medio` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `solicitudes`
+--
+
+CREATE TABLE `solicitudes` (
+  `id` int(11) NOT NULL,
+  `estudiante` int(11) NOT NULL,
+  `resoluciones` int(11) DEFAULT NULL,
+  `tipo_solicitud` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `estado` enum('pendiente','en_evaluacion','aprobado','rechazado') DEFAULT 'pendiente',
+  `fecha_solicitud` datetime DEFAULT NULL,
+  `fecha_revision` datetime DEFAULT NULL,
+  `empleado` int(11) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL,
+  `foto` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_convenio`
+--
+
+CREATE TABLE `tipo_convenio` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `plantilla` varchar(500) DEFAULT NULL,
+  `requiere_coord_academica` int(11) DEFAULT NULL,
+  `activa` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_curso`
+--
+
+CREATE TABLE `tipo_curso` (
+  `id` int(11) NOT NULL,
+  `nom_tipocurso` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_documento`
+--
+
+CREATE TABLE `tipo_documento` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `plantilla` varchar(500) DEFAULT NULL,
+  `requiere_firma` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_pago`
+--
+
+CREATE TABLE `tipo_pago` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `descripcion` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_recordatorio`
+--
+
+CREATE TABLE `tipo_recordatorio` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_renovacion`
+--
+
+CREATE TABLE `tipo_renovacion` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `requiere_firma` int(11) DEFAULT NULL,
+  `duracion_dias` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_seguimiento`
+--
+
+CREATE TABLE `tipo_seguimiento` (
+  `id` int(11) NOT NULL,
+  `nombre_tipo` varchar(100) DEFAULT NULL,
+  `descripcion` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ubdepartamento`
+--
+
+CREATE TABLE `ubdepartamento` (
+  `id` int(11) NOT NULL,
+  `departamento` varchar(250) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `ubdistrito`
+--
+
+CREATE TABLE `ubdistrito` (
+  `id` int(11) NOT NULL,
+  `distrito` varchar(250) DEFAULT NULL,
+  `ubprovincia` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `ubprovincia`
+--
+
+CREATE TABLE `ubprovincia` (
+  `id` int(11) NOT NULL,
+  `provincia` varchar(250) DEFAULT NULL,
+  `ubdepartamento` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Estructura de tabla para la tabla `unidades_didacticas`
+--
+
+CREATE TABLE `unidades_didacticas` (
+  `id` int(11) NOT NULL,
+  `nombre_unidad` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `creditos` int(11) NOT NULL CHECK (`creditos` > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `usuario` varchar(200) DEFAULT NULL,
+  `password` text DEFAULT NULL,
+  `tipo` int(11) DEFAULT NULL,
+  `estuempleado` int(11) DEFAULT NULL,
+  `token` text DEFAULT NULL,
+  `estado` int(11) DEFAULT NULL,
+  `nivel` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `alerta_ia`
+--
+ALTER TABLE `alerta_ia`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `documento` (`documento`),
+  ADD KEY `convenio` (`convenio`),
+  ADD KEY `nivel` (`nivel`);
+
+--
+-- Indices de la tabla `asistencias`
+--
+ALTER TABLE `asistencias`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `practicas` (`practicas`);
+
+--
+-- Indices de la tabla `asistencia_cap`
+--
+ALTER TABLE `asistencia_cap`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `auditoria`
+--
+ALTER TABLE `auditoria`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`);
+
+--
+-- Indices de la tabla `auditoria_cap`
+--
+ALTER TABLE `auditoria_cap`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
+
+--
+-- Indices de la tabla `beneficiarios`
+--
+ALTER TABLE `beneficiarios`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `resoluciones` (`resoluciones`),
+  ADD KEY `registrado_por` (`registrado_por`);
+
+--
+-- Indices de la tabla `cache_sunat`
+--
+ALTER TABLE `cache_sunat`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `comunicacion`
+--
+ALTER TABLE `comunicacion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`);
+
+--
+-- Indices de la tabla `condicion_academica`
+--
+ALTER TABLE `condicion_academica`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `condicion_laboral`
+--
+ALTER TABLE `condicion_laboral`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `convenio`
+--
+ALTER TABLE `convenio`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `instituto` (`instituto`),
+  ADD KEY `empresa` (`empresa`),
+  ADD KEY `tipo` (`tipo`),
+  ADD KEY `estado` (`estado`);
+
+--
+-- Indices de la tabla `curso`
+--
+ALTER TABLE `curso`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `tipo_curso` (`tipo_curso`),
+  ADD KEY `creado_por` (`creado_por`);
+
+--
+-- Indices de la tabla `documento`
+--
+ALTER TABLE `documento`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`),
+  ADD KEY `reunion` (`reunion`),
+  ADD KEY `tipo` (`tipo`);
+
+--
+-- Indices de la tabla `empleado`
+--
+ALTER TABLE `empleado`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `prog_estudios` (`prog_estudios`);
+
+--
+-- Indices de la tabla `empresa`
+--
+ALTER TABLE `empresa`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `estado_convenio`
+--
+ALTER TABLE `estado_convenio`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `estado_renovacion`
+--
+ALTER TABLE `estado_renovacion`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `estudiante`
+--
+ALTER TABLE `estudiante`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ubdistrito` (`ubdistrito`);
+
+--
+-- Indices de la tabla `evaluaciones`
+--
+ALTER TABLE `evaluaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `practicas` (`practicas`);
+
+--
+-- Indices de la tabla `evidencias`
+--
+ALTER TABLE `evidencias`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `practicas` (`practicas`);
+
+--
+-- Indices de la tabla `firma`
+--
+ALTER TABLE `firma`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `documento` (`documento`),
+  ADD KEY `representante` (`representante`);
+
+--
+-- Indices de la tabla `historial_descuentos`
+--
+ALTER TABLE `historial_descuentos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `beneficiario_id` (`beneficiario_id`),
+  ADD KEY `aplicado_por` (`aplicado_por`);
+
+--
+-- Indices de la tabla `historial_laboral`
+--
+ALTER TABLE `historial_laboral`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `situacion` (`situacion`);
+
+--
+-- Indices de la tabla `historial_solicitudes`
+--
+ALTER TABLE `historial_solicitudes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `solicitud_id` (`solicitud_id`),
+  ADD KEY `empleado` (`empleado`);
+
+--
+-- Indices de la tabla `inscripcion`
+--
+ALTER TABLE `inscripcion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `asistencia_cap` (`asistencia_cap`),
+  ADD KEY `curso` (`curso`);
+
+--
+-- Indices de la tabla `instituto`
+--
+ALTER TABLE `instituto`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `invitado_reunion`
+--
+ALTER TABLE `invitado_reunion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `reunion` (`reunion`);
+
+--
+-- Indices de la tabla `matricula`
+--
+ALTER TABLE `matricula`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `prog_estudios` (`prog_estudios`);
+
+--
+-- Indices de la tabla `medio_consecucion`
+--
+ALTER TABLE `medio_consecucion`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `nivel_alerta`
+--
+ALTER TABLE `nivel_alerta`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `notificacion`
+--
+ALTER TABLE `notificacion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`),
+  ADD KEY `comunicacion` (`comunicacion`);
+
+--
+-- Indices de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `solicitudes` (`solicitudes`),
+  ADD KEY `tipo_pago` (`tipo_pago`),
+  ADD KEY `registrado_por` (`registrado_por`);
+
+--
+-- Indices de la tabla `pago_cap`
+--
+ALTER TABLE `pago_cap`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `inscripcion` (`inscripcion`);
+
+--
+-- Indices de la tabla `participante_reunion`
+--
+ALTER TABLE `participante_reunion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `reunion` (`reunion`);
+
+--
+-- Indices de la tabla `practicas`
+--
+ALTER TABLE `practicas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `empleado` (`empleado`),
+  ADD KEY `empresa` (`empresa`);
+
+--
+-- Indices de la tabla `prog_estudios`
+--
+ALTER TABLE `prog_estudios`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `recordatorio`
+--
+ALTER TABLE `recordatorio`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notificacion` (`notificacion`),
+  ADD KEY `tipo` (`tipo`);
+
+--
+-- Indices de la tabla `renovacion`
+--
+ALTER TABLE `renovacion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`),
+  ADD KEY `tipo` (`tipo`),
+  ADD KEY `estado` (`estado`);
+
+--
+-- Indices de la tabla `representante`
+--
+ALTER TABLE `representante`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `instituto` (`instituto`),
+  ADD KEY `empresa` (`empresa`);
+
+--
+-- Indices de la tabla `resoluciones`
+--
+ALTER TABLE `resoluciones`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `numero_resolucion` (`numero_resolucion`),
+  ADD KEY `creado_por` (`creado_por`);
+
+--
+-- Indices de la tabla `reunion`
+--
+ALTER TABLE `reunion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `convenio` (`convenio`);
+
+--
+-- Indices de la tabla `sector`
+--
+ALTER TABLE `sector`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `seguimiento`
+--
+ALTER TABLE `seguimiento`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `tipo` (`tipo`);
+
+--
+-- Indices de la tabla `situacion_laboral`
+--
+ALTER TABLE `situacion_laboral`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `empresa` (`empresa`),
+  ADD KEY `condicion_laboral` (`condicion_laboral`);
+
+--
+-- Indices de la tabla `situacion_medio`
+--
+ALTER TABLE `situacion_medio`
+  ADD PRIMARY KEY (`situacion`,`medio`),
+  ADD KEY `medio` (`medio`);
+
+--
+-- Indices de la tabla `solicitudes`
+--
+ALTER TABLE `solicitudes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `estudiante` (`estudiante`),
+  ADD KEY `resoluciones` (`resoluciones`),
+  ADD KEY `empleado` (`empleado`);
+
+--
+-- Indices de la tabla `tipo_convenio`
+--
+ALTER TABLE `tipo_convenio`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `tipo_curso`
+--
+ALTER TABLE `tipo_curso`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `tipo_documento`
+--
+ALTER TABLE `tipo_documento`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `tipo_pago`
+--
+ALTER TABLE `tipo_pago`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nombre` (`nombre`);
+
+--
+-- Indices de la tabla `tipo_recordatorio`
+--
+ALTER TABLE `tipo_recordatorio`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `tipo_renovacion`
+--
+ALTER TABLE `tipo_renovacion`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `tipo_seguimiento`
+--
+ALTER TABLE `tipo_seguimiento`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `ubdepartamento`
+--
+ALTER TABLE `ubdepartamento`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `ubdistrito`
+--
+ALTER TABLE `ubdistrito`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ubprovincia` (`ubprovincia`);
+
+--
+-- Indices de la tabla `ubprovincia`
+--
+ALTER TABLE `ubprovincia`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ubdepartamento` (`ubdepartamento`);
+
+--
+-- Indices de la tabla `unidades_didacticas`
+--
+ALTER TABLE `unidades_didacticas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `alerta_ia`
+--
+ALTER TABLE `alerta_ia`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `asistencias`
+--
+ALTER TABLE `asistencias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `asistencia_cap`
+--
+ALTER TABLE `asistencia_cap`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `auditoria`
+--
+ALTER TABLE `auditoria`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `auditoria_cap`
+--
+ALTER TABLE `auditoria_cap`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `beneficiarios`
+--
+ALTER TABLE `beneficiarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `cache_sunat`
+--
+ALTER TABLE `cache_sunat`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `comunicacion`
+--
+ALTER TABLE `comunicacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `condicion_academica`
+--
+ALTER TABLE `condicion_academica`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `condicion_laboral`
+--
+ALTER TABLE `condicion_laboral`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `convenio`
+--
+ALTER TABLE `convenio`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `curso`
+--
+ALTER TABLE `curso`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `documento`
+--
+ALTER TABLE `documento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `empleado`
+--
+ALTER TABLE `empleado`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+
+--
+-- AUTO_INCREMENT de la tabla `empresa`
+--
+ALTER TABLE `empresa`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `estado_convenio`
+--
+ALTER TABLE `estado_convenio`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `estado_renovacion`
+--
+ALTER TABLE `estado_renovacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `estudiante`
+--
+ALTER TABLE `estudiante`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1253;
+
+--
+-- AUTO_INCREMENT de la tabla `evaluaciones`
+--
+ALTER TABLE `evaluaciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `evidencias`
+--
+ALTER TABLE `evidencias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `firma`
+--
+ALTER TABLE `firma`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `historial_descuentos`
+--
+ALTER TABLE `historial_descuentos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `historial_laboral`
+--
+ALTER TABLE `historial_laboral`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `historial_solicitudes`
+--
+ALTER TABLE `historial_solicitudes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `inscripcion`
+--
+ALTER TABLE `inscripcion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `instituto`
+--
+ALTER TABLE `instituto`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `invitado_reunion`
+--
+ALTER TABLE `invitado_reunion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `matricula`
+--
+ALTER TABLE `matricula`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1253;
+
+--
+-- AUTO_INCREMENT de la tabla `medio_consecucion`
+--
+ALTER TABLE `medio_consecucion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `nivel_alerta`
+--
+ALTER TABLE `nivel_alerta`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `notificacion`
+--
+ALTER TABLE `notificacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pago_cap`
+--
+ALTER TABLE `pago_cap`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `participante_reunion`
+--
+ALTER TABLE `participante_reunion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `practicas`
+--
+ALTER TABLE `practicas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `prog_estudios`
+--
+ALTER TABLE `prog_estudios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de la tabla `recordatorio`
+--
+ALTER TABLE `recordatorio`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `renovacion`
+--
+ALTER TABLE `renovacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `representante`
+--
+ALTER TABLE `representante`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `resoluciones`
+--
+ALTER TABLE `resoluciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `reunion`
+--
+ALTER TABLE `reunion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `sector`
+--
+ALTER TABLE `sector`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `seguimiento`
+--
+ALTER TABLE `seguimiento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `situacion_laboral`
+--
+ALTER TABLE `situacion_laboral`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `solicitudes`
+--
+ALTER TABLE `solicitudes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_convenio`
+--
+ALTER TABLE `tipo_convenio`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_curso`
+--
+ALTER TABLE `tipo_curso`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_documento`
+--
+ALTER TABLE `tipo_documento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_pago`
+--
+ALTER TABLE `tipo_pago`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_recordatorio`
+--
+ALTER TABLE `tipo_recordatorio`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_renovacion`
+--
+ALTER TABLE `tipo_renovacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tipo_seguimiento`
+--
+ALTER TABLE `tipo_seguimiento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `ubdepartamento`
+--
+ALTER TABLE `ubdepartamento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT de la tabla `ubdistrito`
+--
+ALTER TABLE `ubdistrito`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1832;
+
+--
+-- AUTO_INCREMENT de la tabla `ubprovincia`
+--
+ALTER TABLE `ubprovincia`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
+
+--
+-- AUTO_INCREMENT de la tabla `unidades_didacticas`
+--
+ALTER TABLE `unidades_didacticas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `alerta_ia`
+--
+ALTER TABLE `alerta_ia`
+  ADD CONSTRAINT `alerta_ia_ibfk_1` FOREIGN KEY (`documento`) REFERENCES `documento` (`id`),
+  ADD CONSTRAINT `alerta_ia_ibfk_2` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`),
+  ADD CONSTRAINT `alerta_ia_ibfk_3` FOREIGN KEY (`nivel`) REFERENCES `nivel_alerta` (`id`);
+
+--
+-- Filtros para la tabla `asistencias`
+--
+ALTER TABLE `asistencias`
+  ADD CONSTRAINT `asistencias_ibfk_1` FOREIGN KEY (`practicas`) REFERENCES `practicas` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `auditoria`
+--
+ALTER TABLE `auditoria`
+  ADD CONSTRAINT `auditoria_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`);
+
+--
+-- Filtros para la tabla `auditoria_cap`
+--
+ALTER TABLE `auditoria_cap`
+  ADD CONSTRAINT `auditoria_cap_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `beneficiarios`
+--
+ALTER TABLE `beneficiarios`
+  ADD CONSTRAINT `beneficiarios_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `beneficiarios_ibfk_2` FOREIGN KEY (`resoluciones`) REFERENCES `resoluciones` (`id`),
+  ADD CONSTRAINT `beneficiarios_ibfk_3` FOREIGN KEY (`registrado_por`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `comunicacion`
+--
+ALTER TABLE `comunicacion`
+  ADD CONSTRAINT `comunicacion_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`);
+
+--
+-- Filtros para la tabla `convenio`
+--
+ALTER TABLE `convenio`
+  ADD CONSTRAINT `convenio_ibfk_1` FOREIGN KEY (`instituto`) REFERENCES `instituto` (`id`),
+  ADD CONSTRAINT `convenio_ibfk_2` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`id`),
+  ADD CONSTRAINT `convenio_ibfk_3` FOREIGN KEY (`tipo`) REFERENCES `tipo_convenio` (`id`),
+  ADD CONSTRAINT `convenio_ibfk_4` FOREIGN KEY (`estado`) REFERENCES `estado_convenio` (`id`);
+
+--
+-- Filtros para la tabla `curso`
+--
+ALTER TABLE `curso`
+  ADD CONSTRAINT `curso_ibfk_1` FOREIGN KEY (`tipo_curso`) REFERENCES `tipo_curso` (`id`),
+  ADD CONSTRAINT `curso_ibfk_2` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `documento`
+--
+ALTER TABLE `documento`
+  ADD CONSTRAINT `documento_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`),
+  ADD CONSTRAINT `documento_ibfk_2` FOREIGN KEY (`reunion`) REFERENCES `reunion` (`id`),
+  ADD CONSTRAINT `documento_ibfk_3` FOREIGN KEY (`tipo`) REFERENCES `tipo_documento` (`id`);
+
+--
+-- Filtros para la tabla `empleado`
+--
+ALTER TABLE `empleado`
+  ADD CONSTRAINT `empleado_ibfk_1` FOREIGN KEY (`prog_estudios`) REFERENCES `prog_estudios` (`id`);
+
+--
+-- Filtros para la tabla `estudiante`
+--
+ALTER TABLE `estudiante`
+  ADD CONSTRAINT `estudiante_ibfk_1` FOREIGN KEY (`ubdistrito`) REFERENCES `ubdistrito` (`id`);
+
+--
+-- Filtros para la tabla `evaluaciones`
+--
+ALTER TABLE `evaluaciones`
+  ADD CONSTRAINT `evaluaciones_ibfk_1` FOREIGN KEY (`practicas`) REFERENCES `practicas` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `evidencias`
+--
+ALTER TABLE `evidencias`
+  ADD CONSTRAINT `evidencias_ibfk_1` FOREIGN KEY (`practicas`) REFERENCES `practicas` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `firma`
+--
+ALTER TABLE `firma`
+  ADD CONSTRAINT `firma_ibfk_1` FOREIGN KEY (`documento`) REFERENCES `documento` (`id`),
+  ADD CONSTRAINT `firma_ibfk_2` FOREIGN KEY (`representante`) REFERENCES `representante` (`id`);
+
+--
+-- Filtros para la tabla `historial_descuentos`
+--
+ALTER TABLE `historial_descuentos`
+  ADD CONSTRAINT `historial_descuentos_ibfk_1` FOREIGN KEY (`beneficiario_id`) REFERENCES `beneficiarios` (`id`),
+  ADD CONSTRAINT `historial_descuentos_ibfk_2` FOREIGN KEY (`aplicado_por`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `historial_laboral`
+--
+ALTER TABLE `historial_laboral`
+  ADD CONSTRAINT `historial_laboral_ibfk_1` FOREIGN KEY (`situacion`) REFERENCES `situacion_laboral` (`id`);
+
+--
+-- Filtros para la tabla `historial_solicitudes`
+--
+ALTER TABLE `historial_solicitudes`
+  ADD CONSTRAINT `historial_solicitudes_ibfk_1` FOREIGN KEY (`solicitud_id`) REFERENCES `solicitudes` (`id`),
+  ADD CONSTRAINT `historial_solicitudes_ibfk_2` FOREIGN KEY (`empleado`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `inscripcion`
+--
+ALTER TABLE `inscripcion`
+  ADD CONSTRAINT `inscripcion_ibfk_1` FOREIGN KEY (`asistencia_cap`) REFERENCES `asistencia_cap` (`id`),
+  ADD CONSTRAINT `inscripcion_ibfk_2` FOREIGN KEY (`curso`) REFERENCES `curso` (`id`);
+
+--
+-- Filtros para la tabla `invitado_reunion`
+--
+ALTER TABLE `invitado_reunion`
+  ADD CONSTRAINT `invitado_reunion_ibfk_1` FOREIGN KEY (`reunion`) REFERENCES `reunion` (`id`);
+
+--
+-- Filtros para la tabla `matricula`
+--
+ALTER TABLE `matricula`
+  ADD CONSTRAINT `matricula_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `matricula_ibfk_2` FOREIGN KEY (`prog_estudios`) REFERENCES `prog_estudios` (`id`);
+
+--
+-- Filtros para la tabla `notificacion`
+--
+ALTER TABLE `notificacion`
+  ADD CONSTRAINT `notificacion_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`),
+  ADD CONSTRAINT `notificacion_ibfk_2` FOREIGN KEY (`comunicacion`) REFERENCES `comunicacion` (`id`);
+
+--
+-- Filtros para la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `pagos_ibfk_2` FOREIGN KEY (`solicitudes`) REFERENCES `solicitudes` (`id`),
+  ADD CONSTRAINT `pagos_ibfk_3` FOREIGN KEY (`tipo_pago`) REFERENCES `tipo_pago` (`id`),
+  ADD CONSTRAINT `pagos_ibfk_4` FOREIGN KEY (`registrado_por`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `pago_cap`
+--
+ALTER TABLE `pago_cap`
+  ADD CONSTRAINT `pago_cap_ibfk_1` FOREIGN KEY (`inscripcion`) REFERENCES `inscripcion` (`id`);
+
+--
+-- Filtros para la tabla `participante_reunion`
+--
+ALTER TABLE `participante_reunion`
+  ADD CONSTRAINT `participante_reunion_ibfk_1` FOREIGN KEY (`reunion`) REFERENCES `reunion` (`id`);
+
+--
+-- Filtros para la tabla `practicas`
+--
+ALTER TABLE `practicas`
+  ADD CONSTRAINT `practicas_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `practicas_ibfk_2` FOREIGN KEY (`empleado`) REFERENCES `empleado` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `practicas_ibfk_3` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`id`) ON DELETE SET NULL;
+
+--
+-- Filtros para la tabla `recordatorio`
+--
+ALTER TABLE `recordatorio`
+  ADD CONSTRAINT `recordatorio_ibfk_1` FOREIGN KEY (`notificacion`) REFERENCES `notificacion` (`id`),
+  ADD CONSTRAINT `recordatorio_ibfk_2` FOREIGN KEY (`tipo`) REFERENCES `tipo_recordatorio` (`id`);
+
+--
+-- Filtros para la tabla `renovacion`
+--
+ALTER TABLE `renovacion`
+  ADD CONSTRAINT `renovacion_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`),
+  ADD CONSTRAINT `renovacion_ibfk_2` FOREIGN KEY (`tipo`) REFERENCES `tipo_renovacion` (`id`),
+  ADD CONSTRAINT `renovacion_ibfk_3` FOREIGN KEY (`estado`) REFERENCES `estado_renovacion` (`id`);
+
+--
+-- Filtros para la tabla `representante`
+--
+ALTER TABLE `representante`
+  ADD CONSTRAINT `representante_ibfk_1` FOREIGN KEY (`instituto`) REFERENCES `instituto` (`id`),
+  ADD CONSTRAINT `representante_ibfk_2` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`id`);
+
+--
+-- Filtros para la tabla `resoluciones`
+--
+ALTER TABLE `resoluciones`
+  ADD CONSTRAINT `resoluciones_ibfk_1` FOREIGN KEY (`creado_por`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `reunion`
+--
+ALTER TABLE `reunion`
+  ADD CONSTRAINT `reunion_ibfk_1` FOREIGN KEY (`convenio`) REFERENCES `convenio` (`id`);
+
+--
+-- Filtros para la tabla `seguimiento`
+--
+ALTER TABLE `seguimiento`
+  ADD CONSTRAINT `seguimiento_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `seguimiento_ibfk_2` FOREIGN KEY (`tipo`) REFERENCES `tipo_seguimiento` (`id`);
+
+--
+-- Filtros para la tabla `situacion_laboral`
+--
+ALTER TABLE `situacion_laboral`
+  ADD CONSTRAINT `situacion_laboral_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `situacion_laboral_ibfk_2` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`id`),
+  ADD CONSTRAINT `situacion_laboral_ibfk_3` FOREIGN KEY (`condicion_laboral`) REFERENCES `condicion_laboral` (`id`);
+
+--
+-- Filtros para la tabla `situacion_medio`
+--
+ALTER TABLE `situacion_medio`
+  ADD CONSTRAINT `situacion_medio_ibfk_1` FOREIGN KEY (`situacion`) REFERENCES `situacion_laboral` (`id`),
+  ADD CONSTRAINT `situacion_medio_ibfk_2` FOREIGN KEY (`medio`) REFERENCES `medio_consecucion` (`id`);
+
+--
+-- Filtros para la tabla `solicitudes`
+--
+ALTER TABLE `solicitudes`
+  ADD CONSTRAINT `solicitudes_ibfk_1` FOREIGN KEY (`estudiante`) REFERENCES `estudiante` (`id`),
+  ADD CONSTRAINT `solicitudes_ibfk_2` FOREIGN KEY (`resoluciones`) REFERENCES `resoluciones` (`id`),
+  ADD CONSTRAINT `solicitudes_ibfk_3` FOREIGN KEY (`empleado`) REFERENCES `empleado` (`id`);
+
+--
+-- Filtros para la tabla `ubdistrito`
+--
+ALTER TABLE `ubdistrito`
+  ADD CONSTRAINT `ubdistrito_ibfk_1` FOREIGN KEY (`ubprovincia`) REFERENCES `ubprovincia` (`id`);
+
+--
+-- Filtros para la tabla `ubprovincia`
+--
+ALTER TABLE `ubprovincia`
+  ADD CONSTRAINT `ubprovincia_ibfk_1` FOREIGN KEY (`ubdepartamento`) REFERENCES `ubdepartamento` (`id`);
+COMMIT;
