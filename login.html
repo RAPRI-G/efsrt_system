@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Experiencias Formativas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e40af;
+            --accent: #dc2626;
+            --accent-light: #ef4444;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --background: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Curved background shapes */
+        .curve-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 30%;
+        }
+        
+        .curve-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(30, 58, 138, 0.1) 100%);
+            border-top-left-radius: 50% 30%;
+            border-top-right-radius: 50% 20%;
+        }
+        
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .circle-1 {
+            width: 80px;
+            height: 80px;
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+            background: rgba(30, 58, 138, 0.1);
+            border: 2px solid rgba(30, 58, 138, 0.3);
+        }
+        
+        .circle-2 {
+            width: 120px;
+            height: 120px;
+            bottom: 20%;
+            right: 8%;
+            animation-delay: 2s;
+            background: rgba(220, 38, 38, 0.1);
+            border: 2px solid rgba(220, 38, 38, 0.3);
+        }
+        
+        .circle-3 {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            left: 5%;
+            animation-delay: 4s;
+            background: rgba(30, 58, 138, 0.1);
+            border: 2px solid rgba(30, 58, 138, 0.3);
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+        
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(30, 58, 138, 0.3);
+            overflow: hidden;
+            z-index: 10;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+        }
+        
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+            max-width: 400px;
+        }
+        
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            animation: bounce 3s ease-in-out infinite;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-title {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-subtitle {
+            font-size: 22px;
+            font-weight: 400;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .feature-icon {
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .welcome-decoration {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 100%;
+        }
+        
+        .welcome-decoration-2 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top-right-radius: 100%;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .login-section {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .section-icon {
+            font-size: 32px;
+            color: var(--accent-light);
+        }
+        
+        .section-subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px 45px 16px 45px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: rgba(30, 41, 59, 0.8);
+            color: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #64748b;
+        }
+        
+        .input-left-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-light);
+            font-size: 18px;
+        }
+        
+        /* Roles Selector - Ahora debajo de contraseña */
+        .roles-group {
+            margin-bottom: 25px;
+        }
+        
+        .roles-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+        
+        .roles-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .role-option:hover {
+            border-color: var(--accent-light);
+            background: rgba(30, 41, 59, 1);
+        }
+        
+        .role-option.selected {
+            border-color: var(--accent);
+            background: rgba(220, 38, 38, 0.1);
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+        }
+        
+        .role-icon {
+            font-size: 24px;
+            color: var(--accent-light);
+            margin-bottom: 8px;
+        }
+        
+        .role-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #475569;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            background: rgba(30, 41, 59, 0.8);
+        }
+        
+        .checkbox-input.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .checkbox-input.checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+        
+        .btn-signin {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-signin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(220, 38, 38, 0.4);
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+        }
+        
+        .btn-signin:active {
+            transform: translateY(0);
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .input-icon:hover {
+            color: var(--accent-light);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+
+        /* Footer institucional */
+        .institutional-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .institutional-name {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .institutional-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+                min-height: auto;
+            }
+            
+            .welcome-section {
+                padding: 40px 30px;
+            }
+            
+            .welcome-title {
+                font-size: 36px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 18px;
+            }
+            
+            .login-section {
+                padding: 40px 30px;
+            }
+            
+            .section-title {
+                font-size: 24px;
+            }
+            
+            .roles-container {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background curves -->
+    <div class="curve-top"></div>
+    <div class="curve-bottom"></div>
+    
+    <!-- Floating circles -->
+    <div class="floating-circle circle-1"></div>
+    <div class="floating-circle circle-2"></div>
+    <div class="floating-circle circle-3"></div>
+    
+    <div class="login-wrapper">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-decoration"></div>
+            <div class="welcome-decoration-2"></div>
+            <div class="welcome-content">
+                <div class="welcome-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1 class="welcome-title">Bienvenido</h1>
+                <p class="welcome-subtitle">Tu futuro profesional comienza aquí</p>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <span>Acceso seguro y protegido</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <span>Experiencias formativas únicas</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span>Comunidad educativa activa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Login Section -->
+        <div class="login-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-user-lock section-icon"></i>
+                    ACCESO AL SISTEMA
+                </h2>
+                <p class="section-subtitle">Ingresa tus credenciales y selecciona tu rol</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">
+                        Usuario
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-left-icon"></i>
+                        <input type="text" id="username" class="form-input" placeholder="Ingresa tu usuario" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        Contraseña
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-left-icon"></i>
+                        <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
+                        <div class="input-icon" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selector de Roles - Ahora debajo de contraseña -->
+                <div class="roles-group">
+                    <label class="roles-label">Selecciona tu rol</label>
+                    <div class="roles-container">
+                        <div class="role-option" data-role="administrador">
+                            <i class="fas fa-crown role-icon"></i>
+                            <span class="role-name">Administrador</span>
+                        </div>
+                        <div class="role-option" data-role="docente">
+                            <i class="fas fa-chalkboard-teacher role-icon"></i>
+                            <span class="role-name">Docente</span>
+                        </div>
+                        <div class="role-option" data-role="estudiante">
+                            <i class="fas fa-user-graduate role-icon"></i>
+                            <span class="role-name">Estudiante</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-input" id="rememberCheckbox"></div>
+                    <label class="checkbox-label" for="rememberCheckbox">
+                        Recordar mis datos
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-signin pulse">
+                    <i class="fas fa-sign-in-alt"></i>
+                    INICIAR SESIÓN
+                </button>
+                
+                <!-- Footer institucional -->
+                <div class="institutional-footer">
+                    <div class="institutional-name">IESTP Andrés Avelino Cáceres</div>
+                    <div class="institutional-subtitle">Sistema de Experiencias Formativas</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Selección de roles
+        const roleOptions = document.querySelectorAll('.role-option');
+        let selectedRole = '';
+        
+        roleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remover selección anterior
+                roleOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Agregar selección actual
+                this.classList.add('selected');
+                selectedRole = this.getAttribute('data-role');
+                
+                console.log('Rol seleccionado:', selectedRole);
+            });
+        });
+        
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        // Remember me checkbox
+        document.getElementById('rememberCheckbox').addEventListener('click', function() {
+            this.classList.toggle('checked');
+        });
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Validación de rol
+            if (!selectedRole) {
+                alert('Por favor, selecciona un rol');
+                return;
+            }
+            
+            // Simple validation
+            if (!username || !password) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            // Simulate login process
+            const loginBtn = document.querySelector('.btn-signin');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> INICIANDO SESIÓN...';
+            loginBtn.disabled = true;
+            
+            setTimeout(() => {
+                alert(`Inicio de sesión exitoso para: ${username}\nRol: ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`);
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
