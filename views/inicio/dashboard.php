@@ -228,5 +228,21 @@
         </a>
     </div>
 </div>
+<script>
+// 🔐 BLOQUEO COMPLETO DEL BOTÓN ATRÁS EN DASHBOARD
+history.pushState(null, null, location.href);
+window.onpopstate = function(event) {
+    history.go(1);
+    // Opcional: Redirigir al dashboard si intenta volver
+    window.location.href = 'index.php?c=Inicio&a=index';
+};
+
+// Prevenir que se cargue desde cache
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+};
+</script>
 
 <?php require_once 'views/layouts/footer.php'; ?>

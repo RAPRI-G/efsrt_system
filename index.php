@@ -1,7 +1,13 @@
 <?php
-// index.php - Usar SessionHelper
+// index.php - Validación de tokens en cada request
 require_once 'helpers/SessionHelper.php';
 SessionHelper::init();
+
+// 🔐 HEADERS GLOBALES PARA NO CACHEAR - BLOQUEA BOTÓN ATRÁS
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 
 // Cargar configuración
 require_once 'config/database.php';
@@ -28,6 +34,19 @@ $publicControllers = ['Login'];
 // Obtener controlador y acción
 $controller = $_GET['c'] ?? 'Inicio';
 $action = $_GET['a'] ?? 'index';
+
+// 🔐 VALIDAR TOKEN DE USUARIO PARA RUTAS PROTEGIDAS
+if (!in_array($controller, $publicControllers) && SessionHelper::isLoggedIn()) {
+    $usuario = SessionHelper::getUser();
+    $usuarioModel = new UsuarioModel();
+    
+    if (!$usuarioModel->verificarToken($usuario['id'], $usuario['token'])) {
+        // Token inválido - forzar logout
+        SessionHelper::destroy();
+        header("Location: index.php?c=Login&a=index&error=token_invalido");
+        exit;
+    }
+}
 
 // Verificar autenticación (excepto para Login)
 if (!in_array($controller, $publicControllers) && !SessionHelper::isLoggedIn()) {

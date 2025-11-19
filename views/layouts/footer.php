@@ -22,67 +22,9 @@
         </div>
     </div>
 
-    <script>
-        // Toggle sidebar
-        document.getElementById('toggleSidebar').addEventListener('click', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            sidebar.classList.toggle('collapsed');
-            
-            if (sidebar.classList.contains('collapsed')) {
-                mainContent.classList.remove('ml-64');
-                mainContent.classList.add('ml-20');
-            } else {
-                mainContent.classList.remove('ml-20');
-                mainContent.classList.add('ml-64');
-            }
-        });
-
-        // Set active menu item basado en la URL actual
-        function setActiveMenu() {
-            const currentPage = window.location.href;
-            const menuItems = document.querySelectorAll('.menu-item');
-            
-            menuItems.forEach(item => {
-                const href = item.getAttribute('href');
-                if (currentPage.includes(href.split('?')[1] || href)) {
-                    item.classList.add('active-menu');
-                } else {
-                    item.classList.remove('active-menu');
-                }
-            });
-        }
-
-        // Logout functionality
-        const logoutModal = document.getElementById('logoutModal');
-        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
-        const cancelLogout = document.getElementById('cancelLogout');
-
-        function openLogoutModal() {
-            logoutModal.classList.remove('hidden');
-            logoutModal.classList.add('flex');
-        }
-
-        function closeLogoutModal() {
-            logoutModal.classList.remove('flex');
-            logoutModal.classList.add('hidden');
-        }
-
-        logoutBtnSidebar.addEventListener('click', openLogoutModal);
-        cancelLogout.addEventListener('click', closeLogoutModal);
-
-        // Cerrar modal al hacer clic fuera
-        logoutModal.addEventListener('click', function(e) {
-            if (e.target === logoutModal) {
-                closeLogoutModal();
-            }
-        });
-
-        // Inicializar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            setActiveMenu();
-        });
-    </script>
+    <!-- Local JavaScript -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/search.js"></script>
 </body>
+
 </html>

@@ -9,7 +9,7 @@ class EstudianteModel extends BaseModel {
                 FROM estudiante e
                 LEFT JOIN matricula m ON e.id = m.estudiante
                 LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-                WHERE e.estado = 1";
+                WHERE e.estado IS NULL OR e.estado = 1";  // ← CORREGIDO
         
         $stmt = $this->executeQuery($sql);
         return $stmt->fetchAll();
@@ -27,15 +27,16 @@ class EstudianteModel extends BaseModel {
     }
     
     public function buscarEstudiantes($termino) {
-        $sql = "SELECT e.*, p.nom_progest 
-                FROM estudiante e
-                LEFT JOIN matricula m ON e.id = m.estudiante
-                LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-                WHERE e.dni_est LIKE :termino 
-                   OR CONCAT(e.ap_est, ' ', e.am_est, ' ', e.nom_est) LIKE :termino
+        // 🔥 CORREGIDO: Manejar estado NULL
+        $sql = "SELECT id, dni_est, ap_est, am_est, nom_est, cel_est, mailp_est
+                FROM estudiante 
+                WHERE CONCAT(dni_est, ' ', ap_est, ' ', am_est, ' ', nom_est) LIKE :termino
+                AND (estado IS NULL OR estado = 1)  -- ← AQUÍ ESTÁ LA CORRECCIÓN
+                ORDER BY ap_est, am_est, nom_est
                 LIMIT 10";
         
-        $stmt = $this->executeQuery($sql, [':termino' => "%$termino%"]);
+        $terminoBusqueda = '%' . $this->sanitize($termino) . '%';
+        $stmt = $this->executeQuery($sql, [':termino' => $terminoBusqueda]);
         return $stmt->fetchAll();
     }
 }

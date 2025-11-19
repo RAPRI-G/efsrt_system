@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.sidebar {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(180deg, #0A1729 0%, #0C1F36 50%, #0E2542 100%);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar.collapsed .menu-text,
+.sidebar.collapsed .submenu-text,
+.sidebar.collapsed .user-info {
+    display: none;
+}
+
+.main-content {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.active-menu {
+    background: linear-gradient(90deg, rgba(13, 202, 240, 0.2) 0%, rgba(13, 202, 240, 0.1) 100%);
+    color: white;
+    border-left: 4px solid #0dcaf0;
+}
+
+.header-gradient {
+    background: linear-gradient(135deg, #0A1729 0%, #0C1F36 50%, #0E2542 100%);
+    box-shadow: 0 4px 20px rgba(12, 31, 54, 0.15);
+    border-bottom: 3px solid #0dcaf0;
+}
+
+.card-gradient-1 {
+    background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+    box-shadow: 0 8px 25px rgba(12, 31, 54, 0.2);
+}
+
+.card-gradient-2 {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    box-shadow: 0 8px 25px rgba(13, 202, 240, 0.2);
+}
+
+.card-gradient-3 {
+    background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+    box-shadow: 0 8px 25px rgba(25, 135, 84, 0.2);
+}
+
+.card-gradient-4 {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.2);
+}
+
+.search-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 4px 15px rgba(13, 202, 240, 0.2);
+}
+
+.user-avatar {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+    box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+}
+
+.user-icon {
+    background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+    box-shadow: 0 4px 15px rgba(12, 31, 54, 0.3);
+}
+
+.menu-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #0dcaf0;
+    transform: translateX(4px);
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.notification-dot {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logout-btn {
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(220, 38, 38, 0.3);
+    transform: translateX(5px);
+}
+
+.header-icon {
+    transition: all 0.3s ease;
+}
+
+.header-icon:hover {
+    transform: scale(1.1);
+    color: #f8f9fa;
+}
+
+.nav-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.institute-name {
+    background: linear-gradient(90deg, #0dcaf0, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.logout-section {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.filter-btn {
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background-color: #0C1F36;
+    color: white;
+}
+
+/* Ocultar scrollbar pero mantener funcionalidad */
+.sidebar-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ajustar altura del sidebar para que no haga scroll */
+.sidebar-adjust {
+    height: calc(100vh - 4rem);
+}
+
+/* Buscador en header con posición óptima */
+.header-search {
+    min-width: 280px;
+    transition: all 0.3s ease;
+}
+
+.header-search:focus-within {
+    min-width: 320px;
+}
+
+/* Estilos para el buscador */
+#resultadosBusqueda {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+#resultadosBusqueda::-webkit-scrollbar {
+    width: 6px;
+}
+
+#resultadosBusqueda::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 0 0 8px 0;
+}
+
+#resultadosBusqueda::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+#resultadosBusqueda::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}

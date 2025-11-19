@@ -9,12 +9,21 @@ class InicioController {
     private $empresaModel;
     
     public function __construct() {
+        // 🔐 HEADERS PARA NO CACHEAR EN TODAS LAS VISTAS
+        $this->setNoCacheHeaders();
         $this->practicaModel = new PracticaModel();
         $this->estudianteModel = new EstudianteModel();
         $this->empresaModel = new EmpresaModel();
     }
     
     public function index() {
+        // 🔐 SI NO ESTÁ LOGUEADO, REDIRIGIR AL LOGIN
+        if (!SessionHelper::isLoggedIn()) {
+            header("Location: index.php?c=Login&a=index");
+            exit;
+        }
+        // 🔐 HEADERS ADICIONALES POR SI ACASO
+        $this->setNoCacheHeaders();
         // Obtener datos para el dashboard
         $practicas = $this->practicaModel->obtenerPracticas();
         $estudiantes = $this->estudianteModel->obtenerEstudiantes();
@@ -31,6 +40,14 @@ class InicioController {
         ];
         
         require_once 'views/inicio/dashboard.php';
+    }
+
+     // 🔐 MÉTODO PARA HEADERS ANTI-CACHE
+    private function setNoCacheHeaders() {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
     }
 }
 ?>
