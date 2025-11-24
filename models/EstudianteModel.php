@@ -16,7 +16,7 @@ class EstudianteModel extends BaseModel {
     }
     
     public function contarEstudiantesActivos() {
-        $sql = "SELECT COUNT(*) as total FROM estudiante WHERE estado IS NULL OR estado = 1";
+        $sql = "SELECT COUNT(*) as total FROM estudiante WHERE estado = 1"; // estado IS NULL OR estado = 1 -> contar todos los activos y nulos
         $stmt = $this->executeQuery($sql);
         $result = $stmt->fetch();
         return $result['total'] ?? 0;

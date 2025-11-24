@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-11-2025 a las 08:13:18
+-- Tiempo de generación: 24-11-2025 a las 04:33:04
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -502,6 +502,17 @@ CREATE TABLE `empresa` (
   `fecha_actualizacion` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `empresa`
+--
+
+INSERT INTO `empresa` (`id`, `ruc`, `razon_social`, `nombre_comercial`, `direccion_fiscal`, `telefono`, `email`, `sector`, `validado`, `registro_manual`, `estado`, `condicion_sunat`, `ubigeo`, `departamento`, `provincia`, `distrito`, `fecha_creacion`, `fecha_actualizacion`) VALUES
+(1, '20568733259', 'MYO LIBRA CONTRATISTAS EIRL', 'LIBRA CONTRATISTAS', 'AV. TAHUANTINSUYO N° 821 - EL TAMBO - HUANCAYO', '956260077', 'extraccionescachito@hotmail.com', 'CONSTRUCCIÓN', 1, 0, 'ACTIVO', 'HABIDO', '120125', 'JUNÍN', 'HUANCAYO', 'EL TAMBO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
+(2, '20100123456', 'TECNOLOGÍA AVANZADA SAC', 'TECNOAVANZADA', 'AV. REAL 123 - HUANCAYO', '964123456', 'info@tecnoavanzada.com', 'TECNOLOGÍA', 1, 0, 'ACTIVO', 'HABIDO', '120101', 'JUNÍN', 'HUANCAYO', 'HUANCAYO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
+(3, '20100234567', 'SOLUCIONES WEB EIRL', 'SOLWEB', 'JR. LIMA 456 - EL TAMBO', '965234567', 'contacto@solweb.com', 'DESARROLLO SOFTWARE', 1, 0, 'ACTIVO', 'HABIDO', '120125', 'JUNÍN', 'HUANCAYO', 'EL TAMBO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
+(4, '20100345678', 'INNOVACIÓN DIGITAL SAC', 'INNODIGITAL', 'AV. HUÁNCANO 789 - HUANCAYO', '966345678', 'innovacion@innodigital.com', 'TECNOLOGÍA', 1, 0, 'ACTIVO', 'HABIDO', '120101', 'JUNÍN', 'HUANCAYO', 'HUANCAYO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
+(5, '20100456789', 'SISTEMAS INTEGRALES EIRL', 'SISINTEGRAL', 'CALLE LOS ANDES 321 - CHILCA', '967456789', 'sistemas@sisintegral.com', 'INFORMÁTICA', 1, 0, 'ACTIVO', 'HABIDO', '120112', 'JUNÍN', 'HUANCAYO', 'CHILCA', '2025-11-23 21:52:39', '2025-11-23 21:52:39');
+
 -- --------------------------------------------------------
 
 --
@@ -558,11 +569,11 @@ CREATE TABLE `estudiante` (
 --
 
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
-(1, NULL, '09986759', 'VILCHEZ', 'ASTUPI?AN', 'ADOLFO', 'M', '994122181', '', '', '', '', '09986759@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(2, NULL, '10753076', 'SERRANO', 'ECHEVARRIA', 'CHRISTIAN EDUARDO', 'M', '982989635', '', '', '', '', '10753076@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(3, NULL, '19868839', 'CAPACYACHI', 'OROYA', 'JAVIER ALFONSO', 'M', '954541040', '', '', '', '', '19868839@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(4, NULL, '20053901', 'ORE', 'ROJAS', 'JORGE LUIS', 'M', '996559992', '', '', '', '', '20053901@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(5, NULL, '20066638', 'ZARATE', 'AGUILAR', 'MIGUEL ANGEL', 'M', '931744607', '', '', '', '', '20066638@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(1, NULL, '09986759', 'VILCHEZ', 'ASTUPI?AN', 'ADOLFO', 'M', '994122181', '', '', '', '', '09986759@institutocajas.edu.pe', '0000-00-00', '', 1),
+(2, NULL, '10753076', 'SERRANO', 'ECHEVARRIA', 'CHRISTIAN EDUARDO', 'M', '982989635', '', '', '', '', '10753076@institutocajas.edu.pe', '0000-00-00', '', 1),
+(3, NULL, '19868839', 'CAPACYACHI', 'OROYA', 'JAVIER ALFONSO', 'M', '954541040', '', '', '', '', '19868839@institutocajas.edu.pe', '0000-00-00', '', 1),
+(4, NULL, '20053901', 'ORE', 'ROJAS', 'JORGE LUIS', 'M', '996559992', '', '', '', '', '20053901@institutocajas.edu.pe', '0000-00-00', '', 1),
+(5, NULL, '20066638', 'ZARATE', 'AGUILAR', 'MIGUEL ANGEL', 'M', '931744607', '', '', '', '', '20066638@institutocajas.edu.pe', '0000-00-00', '', 1),
 (6, NULL, '20080751', 'CASTRO', 'PAYTAN', 'ALEXIS JOHANN', 'M', '964476156', '', '', '', '', '20080751@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (7, NULL, '20443029', 'MEZA', 'CARHUANCHO', 'JOSE DANIEL', 'M', '955831935', '', '', '', '', '20443029@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (8, NULL, '40831887', 'ALANOCA', 'ROJAS', 'JOSE LUIS', 'M', '989772866', '', '', '', '', '40831887@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1260,11 +1271,11 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (698, NULL, '72517182', 'QUISPE', 'FUERO', 'JESUS ANGEL', 'M', '952185414', '', '', '', '', '72517182@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (699, NULL, '72541102', 'HUAYNATE', 'ACHACHAU', 'JOSE LUIS', 'M', '975818374', '', '', '', '', '72541102@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (700, NULL, '72549332', 'ESPIRITU', 'ALAYO', 'ANGEL EFRAIN', 'M', '910601456', '', '', '', '', '72549332@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(701, NULL, '72551943', 'PEREZ', 'TAYPE', 'LILIANA PAMELA', 'F', '964517277', '', '', '', '', '72551943@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(702, NULL, '72571243', 'RAPRI', 'CAPCHA', 'GABRIEL FRANCIS', 'M', '958684615', '', '', '', '', '72571243@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(703, NULL, '72571245', 'RAPRI', 'CAPCHA', 'ANGHEL FRAN LEE', 'M', '937422626', '', '', '', '', '72571245@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(704, NULL, '72614777', 'PANIAGUA', 'VASQUEZ', 'XIOMARA', 'F', '916217856', '', '', '', '', '72614777@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(705, NULL, '72628543', 'AVILA', 'HUATUCO', 'ALEXIS KEVIN', 'M', '998166159', '', '', '', '', '72628543@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(701, NULL, '72551943', 'PEREZ', 'TAYPE', 'LILIANA PAMELA', 'F', '964517277', '', '', '', '', '72551943@institutocajas.edu.pe', '0000-00-00', '', 1),
+(702, NULL, '72571243', 'RAPRI', 'CAPCHA', 'GABRIEL FRANCIS', 'M', '958684615', '', '', '', '', '72571243@institutocajas.edu.pe', '0000-00-00', '', 1),
+(703, NULL, '72571245', 'RAPRI', 'CAPCHA', 'ANGHEL FRAN LEE', 'M', '937422626', '', '', '', '', '72571245@institutocajas.edu.pe', '0000-00-00', '', 1),
+(704, NULL, '72614777', 'PANIAGUA', 'VASQUEZ', 'XIOMARA', 'F', '916217856', '', '', '', '', '72614777@institutocajas.edu.pe', '0000-00-00', '', 1),
+(705, NULL, '72628543', 'AVILA', 'HUATUCO', 'ALEXIS KEVIN', 'M', '998166159', '', '', '', '', '72628543@institutocajas.edu.pe', '0000-00-00', '', 1),
 (706, NULL, '72637201', 'DE LA CRUZ', 'MEZA', 'DIANA YESENIA', 'F', '934612747', '', '', '', '', '72637201@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (707, NULL, '72637203', 'ASCONA', 'HUAMAN', 'DEREEK LEO', 'M', '950533764', '', '', '', '', '72637203@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (708, NULL, '72670254', 'SULLCA', 'VARGAS', 'DEYVI IRWING', 'M', '902221894', '', '', '', '', '72670254@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -3374,6 +3385,17 @@ CREATE TABLE `practicas` (
   `turno_efsrt` varchar(20) DEFAULT NULL,
   `estado` enum('En curso','Finalizado','Pendiente') DEFAULT 'Pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `practicas`
+--
+
+INSERT INTO `practicas` (`id`, `estudiante`, `empleado`, `docente_supervisor`, `empresa`, `modulo`, `tipo_efsrt`, `periodo_academico`, `fecha_inicio`, `fecha_fin`, `total_horas`, `horas_acumuladas`, `area_ejecucion`, `supervisor_empresa`, `cargo_supervisor`, `periodo_academico_efsrt`, `turno_efsrt`, `estado`) VALUES
+(1, 1, 3, NULL, 1, 'INTEGRACIÓN DE APLICACIONES WEB Y MÓVILES', 'modulo2', 'VI', '2024-09-26', '2024-12-13', 128, 16, NULL, NULL, NULL, NULL, NULL, 'En curso'),
+(2, 2, 3, NULL, 1, 'DESARROLLO DE APLICACIONES WEB', 'modulo1', 'VI', '2024-09-25', '2024-12-12', 128, 20, NULL, NULL, NULL, NULL, NULL, 'En curso'),
+(3, 3, 3, NULL, 1, 'DISEÑO DE INTERFACES DE USUARIO', 'modulo3', 'VI', '2024-09-24', '2024-12-11', 128, 24, NULL, NULL, NULL, NULL, NULL, 'En curso'),
+(4, 4, 3, NULL, 1, 'PROGRAMACIÓN WEB AVANZADA', 'modulo1', 'VI', '2024-09-23', '2024-12-10', 128, 28, NULL, NULL, NULL, NULL, NULL, 'Pendiente'),
+(5, 5, 3, NULL, 1, 'BASE DE DATOS Y BACKEND', 'modulo1', 'VI', '2024-09-22', '2024-12-09', 128, 128, NULL, NULL, NULL, NULL, NULL, 'Finalizado');
 
 -- --------------------------------------------------------
 
@@ -5805,7 +5827,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `nivel`) VALUES
 (1, 'admin', '$2y$10$8asrZfSaluo8qKPoMaGdcuEeDucF9ue21hcD820LPLW36q/6gtYMm', 2, 1, NULL, NULL, NULL),
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, NULL, 1, 1);
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, 'a46e3e5bb37fc89a12532e3baf8c2d7c6c3c9e325e96ab8f61c977b445a1e061', 1, 1);
 
 --
 -- Índices para tablas volcadas
@@ -6346,7 +6368,7 @@ ALTER TABLE `empleado`
 -- AUTO_INCREMENT de la tabla `empresa`
 --
 ALTER TABLE `empresa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `estado_convenio`
@@ -6466,7 +6488,7 @@ ALTER TABLE `participante_reunion`
 -- AUTO_INCREMENT de la tabla `practicas`
 --
 ALTER TABLE `practicas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `prog_estudios`
