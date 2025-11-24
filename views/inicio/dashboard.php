@@ -24,7 +24,7 @@ include 'views/layouts/header.php';
                         <i class="fas fa-briefcase text-2xl"></i>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center text-sm text-blue-200">
+                <div class="mt-4 flex items-center text-sm text-blue-200">wdqfweqfqerterqtertqt1tf
                     <i class="fas fa-chart-line mr-2 text-green-400"></i>
                     <span id="practicas-texto">Cargando...</span>
                 </div>
