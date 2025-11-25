@@ -115,6 +115,23 @@ CREATE TABLE `usuarios` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
+CREATE TABLE `ubdepartamento` (
+  `id` int(11) NOT NULL,
+  `departamento` varchar(250) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `ubdistrito` (
+  `id` int(11) NOT NULL,
+  `distrito` varchar(250) DEFAULT NULL,
+  `ubprovincia` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `ubprovincia` (
+  `id` int(11) NOT NULL,
+  `provincia` varchar(250) DEFAULT NULL,
+  `ubdepartamento` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE VIEW `vista_estudiante_efsrt` AS
 SELECT 
     -- Datos básicos del estudiante
