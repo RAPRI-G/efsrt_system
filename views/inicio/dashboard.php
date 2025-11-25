@@ -204,10 +204,6 @@ include 'views/layouts/header.php';
     </div>
 </main>
 <script src="assets/js/dashboard.js"></script>
-<<<<<<< HEAD
-
-=======
->>>>>>> 91d2d54616c4522e37d058508f3e9ca7c763ae23
 <?php
 // Incluir el footer
 include 'views/layouts/footer.php';

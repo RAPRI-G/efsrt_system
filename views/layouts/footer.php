@@ -25,11 +25,6 @@
     <!-- Local JavaScript -->
     <script src="assets/js/main.js"></script>
     <script src="assets/js/search.js"></script>
-<<<<<<< HEAD
-    
-    
-=======
->>>>>>> 91d2d54616c4522e37d058508f3e9ca7c763ae23
 </body>
 
 </html>
