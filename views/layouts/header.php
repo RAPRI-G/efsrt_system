@@ -251,4 +251,4 @@
 
     <!-- Contenido Principal -->
     <main class="main-content ml-64 pt-16 min-h-screen transition-all duration-300">
-        <div class="p-6"></div>
+        <div class="p-6">

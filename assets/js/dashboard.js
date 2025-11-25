@@ -330,7 +330,7 @@ class Dashboard {
         });
         
         // Botón de exportar
-        document.querySelector('button:contains("Exportar")').addEventListener('click', () => {
+        document.getElementById('btnExportar').addEventListener('click', () => {
             this.exportarDatos();
         });
     }
