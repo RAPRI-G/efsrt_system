@@ -173,7 +173,7 @@ include 'views/layouts/header.php';
                             <option value="Pendiente">Pendiente</option>
                         </select>
                     </div>
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300">
+                    <button id="btnExportar" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300">
                         <i class="fas fa-download mr-2"></i>Exportar
                     </button>
                 </div>
@@ -203,7 +203,7 @@ include 'views/layouts/header.php';
         </div>
     </div>
 </main>
-
+<script src="assets/js/dashboard.js"></script>
 <?php
 // Incluir el footer
 include 'views/layouts/footer.php';
