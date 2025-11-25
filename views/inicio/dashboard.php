@@ -203,8 +203,10 @@ include 'views/layouts/header.php';
         </div>
     </div>
 </main>
+<script src="assets/js/dashboard.js"></script>
 
 <?php
 // Incluir el footer
 include 'views/layouts/footer.php';
+
 ?>
