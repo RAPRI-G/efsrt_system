@@ -5827,7 +5827,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `nivel`) VALUES
 (1, 'admin', '$2y$10$8asrZfSaluo8qKPoMaGdcuEeDucF9ue21hcD820LPLW36q/6gtYMm', 2, 1, NULL, NULL, NULL),
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, 'a46e3e5bb37fc89a12532e3baf8c2d7c6c3c9e325e96ab8f61c977b445a1e061', 1, 1);
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, NULL, 1, 1);
 
 --
 -- Índices para tablas volcadas

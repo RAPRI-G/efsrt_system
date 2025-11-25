@@ -98,22 +98,7 @@ create database istc;
 		token text
 	);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/* SISTEMA DE CONVENIOS */
-
-
 
 	create table instituto(
 		id int primary key not null auto_increment,
@@ -437,22 +422,7 @@ create database istc;
 		foreign key (convenio) references convenio(id)
 	);
 
-
-
-
-
-
-
-
-
-
-
 /* SISTEMA DE SEGUIMIENTOS DE EGRESADO   */
-
-
-
-
-
 
 create table condicion_academica(
 	id int primary key not null auto_increment,
@@ -525,18 +495,7 @@ create table seguimiento(
 	foreign key (tipo) references tipo_seguimiento(id)
 );
 
-
-
-
-
 /*    SISTEMA DE EXPERIENCIAS FORMATIVAS  */
-
-
-
-
-
-
-
 
 create table practicas(
 	id int primary key not null auto_increment,
@@ -586,22 +545,8 @@ create table evidencias(
 	foreign key (practicas) references practicas(id) on delete cascade
 );
 
-
-
-
-
-
-
-
-
 /** SISTEMA DE PAGOS Y DESCUENTOS */
 
-
-
-
-
-
- 
 create table resoluciones(
 	id int primary key not null auto_increment,
 	numero_resolucion varchar(50) not null unique,
@@ -696,18 +641,7 @@ create table pagos(
 	foreign key (registrado_por) references empleado(id)
 );
 
-
-
-
-
-
-
-
-
-
 /*     SISTEMA DE CAPACITACIÓN           */
-
-
 
 create table tipo_curso (
     id int primary key auto_increment,
@@ -783,19 +717,7 @@ create table auditoria_cap (
     foreign key (id_user) references usuarios(id)
 );
 
-
-
-
-
-
-
-
 /** SISTEMA DE MATRICULA */
-
-
-
-
-
 
 create table unidades_didacticas(
 	id int auto_increment primary key not null,
