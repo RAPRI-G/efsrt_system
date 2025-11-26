@@ -54,8 +54,8 @@ try {
         foreach ($usuarios as $user) {
             $tipo_text = match($user['tipo']) {
                 1 => 'Docente',
-                2 => 'Estudiante', 
-                3 => 'Admin',
+                2 => 'Admin', 
+                3 => 'estudiante',
                 default => 'Desconocido'
             };
             $estado_text = $user['estado'] == 1 ? 'Activo' : 'Inactivo';
