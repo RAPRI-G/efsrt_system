@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Lima');
 // index.php - Validación de tokens en cada request
 require_once 'helpers/SessionHelper.php';
 SessionHelper::init();

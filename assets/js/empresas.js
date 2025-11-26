@@ -9,6 +9,12 @@ class EmpresaManager {
             vistaActual: 'tabla'
         };
         
+        // Instancias de gráficos para poder destruirlos
+        this.chartInstances = {
+            departamentos: null,
+            estado: null
+        };
+        
         // Esperar a que el DOM esté completamente cargado
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.init());
@@ -19,6 +25,12 @@ class EmpresaManager {
 
     init() {
         console.log('Inicializando EmpresaManager...');
+        
+        // ✅ OCULTAR MODAL DE CONFIRMACIÓN AL INICIAR
+    const confirmationModal = document.getElementById('confirmationModal');
+    if (confirmationModal) {
+        confirmationModal.classList.remove('show');
+    }
         this.cargarDatosIniciales();
         this.setupEventListeners();
         this.setupModalEvents();
@@ -28,6 +40,10 @@ class EmpresaManager {
     async cargarDatosIniciales() {
         try {
             console.log('Cargando datos iniciales...');
+            
+            // DESTRUIR GRÁFICOS EXISTENTES AL INICIAR
+            this.destruirGraficos();
+            
             await Promise.all([
                 this.cargarEstadisticas(),
                 this.cargarEmpresas()
@@ -60,72 +76,213 @@ class EmpresaManager {
 
     // 🏢 CARGAR LISTA DE EMPRESAS
     async cargarEmpresas(filtros = {}) {
-        try {
-            this.mostrarLoading(true);
-            console.log('Cargando empresas con filtros:', filtros);
-            
-            const params = new URLSearchParams();
-            if (filtros.busqueda) params.append('busqueda', filtros.busqueda);
-            if (filtros.sector && filtros.sector !== 'all') params.append('sector', filtros.sector);
-            if (filtros.validado && filtros.validado !== 'all') params.append('validado', filtros.validado);
-            if (filtros.estado && filtros.estado !== 'all') params.append('estado', filtros.estado);
-
-            const url = `index.php?c=Empresa&a=api_empresas&${params.toString()}`;
-            console.log('URL de empresas:', url);
-            
-            const response = await fetch(url);
-            const data = await response.json();
-
-            console.log('Respuesta de empresas:', data);
-
-            if (data.success) {
-                this.empresas = data.data;
-                this.configPaginacion.totalElementos = data.total;
-                this.renderizarEmpresas();
-            } else {
-                throw new Error(data.error || 'Error desconocido al cargar empresas');
-            }
-        } catch (error) {
-            console.error('Error cargando empresas:', error);
-            this.mostrarError('Error al cargar empresas: ' + error.message);
-        } finally {
-            this.mostrarLoading(false);
-        }
-    }
-
-    // 🎯 ACTUALIZAR DASHBOARD - CON VERIFICACIÓN DE ELEMENTOS
-    actualizarDashboard(estadisticas) {
-        console.log('Actualizando dashboard con:', estadisticas);
+    try {
+        this.mostrarLoading(true);
+        this.mostrarIndicadorBusqueda(true); // ✅ NUEVO: Mostrar indicador de búsqueda
         
-        // Verificar y actualizar elementos solo si existen
-        const elementos = {
-            'total-empresas': estadisticas.total_empresas,
-            'empresas-validadas': estadisticas.empresas_validadas,
-            'empresas-practicas': estadisticas.empresas_con_practicas
-        };
-
-        Object.keys(elementos).forEach(id => {
-            const elemento = document.getElementById(id);
-            if (elemento) {
-                elemento.textContent = elementos[id];
-            } else {
-                console.warn(`Elemento #${id} no encontrado`);
-            }
-        });
-
-        // Contar sectores únicos
-        const sectoresCount = estadisticas.distribucion_sectores?.length || 0;
-        const sectoresElement = document.getElementById('sectores-count');
-        if (sectoresElement) {
-            sectoresElement.textContent = sectoresCount;
+        console.log('Cargando empresas con filtros:', filtros);
+        
+        const params = new URLSearchParams();
+        
+        if (filtros.busqueda) {
+            params.append('busqueda', filtros.busqueda);
+        }
+        if (filtros.departamento && filtros.departamento !== 'all') {
+            params.append('departamento', filtros.departamento);
+        }
+        if (filtros.estado && filtros.estado !== 'all') {
+            params.append('estado', filtros.estado);
         }
 
-        // Actualizar textos descriptivos si existen
-        this.actualizarTextoSiExiste('empresas-texto', `${estadisticas.total_empresas} registradas`);
-        this.actualizarTextoSiExiste('validadas-texto', `${estadisticas.empresas_validadas} validadas`);
-        this.actualizarTextoSiExiste('practicas-texto', `${estadisticas.empresas_con_practicas} con prácticas`);
-        this.actualizarTextoSiExiste('sectores-texto', `${sectoresCount} sectores`);
+        params.append('pagina', this.configPaginacion.paginaActual);
+        params.append('limit', this.configPaginacion.elementosPorPagina);
+
+        const url = `index.php?c=Empresa&a=api_empresas&${params.toString()}`;
+        console.log('URL de empresas:', url);
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Respuesta de empresas:', data);
+
+        if (data.success) {
+            this.empresas = data.data;
+            this.configPaginacion.totalElementos = data.total;
+            this.renderizarEmpresas();
+            
+            // ✅ MOSTRAR MENSAJE SI NO HAY RESULTADOS
+            if (this.empresas.length === 0 && filtros.busqueda) {
+                this.mostrarNotificacion('info', 'Búsqueda', 'No se encontraron empresas con los criterios de búsqueda.');
+            }
+        } else {
+            throw new Error(data.error || 'Error desconocido al cargar empresas');
+        }
+    } catch (error) {
+        console.error('Error cargando empresas:', error);
+        this.mostrarError('Error al cargar empresas: ' + error.message);
+    } finally {
+        this.mostrarLoading(false);
+        this.mostrarIndicadorBusqueda(false); // ✅ OCULTAR indicador de búsqueda
     }
+}
+
+    // 🎯 ACTUALIZAR DASHBOARD - COMPATIBLE CON ESTRUCTURA ESTÁTICA
+ // 📊 ACTUALIZAR DASHBOARD - CON MEJOR DEBUGGING
+actualizarDashboard(estadisticas) {
+    console.log('📊 Actualizando dashboard con:', estadisticas);
+    
+    // ✅ VERIFICAR QUE TENEMOS DATOS VÁLIDOS
+    if (!estadisticas) {
+        console.error('❌ No hay datos de estadísticas');
+        return;
+    }
+    
+    // ✅ ACTUALIZAR TARJETAS PRINCIPALES
+    const elementos = {
+        'total-empresas': estadisticas.total_empresas || 0,
+        'empresas-activas': estadisticas.empresas_activas || 0,
+        'empresas-practicas': estadisticas.empresas_con_practicas || 0
+    };
+
+    console.log('📊 Actualizando elementos:', elementos);
+
+    Object.keys(elementos).forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.textContent = elementos[id];
+        } else {
+            console.warn(`❌ Elemento #${id} no encontrado`);
+        }
+    });
+
+    // ✅ CONTAR DEPARTAMENTOS ÚNICOS
+    const departamentosCount = estadisticas.distribucion_sectores?.length || 0;
+    const departamentosElement = document.getElementById('departamentos-count');
+    if (departamentosElement) {
+        departamentosElement.textContent = departamentosCount;
+    }
+
+    // ✅ ACTUALIZAR TEXTOS DESCRIPTIVOS
+    this.actualizarTextoSiExiste('empresas-texto', 
+        `${estadisticas.total_empresas || 0} registradas`);
+    
+    this.actualizarTextoSiExiste('activas-texto', 
+        `${estadisticas.empresas_activas || 0} activas de ${estadisticas.total_empresas || 0}`);
+    
+    this.actualizarTextoSiExiste('practicas-texto', 
+        `${estadisticas.empresas_con_practicas || 0} con prácticas activas`);
+    
+    this.actualizarTextoSiExiste('departamentos-texto', 
+        `${departamentosCount} departamentos`);
+
+    console.log('✅ Dashboard actualizado correctamente');
+}
+
+// 📈 INICIALIZAR GRÁFICOS - ACTUALIZADO PARA MOSTRAR ESTADOS CORRECTOS
+inicializarGraficoEstado(estadisticas) {
+    const ctx = document.getElementById('estadoChart');
+    if (!ctx) {
+        console.warn('❌ Canvas estadoChart no encontrado');
+        return;
+    }
+    
+    // ✅ DEBUG: Verificar qué datos estamos recibiendo
+    console.log('📊 Datos para gráfico de estado:', estadisticas);
+    
+    // ✅ CORREGIDO: Obtener datos correctamente
+    const activas = estadisticas.empresas_activas || 0;
+    const inactivas = estadisticas.empresas_inactivas || 0;
+    
+    console.log('📊 Empresas activas:', activas);
+    console.log('📊 Empresas inactivas:', inactivas);
+    
+    // ✅ Validar que tengamos datos
+    if (activas === 0 && inactivas === 0) {
+        console.warn('⚠️ No hay datos para el gráfico de estado');
+        this.mostrarMensajeGraficoVacio('estadoChart', 'No hay datos de empresas');
+        return;
+    }
+    
+    // DESTRUIR GRÁFICO EXISTENTE
+    if (this.chartInstances.estado) {
+        this.chartInstances.estado.destroy();
+    }
+    
+    // ✅ CREAR NUEVO GRÁFICO CON DATOS CORRECTOS
+    this.chartInstances.estado = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Empresas Activas', 'Empresas Inactivas'],
+            datasets: [{
+                data: [activas, inactivas],
+                backgroundColor: [
+                    '#198754', // Verde para activas
+                    '#6c757d'  // Gris para inactivas
+                ],
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverBorderWidth: 4,
+                hoverBorderColor: '#f8f9fa'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: { 
+                            size: 12,
+                            family: "'Inter', sans-serif"
+                        },
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 13 },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+    
+    console.log('✅ Gráfico de estado creado correctamente');
+}
+
+// 🔧 MÉTODO PARA MOSTRAR MENSAJE CUANDO NO HAY DATOS
+mostrarMensajeGraficoVacio(canvasId, mensaje) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(mensaje, canvas.width / 2, canvas.height / 2);
+}
 
     actualizarTextoSiExiste(id, texto) {
         const elemento = document.getElementById(id);
@@ -134,40 +291,60 @@ class EmpresaManager {
         }
     }
 
-    // 📈 INICIALIZAR GRÁFICOS CON VERIFICACIÓN
+    // 📈 INICIALIZAR GRÁFICOS CON DESTRUCCIÓN PREVIA
     inicializarGraficos(estadisticas) {
         console.log('Inicializando gráficos...');
         
-        // Verificar si los canvas existen antes de inicializar
-        const canvasSectores = document.getElementById('sectoresChart');
-        const canvasValidacion = document.getElementById('validacionChart');
+        // DESTRUIR GRÁFICOS EXISTENTES ANTES DE CREAR NUEVOS
+        this.destruirGraficos();
         
-        if (canvasSectores) {
-            this.inicializarGraficoSectores(estadisticas.distribucion_sectores);
+        const canvasDepartamentos = document.getElementById('departamentosChart');
+        const canvasEstado = document.getElementById('estadoChart');
+        
+        if (canvasDepartamentos) {
+            this.inicializarGraficoDepartamentos(estadisticas.distribucion_sectores);
         } else {
-            console.warn('Canvas sectoresChart no encontrado');
+            console.warn('Canvas departamentosChart no encontrado');
         }
         
-        if (canvasValidacion) {
-            this.inicializarGraficoValidacion(estadisticas);
+        if (canvasEstado) {
+            this.inicializarGraficoEstado(estadisticas);
         } else {
-            console.warn('Canvas validacionChart no encontrado');
+            console.warn('Canvas estadoChart no encontrado');
         }
     }
 
-    inicializarGraficoSectores(distribucionSectores) {
-        const ctx = document.getElementById('sectoresChart').getContext('2d');
+    // 🔥 MÉTODO: DESTRUIR GRÁFICOS EXISTENTES
+    destruirGraficos() {
+        console.log('Destruyendo gráficos existentes...');
+        
+        if (this.chartInstances.departamentos) {
+            console.log('Destruyendo gráfico de departamentos...');
+            this.chartInstances.departamentos.destroy();
+            this.chartInstances.departamentos = null;
+        }
+        
+        if (this.chartInstances.estado) {
+            console.log('Destruyendo gráfico de estado...');
+            this.chartInstances.estado.destroy();
+            this.chartInstances.estado = null;
+        }
+    }
+
+    inicializarGraficoDepartamentos(distribucionSectores) {
+        const ctx = document.getElementById('departamentosChart').getContext('2d');
         
         // Verificar que hay datos
         if (!distribucionSectores || distribucionSectores.length === 0) {
-            console.warn('No hay datos para el gráfico de sectores');
+            console.warn('No hay datos para el gráfico de departamentos');
             return;
         }
         
         const labels = distribucionSectores.map(item => item.sector);
         const data = distribucionSectores.map(item => item.cantidad);
         
-        new Chart(ctx, {
+        // GUARDAR LA INSTANCIA PARA PODER DESTRUIRLA DESPUÉS
+        this.chartInstances.departamentos = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -198,41 +375,8 @@ class EmpresaManager {
         });
     }
 
-    inicializarGraficoValidacion(estadisticas) {
-        const ctx = document.getElementById('validacionChart').getContext('2d');
-        
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Validadas', 'No Validadas'],
-                datasets: [{
-                    data: [
-                        estadisticas.empresas_validadas || 0,
-                        (estadisticas.total_empresas || 0) - (estadisticas.empresas_validadas || 0)
-                    ],
-                    backgroundColor: ['#198754', '#6c757d'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: { size: 11 }
-                        }
-                    }
-                }
-            }
-        });
-    }
 
-    // 🏢 RENDERIZAR EMPRESAS (TABLA O TARJETAS) - CON VERIFICACIÓN
+    // 🏢 RENDERIZAR EMPRESAS (TABLA O TARJETAS)
     renderizarEmpresas() {
         console.log('Renderizando empresas...');
         
@@ -256,7 +400,9 @@ class EmpresaManager {
             tabla.innerHTML = `
                 <tr>
                     <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                        No se encontraron empresas que coincidan con los filtros
+                        <i class="fas fa-search text-2xl text-gray-300 mb-2"></i>
+                        <p class="font-medium">No se encontraron empresas</p>
+                        <p class="text-sm">Intenta con otros términos de búsqueda</p>
                     </td>
                 </tr>
             `;
@@ -276,17 +422,14 @@ class EmpresaManager {
                         </div>
                         <div>
                             <div class="text-sm font-semibold text-gray-900">
-                                ${empresa.nombre_comercial || empresa.razon_social}
-                            </div>
-                            <div class="text-xs text-gray-500">
                                 ${empresa.razon_social}
                             </div>
                         </div>
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${empresa.ruc}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="sector-badge sector-${this.getSectorClass(empresa.sector)}">${empresa.sector}</span>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${empresa.representante_legal || 'No especificado'}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div>${empresa.departamento}, ${empresa.provincia}</div>
@@ -300,7 +443,6 @@ class EmpresaManager {
                     <span class="badge-estado ${empresa.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'}">
                         ${empresa.estado}
                     </span>
-                    ${empresa.validado == 1 ? '<span class="badge-estado badge-validado ml-2">Validado</span>' : ''}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex space-x-2">
@@ -361,15 +503,16 @@ class EmpresaManager {
                         </button>
                     </div>
                 </div>
-                <h3 class="text-lg font-bold text-primary-blue mb-2">${empresa.nombre_comercial || empresa.razon_social}</h3>
+                <h3 class="text-lg font-bold text-primary-blue mb-2">${empresa.razon_social}</h3>
                 <div class="flex items-center text-sm text-gray-500 mb-3">
                     <i class="fas fa-id-card mr-2"></i>
                     <span>RUC: ${empresa.ruc}</span>
                 </div>
-                <div class="mb-4">
-                    <span class="sector-badge sector-${this.getSectorClass(empresa.sector)}">${empresa.sector}</span>
-                </div>
                 <div class="text-sm text-gray-600 mb-4">
+                    <div class="flex items-center mb-1">
+                        <i class="fas fa-user-tie mr-2 text-blue-500"></i>
+                        <span class="truncate">${empresa.representante_legal || 'No especificado'}</span>
+                    </div>
                     <div class="flex items-center mb-1">
                         <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>
                         <span>${empresa.departamento}, ${empresa.distrito}</span>
@@ -387,10 +530,6 @@ class EmpresaManager {
                     <span class="badge-estado ${empresa.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'}">
                         ${empresa.estado}
                     </span>
-                    ${empresa.validado == 1 ? 
-                        '<span class="badge-estado badge-validado">Validado</span>' : 
-                        '<span class="badge-estado badge-pendiente">No Validado</span>'
-                    }
                 </div>
             </div>
         `).join('');
@@ -403,6 +542,8 @@ class EmpresaManager {
 
     // 🔘 CONFIGURAR BOTONES DE ACCIÓN
     setupActionButtons() {
+
+        console.log('🔧 Configurando botones de acción...');
         // Botones de editar
         document.querySelectorAll('.editar-empresa').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -420,80 +561,230 @@ class EmpresaManager {
         });
         
         // Botones de eliminar
-        document.querySelectorAll('.eliminar-empresa').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
+    document.querySelectorAll('.eliminar-empresa').forEach(btn => {
+        // ✅ REMOVER EVENT LISTENERS EXISTENTES PRIMERO
+        btn.replaceWith(btn.cloneNode(true));
+    });
+    
+    // ✅ VOLVER A AGREGAR EVENT LISTENERS
+    document.querySelectorAll('.eliminar-empresa').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const id = e.currentTarget.getAttribute('data-id');
+            console.log('🗑️ Click en eliminar empresa ID:', id);
+            
+            if (id) {
                 this.eliminarEmpresa(id);
-            });
+            } else {
+                console.error('❌ ID no encontrado en botón eliminar');
+            }
         });
+    });
     }
 
     // 📝 ABRIR MODAL PARA EDITAR/CREAR EMPRESA
     async abrirModalEditar(id = null) {
-        const modal = document.getElementById('empresaModal');
-        const titulo = document.getElementById('modalTitulo');
-        const form = document.getElementById('formEmpresa');
-        
-        if (!modal || !titulo || !form) {
-            console.error('Elementos del modal no encontrados');
-            return;
-        }
-        
-        if (id) {
-            // Modo edición
-            titulo.textContent = 'Editar Empresa';
-            await this.cargarDatosEmpresa(id, form);
-        } else {
-            // Modo creación
-            titulo.textContent = 'Nueva Empresa';
-            form.reset();
-            const empresaId = document.getElementById('empresaId');
-            if (empresaId) empresaId.value = '';
-        }
-        
-        modal.classList.remove('hidden');
+    const modal = document.getElementById('empresaModal');
+    const titulo = document.getElementById('modalTitulo');
+    const form = document.getElementById('formEmpresa');
+    
+    if (!modal || !titulo || !form) {
+        console.error('Elementos del modal no encontrados');
+        return;
     }
+    
+    // ✅ RESETEAR FORMULARIO PRIMERO
+    form.reset();
+    
+    // ✅ RESETEAR SELECTS DE UBICACIÓN
+    this.actualizarSelect('provincia_id', [], 'Seleccionar provincia');
+    this.actualizarSelect('distrito_id', [], 'Seleccionar distrito');
+    document.getElementById('provincia_id').disabled = true;
+    document.getElementById('distrito_id').disabled = true;
+    
+    // ✅ CARGAR DEPARTAMENTOS
+    await this.cargarDepartamentos();
+    
+    if (id) {
+        // Modo edición
+        titulo.textContent = 'Editar Empresa';
+        await this.cargarDatosEmpresa(id, form);
+    } else {
+        // Modo creación
+        titulo.textContent = 'Nueva Empresa';
+        const empresaId = document.getElementById('empresaId');
+        if (empresaId) empresaId.value = '';
+    }
+    
+    modal.classList.remove('hidden');
+}
 
     async cargarDatosEmpresa(id, form) {
-        try {
-            const response = await this.fetchAPI('Empresa', 'api_empresa', { id });
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_empresa', { id });
+        
+        if (response.success) {
+            const empresa = response.data;
             
-            if (response.success) {
-                const empresa = response.data;
+            console.log('📝 Datos de empresa para editar:', empresa);
+            
+            // ✅ DATOS BÁSICOS
+            this.setValue('empresaId', empresa.id);
+            this.setValue('ruc', empresa.ruc);
+            this.setValue('razon_social', empresa.razon_social);
+            this.setValue('representante_legal', empresa.representante_legal || '');
+            this.setValue('direccion_fiscal', empresa.direccion_fiscal);
+            this.setValue('telefono', empresa.telefono || '');
+            this.setValue('email', empresa.email);
+            this.setValue('estado', empresa.estado);
+            
+            // ✅ CARGAR UBICACIÓN CON IDs
+            await this.cargarUbicacionParaEdicion(empresa);
+            
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        this.mostrarError('Error al cargar datos de la empresa: ' + error.message);
+    }
+}
+
+// 🔧 ESTABLECER VALOR EN SELECT
+setSelectValue(selectId, value) {
+    const select = document.getElementById(selectId);
+    if (select && value) {
+        select.value = value;
+        console.log(`✅ Select ${selectId} establecido a:`, value);
+    } else {
+        console.warn(`⚠️ No se pudo establecer ${selectId} a:`, value);
+    }
+}
+
+// 📋 OBTENER DEPARTAMENTOS (para búsqueda)
+async obtenerDepartamentos() {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_departamentos');
+        return response.success ? response.data : [];
+    } catch (error) {
+        console.error('Error obteniendo departamentos:', error);
+        return [];
+    }
+}
+
+// 🔄 CARGAR UBICACIÓN PARA EDICIÓN
+async cargarUbicacionParaEdicion(empresa) {
+    try {
+        console.log('📍 Cargando ubicación para edición:', {
+            departamento: empresa.departamento,
+            provincia: empresa.provincia, 
+            distrito: empresa.distrito,
+            departamento_id: empresa.departamento_id,
+            provincia_id: empresa.provincia_id,
+            distrito_id: empresa.distrito_id
+        });
+        
+        // ✅ CARGAR DEPARTAMENTOS PRIMERO
+        await this.cargarDepartamentos();
+        
+        // ✅ SI TENEMOS IDs, USARLOS DIRECTAMENTE
+        if (empresa.departamento_id) {
+            console.log('✅ Usando IDs de ubicación');
+            
+            // Establecer departamento
+            this.setSelectValue('departamento_id', empresa.departamento_id);
+            
+            // Cargar y establecer provincia
+            await this.cargarProvincias(empresa.departamento_id);
+            if (empresa.provincia_id) {
+                this.setSelectValue('provincia_id', empresa.provincia_id);
                 
-                this.setValue('empresaId', empresa.id);
-                this.setValue('ruc', empresa.ruc);
-                this.setValue('razon_social', empresa.razon_social);
-                this.setValue('nombre_comercial', empresa.nombre_comercial || '');
-                this.setValue('direccion_fiscal', empresa.direccion_fiscal);
-                this.setValue('telefono', empresa.telefono || '');
-                this.setValue('email', empresa.email);
-                this.setValue('sector', empresa.sector);
-                this.setValue('ubigeo', empresa.ubigeo || '');
-                this.setValue('departamento', empresa.departamento || '');
-                this.setValue('provincia', empresa.provincia || '');
-                this.setValue('distrito', empresa.distrito || '');
-                this.setValue('condicion_sunat', empresa.condicion_sunat || '');
-                this.setValue('estado', empresa.estado);
-                
-                this.setChecked('validado', empresa.validado == 1);
-                this.setChecked('registro_manual', empresa.registro_manual == 1);
-            } else {
-                throw new Error(response.error);
+                // Cargar y establecer distrito
+                await this.cargarDistritos(empresa.provincia_id);
+                if (empresa.distrito_id) {
+                    this.setSelectValue('distrito_id', empresa.distrito_id);
+                }
             }
-        } catch (error) {
-            this.mostrarError('Error al cargar datos de la empresa: ' + error.message);
+        } else {
+            // ✅ FALLBACK: BUSCAR POR NOMBRES
+            console.log('⚠️ Usando búsqueda por nombres');
+            await this.buscarUbicacionPorNombres(empresa);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando ubicación:', error);
+        // En caso de error, al menos cargar departamentos
+        await this.cargarDepartamentos();
+    }
+}
+
+// 📋 OBTENER PROVINCIAS (para búsqueda)
+async obtenerProvincias(departamentoId) {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_provincias', { 
+            departamento_id: departamentoId 
+        });
+        return response.success ? response.data : [];
+    } catch (error) {
+        console.error('Error obteniendo provincias:', error);
+        return [];
+    }
+}
+
+// 📋 OBTENER DISTRITOS (para búsqueda)
+async obtenerDistritos(provinciaId) {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_distritos', { 
+            provincia_id: provinciaId 
+        });
+        return response.success ? response.data : [];
+    } catch (error) {
+        console.error('Error obteniendo distritos:', error);
+        return [];
+    }
+}
+
+// 🔍 BÚSQUEDA DE UBICACIÓN POR NOMBRES (FALLBACK)
+async buscarUbicacionPorNombres(empresa) {
+    if (!empresa.departamento) return;
+    
+    // Cargar departamentos y buscar coincidencia
+    const departamentos = await this.obtenerDepartamentos();
+    const departamentoEncontrado = departamentos.find(d => 
+        d.departamento === empresa.departamento
+    );
+    
+    if (departamentoEncontrado) {
+        this.setSelectValue('departamento_id', departamentoEncontrado.id);
+        await this.cargarProvincias(departamentoEncontrado.id);
+        
+        // Buscar provincia
+        const provincias = await this.obtenerProvincias(departamentoEncontrado.id);
+        const provinciaEncontrada = provincias.find(p => 
+            p.provincia === empresa.provincia
+        );
+        
+        if (provinciaEncontrada) {
+            this.setSelectValue('provincia_id', provinciaEncontrada.id);
+            await this.cargarDistritos(provinciaEncontrada.id);
+            
+            // Buscar distrito
+            const distritos = await this.obtenerDistritos(provinciaEncontrada.id);
+            const distritoEncontrado = distritos.find(d => 
+                d.distrito === empresa.distrito
+            );
+            
+            if (distritoEncontrado) {
+                this.setSelectValue('distrito_id', distritoEncontrado.id);
+            }
         }
     }
+}
 
     setValue(id, value) {
         const element = document.getElementById(id);
         if (element) element.value = value;
-    }
-
-    setChecked(id, checked) {
-        const element = document.getElementById(id);
-        if (element) element.checked = checked;
     }
 
     // 👁️ VER DETALLES DE EMPRESA
@@ -511,40 +802,86 @@ class EmpresaManager {
         }
     }
 
+    async cargarDepartamentos() {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_departamentos');
+        if (response.success) {
+            // Guardar el valor actual antes de actualizar
+            const select = document.getElementById('departamento_id');
+            const valorActual = select ? select.value : '';
+            
+            this.actualizarSelect('departamento_id', response.data, 'Seleccionar departamento');
+            
+            // Restaurar valor si existe
+            if (valorActual && select) {
+                select.value = valorActual;
+            }
+        }
+    } catch (error) {
+        console.error('Error cargando departamentos:', error);
+    }
+}
+
+async cargarProvincias(departamentoId) {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_provincias', { departamento_id: departamentoId });
+        if (response.success) {
+            this.actualizarSelect('provincia_id', response.data, 'Seleccionar provincia');
+            document.getElementById('provincia_id').disabled = false;
+            
+            // Limpiar distritos
+            this.actualizarSelect('distrito_id', [], 'Seleccionar distrito');
+            document.getElementById('distrito_id').disabled = true;
+        }
+    } catch (error) {
+        console.error('Error cargando provincias:', error);
+    }
+}
+
+async cargarDistritos(provinciaId) {
+    try {
+        const response = await this.fetchAPI('Empresa', 'api_distritos', { provincia_id: provinciaId });
+        if (response.success) {
+            this.actualizarSelect('distrito_id', response.data, 'Seleccionar distrito');
+            document.getElementById('distrito_id').disabled = false;
+        }
+    } catch (error) {
+        console.error('Error cargando distritos:', error);
+    }
+}
+
+actualizarSelect(elementId, datos, textoDefault = 'Seleccionar') {
+    const select = document.getElementById(elementId);
+    if (!select) return;
+    
+    select.innerHTML = `<option value="">${textoDefault}</option>`;
+    
+    datos.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.departamento || item.provincia || item.distrito;
+        select.appendChild(option);
+    });
+}
+
     mostrarDetallesEmpresa(empresa) {
         // Llenar modal de detalles con los datos de la empresa
-        this.setTextContent('detalleModalTitulo', `Detalles de ${empresa.nombre_comercial || empresa.razon_social}`);
-        this.setTextContent('detalleNombre', empresa.nombre_comercial || empresa.razon_social);
+        this.setTextContent('detalleModalTitulo', `Detalles de ${empresa.razon_social}`);
+        this.setTextContent('detalleNombre', empresa.razon_social);
         this.setTextContent('detalleRuc', `RUC: ${empresa.ruc}`);
         this.setTextContent('detalleUbicacion', `${empresa.departamento}, ${empresa.distrito}`);
         this.setTextContent('detalleTelefono', empresa.telefono || 'N/A');
         this.setTextContent('detalleEmail', empresa.email);
         this.setTextContent('detalleDireccion', empresa.direccion_fiscal);
-        this.setTextContent('detalleUbigeo', empresa.ubigeo || 'N/A');
+        this.setTextContent('detalleUbicacionCompleta', `${empresa.departamento} / ${empresa.provincia} / ${empresa.distrito}`);
         this.setTextContent('detalleRazonSocial', empresa.razon_social);
-        this.setTextContent('detalleNombreComercial', empresa.nombre_comercial || 'No especificado');
-        this.setTextContent('detalleCondicionSunat', empresa.condicion_sunat || 'No especificado');
-        this.setTextContent('detalleRegistroManual', empresa.registro_manual == 1 ? 'Sí' : 'No');
-
-        // Sector
-        const detalleSector = document.getElementById('detalleSector');
-        if (detalleSector) {
-            detalleSector.className = `sector-badge sector-${this.getSectorClass(empresa.sector)}`;
-            detalleSector.textContent = empresa.sector;
-        }
+        this.setTextContent('detalleRepresentanteLegal', empresa.representante_legal || 'No especificado');
 
         // Estado
         const estadoElement = document.getElementById('detalleEstado');
         if (estadoElement) {
             estadoElement.textContent = empresa.estado;
             estadoElement.className = `badge-estado ${empresa.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'}`;
-        }
-
-        // Validado
-        const validadoElement = document.getElementById('detalleValidado');
-        if (validadoElement) {
-            validadoElement.textContent = empresa.validado == 1 ? 'Validado' : 'No Validado';
-            validadoElement.className = `badge-estado ${empresa.validado == 1 ? 'badge-validado' : 'badge-pendiente'}`;
         }
 
         // Mostrar modal
@@ -560,25 +897,158 @@ class EmpresaManager {
     }
 
     // 🗑️ ELIMINAR EMPRESA
-    async eliminarEmpresa(id) {
-        if (!confirm('¿Estás seguro de que deseas eliminar esta empresa?')) {
+  async eliminarEmpresa(id) {
+    try {
+        console.log('🗑️ Iniciando proceso de eliminación para empresa ID:', id);
+        
+        // ✅ OBTENER DATOS DE LA EMPRESA
+        const empresaResponse = await this.fetchAPI('Empresa', 'api_empresa', { id });
+        console.log('📊 Datos de empresa obtenidos:', empresaResponse);
+        
+        if (!empresaResponse.success) {
+            throw new Error('No se pudieron obtener los datos de la empresa');
+        }
+        
+        const empresa = empresaResponse.data;
+        console.log('🏢 Empresa a eliminar:', empresa.razon_social, '- RUC:', empresa.ruc);
+        
+        // ✅ MOSTRAR CONFIRMACIÓN
+        console.log('🔄 Mostrando confirmación...');
+        const confirmado = await this.mostrarConfirmacionEliminacion(empresa);
+        console.log('✅ Usuario confirmó:', confirmado);
+        
+        if (!confirmado) {
+            this.mostrarNotificacion('info', 'Acción cancelada', 'La empresa no fue eliminada');
             return;
         }
 
-        try {
-            const response = await this.fetchAPI('Empresa', 'api_eliminar', { id });
-            
-            if (response.success) {
-                this.mostrarExito('Empresa eliminada correctamente');
-                this.cargarEmpresas(); // Recargar lista
-                this.cargarEstadisticas(); // Actualizar dashboard
-            } else {
-                throw new Error(response.error);
-            }
-        } catch (error) {
+        console.log('🚀 Procediendo con eliminación...');
+        
+        // ✅ ELIMINAR DIRECTAMENTE
+        const response = await this.fetchAPI('Empresa', 'api_eliminar', { id });
+        console.log('📨 Respuesta de eliminación:', response);
+        
+        if (response.success) {
+            this.mostrarNotificacion('success', '¡Empresa eliminada!', 'La empresa ha sido eliminada permanentemente del sistema');
+            await this.cargarEmpresas(); // Recargar lista
+            await this.cargarEstadisticas(); // Actualizar dashboard
+        } else {
+            throw new Error(response.error);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error completo al eliminar empresa:', error);
+        
+        // ✅ MENSAJES DE ERROR ESPECÍFICOS
+        if (error.message.includes('prácticas asociadas')) {
+            this.mostrarError('No se puede eliminar: ' + error.message + '. Primero elimine las prácticas asociadas.');
+        } else {
             this.mostrarError('Error al eliminar empresa: ' + error.message);
         }
     }
+}
+
+// 🗑️ MOSTRAR CONFIRMACIÓN ESPECÍFICA PARA ELIMINACIÓN
+mostrarConfirmacionEliminacion(empresa) {
+    return new Promise((resolve) => {
+        console.log('🎯 Creando modal de confirmación...');
+        
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl p-6 w-96 max-w-md mx-4">
+                <div class="flex items-center mb-4">
+                    <div class="bg-red-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-trash text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-primary-blue">Eliminar Empresa</h3>
+                </div>
+                
+                <p class="text-gray-600 mb-2">
+                    <strong>Empresa:</strong> ${empresa.razon_social}
+                </p>
+                <p class="text-gray-600 mb-4">
+                    <strong>RUC:</strong> ${empresa.ruc}
+                </p>
+                
+                <p class="text-red-600 font-semibold mb-6">
+                    ⚠️ ¿Estás seguro de que deseas eliminar permanentemente esta empresa?<br>
+                    <span class="text-sm font-normal">Esta acción no se puede deshacer.</span>
+                </p>
+                
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelarEliminacion" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300">
+                        Cancelar
+                    </button>
+                    <button id="confirmarEliminacion" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 flex items-center">
+                        <i class="fas fa-trash mr-2"></i>
+                        Eliminar Permanentemente
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // ✅ AGREGAR EVENT LISTENERS DIRECTAMENTE
+        const confirmarBtn = modal.querySelector('#confirmarEliminacion');
+        const cancelarBtn = modal.querySelector('#cancelarEliminacion');
+        
+        console.log('🔘 Botones encontrados:', { confirmarBtn, cancelarBtn });
+        
+        const confirmarHandler = () => {
+            console.log('✅ Usuario confirmó eliminación');
+            document.body.removeChild(modal);
+            resolve(true);
+        };
+        
+        const cancelarHandler = () => {
+            console.log('❌ Usuario canceló eliminación');
+            document.body.removeChild(modal);
+            resolve(false);
+        };
+        
+        const clickFueraHandler = (e) => {
+            if (e.target === modal) {
+                console.log('👆 Usuario hizo clic fuera del modal');
+                document.body.removeChild(modal);
+                resolve(false);
+            }
+        };
+        
+        const keydownHandler = (e) => {
+            if (e.key === 'Escape') {
+                console.log('⌨️ Usuario presionó Escape');
+                document.body.removeChild(modal);
+                resolve(false);
+            }
+            if (e.key === 'Enter') {
+                console.log('⌨️ Usuario presionó Enter');
+                document.body.removeChild(modal);
+                resolve(true);
+            }
+        };
+        
+        // Asignar event listeners
+        confirmarBtn.addEventListener('click', confirmarHandler);
+        cancelarBtn.addEventListener('click', cancelarHandler);
+        modal.addEventListener('click', clickFueraHandler);
+        document.addEventListener('keydown', keydownHandler);
+        
+        // Limpiar event listeners cuando se remueva el modal
+        modal.addEventListener('remove', () => {
+            confirmarBtn.removeEventListener('click', confirmarHandler);
+            cancelarBtn.removeEventListener('click', cancelarHandler);
+            modal.removeEventListener('click', clickFueraHandler);
+            document.removeEventListener('keydown', keydownHandler);
+        });
+        
+        console.log('📋 Agregando modal al DOM...');
+        document.body.appendChild(modal);
+        console.log('✅ Modal agregado correctamente');
+        
+        // Enfocar el botón de cancelar por seguridad
+        cancelarBtn.focus();
+    });
+}
 
     // 💾 GUARDAR EMPRESA (CREAR/ACTUALIZAR)
     async guardarEmpresa(formData) {
@@ -589,10 +1059,10 @@ class EmpresaManager {
             });
 
             if (response.success) {
-                this.mostrarExito(response.message);
+                this.mostrarNotificacion('success', '¡Éxito!', response.message);
                 this.cerrarModalEmpresa();
-                this.cargarEmpresas(); // Recargar lista
-                this.cargarEstadisticas(); // Actualizar dashboard
+                await this.cargarEmpresas(); // Recargar lista
+                await this.cargarEstadisticas(); // Actualizar dashboard
             } else {
                 throw new Error(response.error);
             }
@@ -602,17 +1072,17 @@ class EmpresaManager {
     }
 
     // 🔍 APLICAR FILTROS
-    aplicarFiltros() {
-        const filtros = {
-            busqueda: document.getElementById('buscarEmpresa')?.value || '',
-            sector: document.getElementById('filtroSector')?.value || 'all',
-            validado: document.getElementById('filtroValidado')?.value || 'all',
-            estado: document.getElementById('filtroEstado')?.value || 'all'
-        };
+   aplicarFiltros() {
+    const filtros = {
+        busqueda: document.getElementById('buscarEmpresa')?.value || '',
+        departamento: document.getElementById('filtroDepartamento')?.value || 'all',
+        estado: document.getElementById('filtroEstado')?.value || 'all'
+    };
 
-        this.configPaginacion.paginaActual = 1;
-        this.cargarEmpresas(filtros);
-    }
+    console.log('Aplicando filtros:', filtros);
+    this.configPaginacion.paginaActual = 1;
+    this.cargarEmpresas(filtros);
+}
 
     // 📄 PAGINACIÓN
     actualizarContadores() {
@@ -683,32 +1153,94 @@ class EmpresaManager {
         this.renderizarEmpresas();
     }
 
+    restaurarGraficos() {
+    console.log('🔄 Restaurando gráficos...');
+    
+    // Destruir gráficos existentes
+    this.destruirGraficos();
+    
+    // Volver a cargar estadísticas para regenerar gráficos
+    this.cargarEstadisticas().then(() => {
+        console.log('✅ Gráficos restaurados correctamente');
+    }).catch(error => {
+        console.error('❌ Error restaurando gráficos:', error);
+    });
+}
+
     // 🎛️ CONFIGURAR EVENT LISTENERS
     setupEventListeners() {
-        // Búsqueda en tiempo real
-        let timeout;
-        const buscarInput = document.getElementById('buscarEmpresa');
-        if (buscarInput) {
-            buscarInput.addEventListener('input', (e) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => this.aplicarFiltros(), 500);
-            });
-        }
-
-        // Filtros
-        this.addChangeListener('filtroSector', () => this.aplicarFiltros());
-        this.addChangeListener('filtroValidado', () => this.aplicarFiltros());
-        this.addChangeListener('filtroEstado', () => this.aplicarFiltros());
-
-        // Cambio de vista
-        this.addClickListener('btnVistaTabla', () => this.cambiarVista('tabla'));
-        this.addClickListener('btnVistaTarjetas', () => this.cambiarVista('tarjetas'));
-
-        // Botones de acción
-        this.addClickListener('btnNuevaEmpresa', () => this.abrirModalEditar());
-        this.addClickListener('btnRefrescar', () => this.cargarDatosIniciales());
-        this.addClickListener('btnExportar', () => this.exportarDatos());
+    // ✅ BUSQUEDA EN TIEMPO REAL MEJORADA
+    let searchTimeout;
+    const buscarInput = document.getElementById('buscarEmpresa');
+    if (buscarInput) {
+        buscarInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim();
+            console.log('Búsqueda ingresada:', searchTerm);
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.aplicarFiltros();
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+        
+        // ✅ También buscar al presionar Enter
+        buscarInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                clearTimeout(searchTimeout);
+                this.aplicarFiltros();
+            }
+        });
     }
+
+    // ✅ FILTROS DE DEPARTAMENTO Y ESTADO
+    this.addChangeListener('filtroDepartamento', () => {
+        console.log('Departamento cambiado');
+        this.aplicarFiltros();
+    });
+
+    this.addChangeListener('filtroEstado', () => {
+        console.log('Estado cambiado');
+        this.aplicarFiltros();
+    });
+
+    // ✅ BOTONES DE ACCIÓN
+    this.addClickListener('btnNuevaEmpresa', () => this.abrirModalEditar());
+    this.addClickListener('btnRefrescar', () => {
+        // Limpiar búsqueda y recargar
+        if (buscarInput) buscarInput.value = '';
+        this.cargarDatosIniciales();
+    });
+
+     // ✅ DROPDOWN EXPORTAR
+    const btnExportar = document.getElementById('btnExportar');
+    const exportarDropdown = document.getElementById('exportarDropdown');
+    
+    if (btnExportar && exportarDropdown) {
+        btnExportar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            exportarDropdown.classList.toggle('hidden');
+        });
+        
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', () => {
+            exportarDropdown.classList.add('hidden');
+        });
+    }
+
+    // ✅ RESTAURAR GRÁFICOS DESPUÉS DE EXPORTAR
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            // La pestaña volvió a ser visible (posiblemente después de exportar)
+            setTimeout(() => {
+                this.restaurarGraficos();
+            }, 1000);
+        }
+    });
+
+    // ✅ CAMBIO DE VISTA
+    this.addClickListener('btnVistaTabla', () => this.cambiarVista('tabla'));
+    this.addClickListener('btnVistaTarjetas', () => this.cambiarVista('tarjetas'));
+}
 
     addChangeListener(id, callback) {
         const element = document.getElementById(id);
@@ -723,6 +1255,29 @@ class EmpresaManager {
             element.addEventListener('click', callback);
         }
     }
+
+    // 🔍 MOSTRAR INDICADOR DE BÚSQUEDA
+mostrarIndicadorBusqueda(mostrar) {
+    const buscarInput = document.getElementById('buscarEmpresa');
+    if (!buscarInput) return;
+    
+    const parent = buscarInput.parentElement;
+    if (mostrar) {
+        // Agregar icono de carga
+        if (!parent.querySelector('.search-loading')) {
+            const loadingIcon = document.createElement('div');
+            loadingIcon.className = 'search-loading absolute right-3 top-2.5';
+            loadingIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i>';
+            parent.appendChild(loadingIcon);
+        }
+    } else {
+        // Remover icono de carga
+        const loadingIcon = parent.querySelector('.search-loading');
+        if (loadingIcon) {
+            loadingIcon.remove();
+        }
+    }
+}
 
     setupModalEvents() {
         // Modal de empresa
@@ -742,6 +1297,28 @@ class EmpresaManager {
         this.addClickListener('cerrarDetalleBtn', () => this.cerrarDetalleModal());
         this.addClickListener('editarDesdeDetalle', () => this.editarDesdeDetalle());
         this.addClickListener('imprimirDetalle', () => window.print());
+
+        this.addChangeListener('departamento_id', (e) => {
+        const departamentoId = e.target.value;
+        if (departamentoId) {
+            this.cargarProvincias(departamentoId);
+        } else {
+            this.actualizarSelect('provincia_id', [], 'Primero seleccione departamento');
+            this.actualizarSelect('distrito_id', [], 'Primero seleccione provincia');
+            document.getElementById('provincia_id').disabled = true;
+            document.getElementById('distrito_id').disabled = true;
+        }
+    });
+
+    this.addChangeListener('provincia_id', (e) => {
+        const provinciaId = e.target.value;
+        if (provinciaId) {
+            this.cargarDistritos(provinciaId);
+        } else {
+            this.actualizarSelect('distrito_id', [], 'Primero seleccione provincia');
+            document.getElementById('distrito_id').disabled = true;
+        }
+    });
 
         // Cerrar modales al hacer clic fuera
         const empresaModal = document.getElementById('empresaModal');
@@ -797,33 +1374,35 @@ class EmpresaManager {
     }
 
     guardarEmpresaDesdeFormulario() {
-        const formData = {
-            id: document.getElementById('empresaId')?.value || null,
-            ruc: document.getElementById('ruc')?.value || '',
-            razon_social: document.getElementById('razon_social')?.value || '',
-            nombre_comercial: document.getElementById('nombre_comercial')?.value || '',
-            direccion_fiscal: document.getElementById('direccion_fiscal')?.value || '',
-            telefono: document.getElementById('telefono')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            sector: document.getElementById('sector')?.value || '',
-            validado: document.getElementById('validado')?.checked || false,
-            registro_manual: document.getElementById('registro_manual')?.checked || false,
-            estado: document.getElementById('estado')?.value || 'ACTIVO',
-            condicion_sunat: document.getElementById('condicion_sunat')?.value || '',
-            ubigeo: document.getElementById('ubigeo')?.value || '',
-            departamento: document.getElementById('departamento')?.value || '',
-            provincia: document.getElementById('provincia')?.value || '',
-            distrito: document.getElementById('distrito')?.value || ''
-        };
+    const formData = {
+        id: document.getElementById('empresaId')?.value || null,
+        ruc: document.getElementById('ruc')?.value || '',
+        razon_social: document.getElementById('razon_social')?.value || '',
+        representante_legal: document.getElementById('representante_legal')?.value || '',
+        direccion_fiscal: document.getElementById('direccion_fiscal')?.value || '',
+        telefono: document.getElementById('telefono')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        departamento_id: document.getElementById('departamento_id')?.value || '',
+        provincia_id: document.getElementById('provincia_id')?.value || '',
+        distrito_id: document.getElementById('distrito_id')?.value || '',
+        estado: document.getElementById('estado')?.value || 'ACTIVO'
+    };
 
-        // Validaciones básicas
-        if (!formData.ruc || !formData.razon_social || !formData.direccion_fiscal || !formData.email || !formData.sector) {
-            this.mostrarError('Por favor complete todos los campos obligatorios (*)');
-            return;
-        }
-
-        this.guardarEmpresa(formData);
+    // Validaciones básicas
+    if (!formData.ruc || !formData.razon_social || !formData.direccion_fiscal || !formData.email) {
+        this.mostrarError('Por favor complete todos los campos obligatorios (*)');
+        return;
     }
+
+    // Validar ubicación
+    if (!formData.departamento_id || !formData.provincia_id || !formData.distrito_id) {
+        this.mostrarError('Por favor seleccione departamento, provincia y distrito');
+        return;
+    }
+
+    console.log('Datos a guardar:', formData);
+    this.guardarEmpresa(formData);
+}
 
     editarDesdeDetalle() {
         this.cerrarDetalleModal();
@@ -843,65 +1422,244 @@ class EmpresaManager {
         if (modal) modal.classList.add('hidden');
     }
 
-    getSectorClass(sector) {
-        const sectores = {
-            'TECNOLOGÍA': 'tecnologia',
-            'CONSTRUCCIÓN': 'industria',
-            'SERVICIOS': 'servicios',
-            'COMERCIO': 'comercio',
-            'INFORMÁTICA': 'tecnologia',
-            'DESARROLLO SOFTWARE': 'tecnologia'
-        };
-        return sectores[sector?.toUpperCase()] || 'otros';
-    }
-
-    // 📤 EXPORTAR DATOS
-    exportarDatos() {
-        this.mostrarExito('Función de exportación activada. En una aplicación real, se descargaría un archivo Excel/CSV.');
-    }
-
-    // 🔧 UTILIDADES MEJORADAS
-    async fetchAPI(controller, action, params = null, options = {}) {
-        let url = `index.php?c=${controller}&a=${action}`;
+    // 📤 EXPORTAR DATOS - COMPLETO
+async exportarDatos() {
+    try {
+        this.mostrarLoading(true);
         
-        if (params) {
-            const searchParams = new URLSearchParams(params);
-            url += `&${searchParams.toString()}`;
-        }
-
-        console.log(`Fetching: ${url}`);
-
-        const defaultOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            ...options
+        const filtros = {
+            busqueda: document.getElementById('buscarEmpresa')?.value || '',
+            departamento: document.getElementById('filtroDepartamento')?.value || 'all',
+            estado: document.getElementById('filtroEstado')?.value || 'all'
         };
-
-        try {
-            const response = await fetch(url, defaultOptions);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error en fetchAPI:', error);
-            throw error;
+        
+        const params = new URLSearchParams();
+        if (filtros.busqueda) params.append('busqueda', filtros.busqueda);
+        if (filtros.departamento !== 'all') params.append('departamento', filtros.departamento);
+        if (filtros.estado !== 'all') params.append('estado', filtros.estado);
+        
+        const url = `index.php?c=Empresa&a=exportar&${params.toString()}`;
+        
+        // ✅ SOLUCIÓN: Usar window.open en lugar de crear un link
+        const exportWindow = window.open(url, '_blank');
+        
+        // Verificar si la ventana se bloqueó
+        if (!exportWindow || exportWindow.closed || typeof exportWindow.closed == 'undefined') {
+            this.mostrarNotificacion('warning', 'Popup bloqueado', 'Por favor permite popups para descargar el archivo', 5000);
+            
+            // ✅ ALTERNATIVA: Usar iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            setTimeout(() => document.body.removeChild(iframe), 5000);
         }
+        
+        this.mostrarNotificacion('success', 'Exportación iniciada', 'El archivo Excel se está generando', 3000);
+        
+    } catch (error) {
+        console.error('❌ Error exportando datos:', error);
+        this.mostrarError('Error al exportar: ' + error.message);
+    } finally {
+        this.mostrarLoading(false);
     }
+}
+
+// 📊 EXPORTAR ESTADÍSTICAS - USANDO EMPRESACONTROLLER
+async exportarEstadisticas() {
+    try {
+        this.mostrarLoading(true);
+        
+        const url = `index.php?c=Empresa&a=exportarEstadisticas`;
+        
+        // ✅ SOLUCIÓN: Usar window.open
+        const exportWindow = window.open(url, '_blank');
+        
+        if (!exportWindow || exportWindow.closed || typeof exportWindow.closed == 'undefined') {
+            this.mostrarNotificacion('warning', 'Popup bloqueado', 'Por favor permite popups para descargar el reporte', 5000);
+            
+            // ✅ ALTERNATIVA: Usar iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            setTimeout(() => document.body.removeChild(iframe), 5000);
+        }
+        
+        this.mostrarNotificacion('success', 'Reporte iniciado', 'El reporte de estadísticas se está generando', 3000);
+        
+    } catch (error) {
+        console.error('❌ Error exportando estadísticas:', error);
+        this.mostrarError('Error al exportar estadísticas: ' + error.message);
+    } finally {
+        this.mostrarLoading(false);
+    }
+}
+
+    async fetchAPI(controller, action, params = null, options = {}) {
+    let url = `index.php?c=${controller}&a=${action}`;
+    
+    if (params) {
+        const searchParams = new URLSearchParams(params);
+        url += `&${searchParams.toString()}`;
+    }
+
+    console.log('🌐 Fetch URL:', url);
+
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        ...options
+    };
+
+    try {
+        console.log('🔄 Realizando fetch...');
+        const response = await fetch(url, defaultOptions);
+        console.log('📡 Status de respuesta:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📨 Datos parseados:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('❌ Error en fetchAPI:', error);
+        throw error;
+    }
+}
 
     mostrarLoading(mostrar) {
-        console.log(mostrar ? 'Mostrando loading...' : 'Ocultando loading...');
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            if (mostrar) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
+        }
     }
 
     mostrarError(mensaje) {
         console.error('Error:', mensaje);
-        alert('Error: ' + mensaje);
+        this.mostrarNotificacion('error', 'Error', mensaje);
     }
 
-    mostrarExito(mensaje) {
-        console.log('Éxito:', mensaje);
-        alert('Éxito: ' + mensaje);
+    // ==============================
+    // SISTEMA DE NOTIFICACIONES
+    // ==============================
+    
+    mostrarNotificacion(tipo, titulo, mensaje, duracion = 5000) {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification ${tipo}`;
+        
+        const iconos = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        notification.innerHTML = `
+            <i class="notification-icon fas ${iconos[tipo]}"></i>
+            <div class="notification-content">
+                <div class="notification-title">${titulo}</div>
+                <div class="notification-message">${mensaje}</div>
+            </div>
+            <button class="notification-close">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Animación de entrada
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Cerrar notificación
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 500);
+        });
+        
+        // Auto-remover después de la duración
+        if (duracion > 0) {
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, duracion);
+        }
+    }
+    
+    // ==============================
+    // SISTEMA DE CONFIRMACIÓN
+    // ==============================
+    
+    mostrarConfirmacion(titulo, mensaje, tipo = 'warning') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmationModal');
+            const title = document.getElementById('confirmationTitle');
+            const message = document.getElementById('confirmationMessage');
+            const icon = document.getElementById('confirmationIcon');
+            const confirmBtn = document.getElementById('confirmAction');
+            const cancelBtn = document.getElementById('confirmCancel');
+            
+            // Configurar según el tipo
+            const config = {
+                warning: { icon: 'fa-exclamation-triangle', btnClass: '' },
+                danger: { icon: 'fa-trash', btnClass: '' },
+                success: { icon: 'fa-check', btnClass: 'success' }
+            }[tipo] || config.warning;
+            
+            title.textContent = titulo;
+            message.textContent = mensaje;
+            icon.className = `confirmation-icon fas ${config.icon}`;
+            confirmBtn.className = `btn-confirm ${config.btnClass}`;
+            confirmBtn.textContent = tipo === 'success' ? 'Aceptar' : 'Confirmar';
+            
+            // Mostrar modal
+            modal.classList.add('show');
+            
+            // Event listeners
+            const handleConfirm = () => {
+                cleanup();
+                resolve(true);
+            };
+            
+            const handleCancel = () => {
+                cleanup();
+                resolve(false);
+            };
+            
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') handleCancel();
+                if (e.key === 'Enter') handleConfirm();
+            };
+            
+            const cleanup = () => {
+                modal.classList.remove('show');
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+                document.removeEventListener('keydown', handleKeydown);
+            };
+            
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+            document.addEventListener('keydown', handleKeydown);
+        });
+    }
+
+    // 🔥 NUEVO: LIMPIAR TODO AL SALIR/CAMBIAR PÁGINA
+    cleanup() {
+        console.log('Limpiando recursos...');
+        this.destruirGraficos();
     }
 }
 
@@ -909,4 +1667,11 @@ class EmpresaManager {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado, inicializando EmpresaManager...');
     window.empresaManager = new EmpresaManager();
+});
+
+// 🔥 NUEVO: LIMPIAR RECURSOS AL SALIR DE LA PÁGINA
+window.addEventListener('beforeunload', function() {
+    if (window.empresaManager) {
+        window.empresaManager.cleanup();
+    }
 });
