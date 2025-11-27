@@ -156,28 +156,28 @@ class EmpresaModel extends BaseModel
         return $stmt->rowCount() > 0;
     }
 
-   public function eliminarEmpresa($id) {
-    try {
-        // ✅ VERIFICAR SI HAY PRÁCTICAS RELACIONADAS
-        $sqlCheck = "SELECT COUNT(*) as total FROM practicas WHERE empresa = :id";
-        $stmtCheck = $this->executeQuery($sqlCheck, [':id' => $id]);
-        $result = $stmtCheck->fetch();
-        
-        if ($result['total'] > 0) {
-            throw new Exception("No se puede eliminar la empresa porque tiene prácticas asociadas.");
+    public function eliminarEmpresa($id)
+    {
+        try {
+            // ✅ VERIFICAR SI HAY PRÁCTICAS RELACIONADAS
+            $sqlCheck = "SELECT COUNT(*) as total FROM practicas WHERE empresa = :id";
+            $stmtCheck = $this->executeQuery($sqlCheck, [':id' => $id]);
+            $result = $stmtCheck->fetch();
+
+            if ($result['total'] > 0) {
+                throw new Exception("No se puede eliminar la empresa porque tiene prácticas asociadas.");
+            }
+
+            // ✅ ELIMINACIÓN DIRECTA
+            $sql = "DELETE FROM empresa WHERE id = :id";
+            $stmt = $this->executeQuery($sql, [':id' => $id]);
+
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log("❌ Error eliminando empresa ID {$id}: " . $e->getMessage());
+            throw $e;
         }
-        
-        // ✅ ELIMINACIÓN DIRECTA
-        $sql = "DELETE FROM empresa WHERE id = :id";
-        $stmt = $this->executeQuery($sql, [':id' => $id]);
-        
-        return $stmt->rowCount() > 0;
-        
-    } catch (Exception $e) {
-        error_log("❌ Error eliminando empresa ID {$id}: " . $e->getMessage());
-        throw $e;
     }
-}
 
     // 🔥 MÉTODOS PARA ESTADÍSTICAS - CORREGIDOS PARA INCLUIR INACTIVAS
     public function contarEmpresasActivas()
@@ -237,5 +237,23 @@ class EmpresaModel extends BaseModel
         }
 
         return $resultados;
+    }
+
+    // 🔍 VERIFICAR SI EL RUC YA EXISTE
+    public function verificarRucExistente($ruc, $excluirId = null)
+    {
+        $sql = "SELECT COUNT(*) as total FROM empresa WHERE ruc = :ruc";
+        $params = [':ruc' => $ruc];
+
+        // Si estamos editando, excluir el ID actual
+        if ($excluirId) {
+            $sql .= " AND id != :excluir_id";
+            $params[':excluir_id'] = $excluirId;
+        }
+
+        $stmt = $this->executeQuery($sql, $params);
+        $result = $stmt->fetch();
+
+        return ($result['total'] ?? 0) > 0;
     }
 }

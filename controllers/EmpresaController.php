@@ -152,7 +152,6 @@ class EmpresaController
         }
     }
 
-    // API MEJORADA: Crear/editar empresa con validación
     public function api_guardar()
     {
         header('Content-Type: application/json');
@@ -165,9 +164,26 @@ class EmpresaController
             }
 
             $id = $input['id'] ?? null;
+            $ruc = $this->sanitize($input['ruc'] ?? '');
 
-            // Validaciones básicas
-            if (empty($input['ruc']) || empty($input['razon_social']) || empty($input['email'])) {
+            // ✅ VALIDAR RUC
+            if (empty($ruc)) {
+                throw new Exception('El RUC es obligatorio');
+            }
+
+            // ✅ VALIDAR FORMATO DE RUC (11 dígitos para Perú)
+            if (!preg_match('/^[0-9]{11}$/', $ruc)) {
+                throw new Exception('El RUC debe tener 11 dígitos numéricos');
+            }
+
+            // ✅ VERIFICAR SI EL RUC YA EXISTE
+            $rucExistente = $this->empresaModel->verificarRucExistente($ruc, $id);
+            if ($rucExistente) {
+                throw new Exception('El RUC ya está registrado en el sistema');
+            }
+
+            // ✅ VALIDACIONES RESTANTES
+            if (empty($input['razon_social']) || empty($input['email'])) {
                 throw new Exception('Los campos RUC, Razón Social y Email son obligatorios');
             }
 
@@ -192,7 +208,7 @@ class EmpresaController
 
             // ✅ CORREGIDO: Estructura correcta para el modelo
             $datos = [
-                ':ruc' => $this->sanitize($input['ruc']),
+                ':ruc' => $ruc,
                 ':razon_social' => $this->sanitize($input['razon_social']),
                 ':representante_legal' => $this->sanitize($input['representante_legal'] ?? ''),
                 ':direccion_fiscal' => $this->sanitize($input['direccion_fiscal'] ?? ''),
@@ -230,35 +246,79 @@ class EmpresaController
         }
     }
 
-    // API MEJORADA: Eliminar empresa
-  public function api_eliminar() {
-    header('Content-Type: application/json');
-    
-    try {
-        $id = $_GET['id'] ?? null;
-        
-        if (!$id) {
-            throw new Exception('ID de empresa no proporcionado');
-        }
-        
-        $result = $this->empresaModel->eliminarEmpresa($id);
-        
-        if ($result) {
+    // 🔍 API PARA VALIDAR RUC
+    public function api_validar_ruc()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $ruc = $_GET['ruc'] ?? '';
+            $excluirId = $_GET['excluir_id'] ?? null;
+
+            if (empty($ruc)) {
+                throw new Exception('RUC no proporcionado');
+            }
+
+            // Validar formato
+            if (!preg_match('/^[0-9]{11}$/', $ruc)) {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'existe' => false,
+                        'mensaje' => 'Formato inválido'
+                    ]
+                ]);
+                return;
+            }
+
+            // Verificar en base de datos
+            $existe = $this->empresaModel->verificarRucExistente($ruc, $excluirId);
+
             echo json_encode([
                 'success' => true,
-                'message' => 'Empresa eliminada permanentemente del sistema'
+                'data' => [
+                    'existe' => $existe,
+                    'ruc' => $ruc,
+                    'mensaje' => $existe ? 'RUC ya registrado' : 'RUC disponible'
+                ]
             ]);
-        } else {
-            throw new Exception('No se pudo eliminar la empresa');
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
-        
-    } catch (Exception $e) {
-        echo json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ]);
     }
-}
+
+    // API MEJORADA: Eliminar empresa
+    public function api_eliminar()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $id = $_GET['id'] ?? null;
+
+            if (!$id) {
+                throw new Exception('ID de empresa no proporcionado');
+            }
+
+            $result = $this->empresaModel->eliminarEmpresa($id);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Empresa eliminada permanentemente del sistema'
+                ]);
+            } else {
+                throw new Exception('No se pudo eliminar la empresa');
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 
     // API MEJORADA: Estadísticas - CORREGIDO
     public function api_estadisticas()
@@ -304,24 +364,25 @@ class EmpresaController
     }
 
     // 🧪 MÉTODO TEMPORAL PARA PROBAR DATOS (eliminar después)
-public function debugEstadisticas() {
-    header('Content-Type: application/json');
-    
-    $total_empresas = $this->empresaModel->contarTotalEmpresas();
-    $empresas_activas = $this->empresaModel->contarEmpresasActivas();
-    $distribucion_estados = $this->empresaModel->contarEmpresasPorEstado();
-    
-    echo json_encode([
-        'debug' => true,
-        'total_empresas' => $total_empresas,
-        'empresas_activas' => $empresas_activas,
-        'empresas_inactivas_calculadas' => $total_empresas - $empresas_activas,
-        'distribucion_estados' => $distribucion_estados,
-        'sql_activas' => "SELECT COUNT(*) as total FROM empresa WHERE estado = 'ACTIVO'",
-        'sql_total' => "SELECT COUNT(*) as total FROM empresa",
-        'sql_estados' => "SELECT estado, COUNT(*) as cantidad FROM empresa GROUP BY estado"
-    ]);
-}
+    public function debugEstadisticas()
+    {
+        header('Content-Type: application/json');
+
+        $total_empresas = $this->empresaModel->contarTotalEmpresas();
+        $empresas_activas = $this->empresaModel->contarEmpresasActivas();
+        $distribucion_estados = $this->empresaModel->contarEmpresasPorEstado();
+
+        echo json_encode([
+            'debug' => true,
+            'total_empresas' => $total_empresas,
+            'empresas_activas' => $empresas_activas,
+            'empresas_inactivas_calculadas' => $total_empresas - $empresas_activas,
+            'distribucion_estados' => $distribucion_estados,
+            'sql_activas' => "SELECT COUNT(*) as total FROM empresa WHERE estado = 'ACTIVO'",
+            'sql_total' => "SELECT COUNT(*) as total FROM empresa",
+            'sql_estados' => "SELECT estado, COUNT(*) as cantidad FROM empresa GROUP BY estado"
+        ]);
+    }
 
     // En controllers/EmpresaController.php - agrega este método:
     public function exportar()

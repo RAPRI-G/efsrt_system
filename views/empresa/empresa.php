@@ -299,27 +299,6 @@ require_once 'views/layouts/header.php';
     </div>
     </main>
 
-    <!-- Modal de Confirmación de Cierre de Sesión -->
-    <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl p-6 w-96 max-w-md mx-4">
-            <div class="flex items-center mb-4">
-                <div class="bg-red-100 p-3 rounded-full mr-4">
-                    <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-primary-blue">Cerrar Sesión</h3>
-            </div>
-            <p class="text-gray-600 mb-6">¿Estás seguro de que deseas cerrar sesión? Serás redirigido a la página de inicio de sesión.</p>
-            <div class="flex justify-end space-x-3">
-                <button id="cancelLogout" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300">
-                    Cancelar
-                </button>
-                <button id="confirmLogout" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300">
-                    Cerrar Sesión
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal para Agregar/Editar Empresa -->
     <div id="empresaModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl w-full max-w-4xl mx-4 modal-content">
@@ -335,9 +314,25 @@ require_once 'views/layouts/header.php';
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label for="ruc" class="block text-sm font-medium text-gray-700 mb-1">RUC *</label>
-                            <input type="text" id="ruc" name="ruc" maxlength="11"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <label for="ruc" class="block text-sm font-medium text-gray-700 mb-1">
+                                RUC *
+                                <span id="rucStatus" class="text-xs font-normal text-gray-500 ml-1"></span>
+                            </label>
+                            <div class="relative">
+                                <input type="text"
+                                    id="ruc"
+                                    name="ruc"
+                                    maxlength="11"
+                                    pattern="[0-9]{11}"
+                                    title="El RUC debe contener exactamente 11 dígitos numéricos"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ruc-input"
+                                    placeholder="Ingrese 11 dígitos"
+                                    required>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <!-- Aquí aparecerán los iconos de validación -->
+                                </div>
+                            </div>
+                            <!-- Aquí aparecerán los mensajes de feedback -->
                         </div>
 
                         <div>

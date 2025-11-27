@@ -540,6 +540,170 @@ mostrarMensajeGraficoVacio(canvasId, mensaje) {
         this.setupActionButtons();
     }
 
+    // 🔍 VALIDAR RUC EN TIEMPO REAL
+setupRucValidation() {
+    const rucInput = document.getElementById('ruc');
+    if (!rucInput) return;
+    
+    let validationTimeout;
+    
+    rucInput.addEventListener('input', (e) => {
+        this.limpiarValidacionRuc();
+        
+        const ruc = e.target.value.trim();
+        
+        // Validación básica inmediata
+        if (ruc.length > 0) {
+            this.validarFormatoRuc(ruc);
+        }
+        
+        // Validación con servidor (con delay)
+        clearTimeout(validationTimeout);
+        validationTimeout = setTimeout(() => {
+            this.validarRucEnServidor(ruc);
+        }, 800);
+    });
+    
+    // Validar al perder foco
+    rucInput.addEventListener('blur', (e) => {
+        const ruc = e.target.value.trim();
+        if (ruc.length > 0) {
+            this.validarRucEnServidor(ruc);
+        }
+    });
+}
+
+// 🧹 LIMPIAR ESTADO DE VALIDACIÓN
+limpiarValidacionRuc() {
+    const rucInput = document.getElementById('ruc');
+    const feedback = document.getElementById('rucFeedback');
+    
+    if (rucInput) {
+        rucInput.classList.remove('border-green-500', 'border-red-500', 'border-yellow-500');
+    }
+    
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+// ✅ VALIDAR FORMATO DE RUC (frontend)
+validarFormatoRuc(ruc) {
+    const rucInput = document.getElementById('ruc');
+    if (!rucInput) return;
+    
+    // Validar que solo tenga números
+    if (!/^\d*$/.test(ruc)) {
+        this.mostrarErrorRuc('El RUC solo debe contener números');
+        return false;
+    }
+    
+    // Validar longitud
+    if (ruc.length > 0 && ruc.length !== 11) {
+        this.mostrarAdvertenciaRuc('El RUC debe tener 11 dígitos');
+        return false;
+    }
+    
+    if (ruc.length === 11) {
+        this.mostrarExitoRuc('Formato de RUC válido');
+        return true;
+    }
+    
+    return null; // Aún no está completo
+}
+
+// 🔍 VALIDAR RUC EN EL SERVIDOR
+async validarRucEnServidor(ruc) {
+    if (!ruc || ruc.length !== 11) return;
+    
+    try {
+        this.mostrarLoadingRuc(true);
+        
+        const empresaId = document.getElementById('empresaId')?.value || null;
+        const params = new URLSearchParams({ ruc: ruc });
+        if (empresaId) params.append('excluir_id', empresaId);
+        
+        const response = await this.fetchAPI('Empresa', 'api_validar_ruc', params);
+        
+        if (response.success) {
+            if (response.data.existe) {
+                this.mostrarErrorRuc('Este RUC ya está registrado en el sistema');
+            } else {
+                this.mostrarExitoRuc('RUC disponible');
+            }
+        } else {
+            this.mostrarAdvertenciaRuc('No se pudo verificar el RUC');
+        }
+        
+    } catch (error) {
+        console.error('Error validando RUC:', error);
+        this.mostrarAdvertenciaRuc('Error al conectar con el servidor');
+    } finally {
+        this.mostrarLoadingRuc(false);
+    }
+}
+
+// 🎨 MOSTRAR ESTADOS DE VALIDACIÓN
+mostrarErrorRuc(mensaje) {
+    this.mostrarFeedbackRuc(mensaje, 'red');
+}
+
+mostrarAdvertenciaRuc(mensaje) {
+    this.mostrarFeedbackRuc(mensaje, 'yellow');
+}
+
+mostrarExitoRuc(mensaje) {
+    this.mostrarFeedbackRuc(mensaje, 'green');
+}
+
+mostrarFeedbackRuc(mensaje, color) {
+    const rucInput = document.getElementById('ruc');
+    if (!rucInput) return;
+    
+    // Limpiar feedback anterior
+    this.limpiarValidacionRuc();
+    
+    // Aplicar estilos al input
+    rucInput.classList.add(`border-${color}-500`);
+    
+    // Crear elemento de feedback
+    const feedback = document.createElement('div');
+    feedback.id = 'rucFeedback';
+    feedback.className = `mt-1 text-sm text-${color}-600 flex items-center`;
+    feedback.innerHTML = `
+        <i class="fas ${this.getIconoValidacion(color)} mr-1"></i>
+        ${mensaje}
+    `;
+    
+    rucInput.parentNode.appendChild(feedback);
+}
+
+getIconoValidacion(color) {
+    switch (color) {
+        case 'green': return 'fa-check-circle';
+        case 'red': return 'fa-exclamation-circle';
+        case 'yellow': return 'fa-exclamation-triangle';
+        default: return 'fa-info-circle';
+    }
+}
+
+// 🔄 MOSTRAR/OCULTAR LOADING
+mostrarLoadingRuc(mostrar) {
+    const rucInput = document.getElementById('ruc');
+    if (!rucInput) return;
+    
+    let loadingIcon = rucInput.parentNode.querySelector('.ruc-loading');
+    
+    if (mostrar && !loadingIcon) {
+        loadingIcon = document.createElement('div');
+        loadingIcon.className = 'ruc-loading absolute right-10 top-2';
+        loadingIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i>';
+        rucInput.parentNode.appendChild(loadingIcon);
+    } else if (!mostrar && loadingIcon) {
+        loadingIcon.remove();
+    }
+}
+
     // 🔘 CONFIGURAR BOTONES DE ACCIÓN
     setupActionButtons() {
 
@@ -597,6 +761,7 @@ mostrarMensajeGraficoVacio(canvasId, mensaje) {
     
     // ✅ RESETEAR FORMULARIO PRIMERO
     form.reset();
+    this.limpiarValidacionRuc();
     
     // ✅ RESETEAR SELECTS DE UBICACIÓN
     this.actualizarSelect('provincia_id', [], 'Seleccionar provincia');
@@ -1291,6 +1456,7 @@ mostrarIndicadorBusqueda(mostrar) {
 
         this.addClickListener('cerrarModal', () => this.cerrarModalEmpresa());
         this.addClickListener('cancelarForm', () => this.cerrarModalEmpresa());
+        this.setupRucValidation();
 
         // Modal de detalles
         this.addClickListener('cerrarDetalleModal', () => this.cerrarDetalleModal());

@@ -324,3 +324,49 @@ body {
     animation: dropdownFadeIn 0.2s ease-out;
 }
 
+/* 🎨 ESTILOS PARA VALIDACIÓN DE RUC */
+.ruc-input:valid {
+    border-color: #10B981;
+}
+
+.ruc-input:invalid {
+    border-color: #EF4444;
+}
+
+.ruc-input:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Estados de validación */
+.border-green-500 {
+    border-color: #10B981 !important;
+}
+
+.border-red-500 {
+    border-color: #EF4444 !important;
+}
+
+.border-yellow-500 {
+    border-color: #F59E0B !important;
+}
+
+/* Animación para feedback */
+#rucFeedback {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading para validación */
+.ruc-loading {
+    animation: spin 1s linear infinite;
+}
