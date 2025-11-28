@@ -6882,6 +6882,100 @@ ALTER TABLE `ubprovincia`
   ADD CONSTRAINT `ubprovincia_ibfk_1` FOREIGN KEY (`ubdepartamento`) REFERENCES `ubdepartamento` (`id`);
 COMMIT;
 
+CREATE VIEW `vista_estudiante_efsrt` AS
+SELECT 
+    -- Datos básicos del estudiante
+    e.`id` as estudiante_id,
+    e.`dni_est`,
+    CONCAT(e.`ap_est`, ' ', e.`am_est`, ', ', e.`nom_est`) as nombre_completo,
+    e.`ap_est`,
+    e.`am_est`, 
+    e.`nom_est`,
+    e.`cel_est`,
+    e.`dir_est`,
+    e.`mailp_est`,
+    e.`maili_est`,
+    e.`fecnac_est`,
+    e.`ubigeonac_est`,
+    
+    -- Datos de matrícula y programa
+    m.`id_matricula`,
+    m.`per_acad` as periodo_academico,
+    m.`turno`,
+    p.`id` as programa_id,
+    p.`nom_progest` as programa_estudios,
+    
+    -- Año de ingreso (de la fecha de matrícula)
+    YEAR(m.`fec_matricula`) as año_ingreso,
+    
+    -- Lugar de nacimiento (si necesitas unirlo con ubigeo después)
+    e.`ubigeonac_est` as ubigeo_nacimiento
+    
+FROM `estudiante` e
+LEFT JOIN `matricula` m ON e.`id` = m.`estudiante`
+LEFT JOIN `prog_estudios` p ON m.`prog_estudios` = p.`id`
+WHERE e.`estado` = 1 AND m.`est_matricula` = '1';
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Vista para obtener el lugar de nacimiento en texto completo
+CREATE VIEW `vista_ubigeo_completo` AS
+SELECT 
+    di.`id` as ubigeo_id,
+    CONCAT(d.`departamento`, '/', p.`provincia`, '/', di.`distrito`) as lugar_completo,
+    d.`departamento`,
+    p.`provincia`, 
+    di.`distrito`
+FROM `ubdistrito` di
+JOIN `ubprovincia` p ON di.`ubprovincia` = p.`id`
+JOIN `ubdepartamento` d ON p.`ubdepartamento` = d.`id`;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Vista final que une todo
+CREATE VIEW `vista_efsrt_completa` AS
+SELECT 
+    e.*,
+    u.`lugar_completo` as lugar_nacimiento,
+    u.`departamento` as region_nacimiento,
+    u.`provincia` as provincia_nacimiento,
+    u.`distrito` as distrito_nacimiento
+FROM `vista_estudiante_efsrt` e
+LEFT JOIN `vista_ubigeo_completo` u ON e.`ubigeo_nacimiento` = u.`ubigeo_id`;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Vista completa de empresas para EFSRT
+CREATE VIEW `vista_empresa_efsrt` AS
+SELECT 
+    e.`id`,
+    e.`ruc`,
+    e.`razon_social`,
+    e.`representante_legal`,
+    e.`nombre_comercial`,
+    e.`direccion_fiscal` as direccion,
+    e.`telefono`,
+    e.`email`,
+    e.`sector`,
+    CONCAT(e.`departamento`, ' / ', e.`provincia`, ' / ', e.`distrito`) as ubicacion_completa,
+    e.`departamento`,
+    e.`provincia`, 
+    e.`distrito`
+FROM `empresa` e;
+
+-------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- 1. Agregar representante_legal a empresa
+ALTER TABLE `empresa` 
+ADD COLUMN `representante_legal` VARCHAR(255) DEFAULT NULL AFTER `razon_social`;
+
+ALTER TABLE estudiante MODIFY ubigeonac_est VARCHAR(255) DEFAULT NULL;
+ALTER TABLE estudiante MODIFY ubigeodir_est VARCHAR(255) DEFAULT NULL;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

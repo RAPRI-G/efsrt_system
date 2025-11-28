@@ -168,18 +168,13 @@ async function cargarDatosEstudiantes() {
 }
 
 // Función para agregar nuevo estudiante
-async function agregarEstudiante(datos) {
+async function agregarEstudiante(formData) {
     mostrarCarga('Guardando estudiante...');
     
     try {
-        const formData = new FormData();
-        Object.keys(datos).forEach(key => {
-            formData.append(key, datos[key]);
-        });
-        
         const response = await fetch('index.php?c=Estudiante&a=crear', {
             method: 'POST',
-            body: formData
+            body: formData // 🔥 Ahora enviamos FormData directamente
         });
         
         const result = await response.json();
@@ -201,18 +196,13 @@ async function agregarEstudiante(datos) {
 }
 
 // Función para editar estudiante
-async function editarEstudiante(id, datos) {
+async function editarEstudiante(id, formData) {
     mostrarCarga('Actualizando estudiante...');
     
     try {
-        const formData = new FormData();
-        Object.keys(datos).forEach(key => {
-            formData.append(key, datos[key]);
-        });
-        
         const response = await fetch(`index.php?c=Estudiante&a=actualizar&id=${id}`, {
             method: 'POST',
-            body: formData
+            body: formData // 🔥 Ahora enviamos FormData directamente
         });
         
         const result = await response.json();
@@ -279,9 +269,15 @@ async function eliminarEstudiante(id) {
 // ==============================
 
 // Actualizar estadísticas del dashboard
+// Actualizar estadísticas del dashboard
 function actualizarDashboardEstudiantes() {
     const totalEstudiantes = datosEstudiantes.estudiantes.length;
-    const estudiantesActivos = datosEstudiantes.estudiantes.filter(e => e.estado === 1).length;
+    
+    // 🔥 CORRECCIÓN: Contar estudiantes activos (incluyendo null como activos)
+    const estudiantesActivos = datosEstudiantes.estudiantes.filter(e => 
+        e.estado === 1 || e.estado === null
+    ).length;
+    
     const estudiantesPracticas = datosEstudiantes.estudiantes.filter(e => e.en_practicas > 0).length;
     const totalProgramas = new Set(datosEstudiantes.estudiantes.map(e => e.prog_estudios)).size;
 
@@ -321,9 +317,10 @@ function aplicarFiltrosYRenderizar() {
         const programaCoincide = programaFiltro === 'all' || 
             estudiante.prog_estudios == programaFiltro;
         
-        // Filtro por estado
+        // 🔥 CORRECCIÓN: Filtro por estado (maneja valores null)
         const estadoCoincide = estadoFiltro === 'all' || 
-            estudiante.estado.toString() === estadoFiltro;
+            (estadoFiltro === '1' && (estudiante.estado === 1 || estudiante.estado === null)) ||
+            (estadoFiltro === '0' && estudiante.estado === 0);
         
         // Filtro por género
         const generoCoincide = generoFiltro === 'all' || 
@@ -370,12 +367,13 @@ function renderizarTablaEstudiantes(estudiantes) {
         fila.className = 'hover:bg-gray-50 transition-all duration-300 fade-in';
         
         // Determinar badge de estado
-        let estadoBadge = '';
-        if (estudiante.estado === 1) {
-            estadoBadge = '<span class="badge-estado badge-activo">Activo</span>';
-        } else {
-            estadoBadge = '<span class="badge-estado badge-inactivo">Inactivo</span>';
-        }
+let estadoBadge = '';
+// 🔥 CORRECCIÓN: Considerar null como activo
+if (estudiante.estado === 1 || estudiante.estado === null) {
+    estadoBadge = '<span class="badge-estado badge-activo">Activo</span>';
+} else {
+    estadoBadge = '<span class="badge-estado badge-inactivo">Inactivo</span>';
+}
         
         // Determinar badge de prácticas
         let practicasBadge = '';
@@ -385,49 +383,50 @@ function renderizarTablaEstudiantes(estudiantes) {
             practicasBadge = '<span class="badge-estado badge-inactivo">Sin prácticas</span>';
         }
         
-        fila.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                    <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold mr-3 ${estudiante.sex_est == 'F' ? 'avatar-estudiante-femenino' : 'avatar-estudiante-masculino'}">
-                        ${estudiante.nom_est.charAt(0)}${estudiante.ap_est.charAt(0)}
-                    </div>
-                    <div>
-                        <div class="text-sm font-semibold text-gray-900">
-                            ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            ${practicasBadge}
-                        </div>
-                    </div>
+        // En renderizarTablaEstudiantes - CORREGIR esta parte:
+fila.innerHTML = `
+    <td class="px-6 py-4 whitespace-nowrap">
+        <div class="flex items-center">
+            <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold mr-3 ${estudiante.sex_est == 'F' ? 'avatar-estudiante-femenino' : 'avatar-estudiante-masculino'}">
+                ${estudiante.nom_est.charAt(0)}${estudiante.ap_est.charAt(0)}
+            </div>
+            <div>
+                <div class="text-sm font-semibold text-gray-900">
+                    ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}
                 </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.dni_est}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.nom_progest || 'No asignado'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div class="font-medium">${estudiante.prog_estudios || 'N/A'}</div>
-                <div class="text-xs">${estudiante.turno || ''}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div>${estudiante.cel_est || 'N/A'}</div>
-                <div class="text-xs">${estudiante.mailp_est || ''}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                ${estadoBadge}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <div class="flex space-x-2">
-                    <button class="btn-accion btn-editar editar-estudiante" data-id="${estudiante.id}" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-accion btn-ver ver-estudiante" data-id="${estudiante.id}" title="Ver detalles">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-accion btn-eliminar eliminar-estudiante" data-id="${estudiante.id}" title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <div class="text-xs text-gray-500">
+                    ${practicasBadge}
                 </div>
-            </td>
-        `;
+            </div>
+        </div>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.dni_est}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.nom_progest || 'No asignado'}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <div class="font-medium">${estudiante.id_matricula || 'N/A'}</div>
+        <div class="text-xs">${estudiante.turno || ''}</div>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <div>${estudiante.cel_est || 'N/A'}</div>
+        <div class="text-xs">${estudiante.mailp_est || ''}</div>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        ${estadoBadge}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        <div class="flex space-x-2">
+            <button class="btn-accion btn-editar editar-estudiante" data-id="${estudiante.id}" title="Editar">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-accion btn-ver ver-estudiante" data-id="${estudiante.id}" title="Ver detalles">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-accion btn-eliminar eliminar-estudiante" data-id="${estudiante.id}" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </td>
+`;
         
         tabla.appendChild(fila);
     });
@@ -632,14 +631,69 @@ function inicializarGraficosEstudiantes() {
 // ==============================
 
 // Función para abrir modal de nuevo estudiante
+// Función para abrir modal de nuevo estudiante
+// Función para abrir modal de nuevo estudiante
 function abrirModalNuevo() {
     document.getElementById('modalTitulo').textContent = 'Nuevo Estudiante';
     document.getElementById('formEstudiante').reset();
     document.getElementById('estudianteId').value = '';
     
+    // 🔥 CORRECCIÓN: Actualizar el token CSRF
+    actualizarTokenCSRF();
+    
+    // 🔥 NUEVO: Configurar validación de DNI
+    setTimeout(() => {
+        configurarValidacionDNI();
+    }, 100);
+    
+    // Resetear selects de ubigeo
+    ['nac', 'dir'].forEach(tipo => {
+        document.getElementById(`departamento_${tipo}`).value = '';
+        document.getElementById(`provincia_${tipo}`).innerHTML = '<option value="">Provincia</option>';
+        document.getElementById(`provincia_${tipo}`).disabled = true;
+        document.getElementById(`distrito_${tipo}`).innerHTML = '<option value="">Distrito</option>';
+        document.getElementById(`distrito_${tipo}`).disabled = true;
+    });
+    
+    // Ocultar cualquier advertencia previa
+    ocultarAdvertenciaDNI();
+    
     document.getElementById('estudianteModal').classList.remove('hidden');
 }
 
+// 🔥 NUEVA FUNCIÓN: Actualizar token CSRF
+async function actualizarTokenCSRF() {
+    try {
+        const response = await fetch('index.php?c=Estudiante&a=actualizarCSRF');
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('csrf_token').value = result.token;
+            console.log('Token CSRF actualizado:', result.token);
+        }
+    } catch (error) {
+        console.error('Error al actualizar token CSRF:', error);
+        // Si falla, intentamos regenerar localmente
+        generarTokenCSRFLocal();
+    }
+}
+
+function generarTokenCSRFLocal() {
+    const token = generateRandomToken(32);
+    document.getElementById('csrf_token').value = token;
+    console.log('Token CSRF generado localmente:', token);
+}
+
+function generateRandomToken(length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < length; i++) {
+        token += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return token;
+}
+
+// Función para abrir modal de edición
 // Función para abrir modal de edición
 async function abrirModalEditar(id) {
     mostrarCarga('Cargando datos del estudiante...');
@@ -675,6 +729,17 @@ async function abrirModalEditar(id) {
                 progEstudios.value = estudiante.prog_estudios;
             }
             
+            // Seleccionar turno
+            const turno = document.getElementById('turno');
+            if (turno && estudiante.turno) {
+                turno.value = estudiante.turno;
+            }
+            
+            // 🔥 NUEVO: Configurar validación de DNI excluyendo el ID actual
+            setTimeout(() => {
+                configurarValidacionDNIEdicion(estudiante.id);
+            }, 100);
+            
             document.getElementById('estudianteModal').classList.remove('hidden');
         } else {
             throw new Error(result.error);
@@ -683,6 +748,87 @@ async function abrirModalEditar(id) {
         mostrarNotificacion('error', 'Error', error.message);
     } finally {
         ocultarCarga();
+    }
+}
+
+// 🔥 NUEVA FUNCIÓN: Configurar validación de DNI para edición
+function configurarValidacionDNIEdicion(estudianteId) {
+    const inputDNI = document.getElementById('dni_est');
+    let timeout = null;
+
+    inputDNI.addEventListener('input', function() {
+        const dni = this.value.trim();
+        
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        
+        ocultarAdvertenciaDNI();
+        
+        if (dni.length === 8) {
+            if (!validarFormatoDNI(dni)) {
+                mostrarAdvertenciaDNI('El DNI debe contener solo 8 dígitos numéricos.');
+                return;
+            }
+            
+            timeout = setTimeout(async () => {
+                const existe = await verificarDNIExistenteEdicion(dni, estudianteId);
+                if (existe) {
+                    mostrarAdvertenciaDNI('Este DNI ya está registrado en otro estudiante.');
+                }
+            }, 500);
+        }
+    });
+}
+
+// Función para verificar si el DNI existe (MEJORADA)
+async function verificarDNIExistente(dni, excluirId = null) {
+    if (!dni || dni.length !== 8) return false;
+    
+    try {
+        let url = `index.php?c=Estudiante&a=verificarDNI&dni=${dni}`;
+        if (excluirId) {
+            url += `&excluir_id=${excluirId}`;
+        }
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.success !== undefined) {
+            return result.existe;
+        } else {
+            // Para compatibilidad con la versión anterior
+            return result.existe || false;
+        }
+    } catch (error) {
+        console.error('Error al verificar DNI:', error);
+        return false;
+    }
+}
+
+// 🔥 NUEVA FUNCIÓN: Verificar DNI excluyendo el ID actual (más robusta)
+async function verificarDNIExistenteEdicion(dni, excluirId) {
+    if (!dni || dni.length !== 8) return false;
+    
+    try {
+        const response = await fetch(`index.php?c=Estudiante&a=verificarDNI&dni=${dni}&excluir_id=${excluirId}`);
+        
+        // Verificar si la respuesta es JSON válido
+        const text = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Respuesta no es JSON válido:', text);
+            return false;
+        }
+        
+        return result.existe || false;
+        
+    } catch (error) {
+        console.error('Error al verificar DNI:', error);
+        return false;
     }
 }
 
@@ -739,6 +885,10 @@ function mostrarDetallesEstudiante(estudiante) {
     document.getElementById('detallePeriodo').textContent = estudiante.per_acad || 'N/A';
     document.getElementById('detalleTurno').textContent = estudiante.turno || 'N/A';
     document.getElementById('detalleMatricula').textContent = estudiante.id_matricula || 'N/A';
+
+    // 🔥 NUEVO: Información de ubicación
+    document.getElementById('detalleLugarNacimiento').textContent = estudiante.ubigeonac_est || 'No especificado';
+    document.getElementById('detalleLugarActual').textContent = estudiante.ubigeodir_est || 'No especificado';
     
     // Estado
     const estadoElement = document.getElementById('detalleEstado');
@@ -802,6 +952,185 @@ function cerrarDetalleModalEstudiante() {
 }
 
 // ==============================
+// VALIDACIÓN DE DNI EN TIEMPO REAL
+// ==============================
+
+// Función para verificar si el DNI existe
+async function verificarDNIExistente(dni) {
+    if (!dni || dni.length !== 8) return false;
+    
+    try {
+        const response = await fetch(`index.php?c=Estudiante&a=verificarDNI&dni=${dni}`);
+        const result = await response.json();
+        return result.existe;
+    } catch (error) {
+        console.error('Error al verificar DNI:', error);
+        return false;
+    }
+}
+
+// Función para mostrar advertencia de DNI existente
+function mostrarAdvertenciaDNI(mensaje) {
+    let advertencia = document.getElementById('advertenciaDNI');
+    
+    if (!advertencia) {
+        advertencia = document.createElement('div');
+        advertencia.id = 'advertenciaDNI';
+        advertencia.className = 'mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start';
+        
+        const inputDNI = document.getElementById('dni_est');
+        inputDNI.parentNode.appendChild(advertencia);
+    }
+    
+    advertencia.innerHTML = `
+        <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5 mr-3"></i>
+        <div class="flex-1">
+            <p class="text-sm font-medium text-yellow-800">¡Advertencia!</p>
+            <p class="text-sm text-yellow-700">${mensaje}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-yellow-500 hover:text-yellow-700">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+}
+
+// Función para ocultar advertencia de DNI
+function ocultarAdvertenciaDNI() {
+    const advertencia = document.getElementById('advertenciaDNI');
+    if (advertencia) {
+        advertencia.remove();
+    }
+}
+
+// Función para validar formato de DNI
+function validarFormatoDNI(dni) {
+    return /^\d{8}$/.test(dni);
+}
+
+// Event listener para validación de DNI en tiempo real
+// Event listener para validación de DNI en tiempo real (SOLO ADVERTENCIA)
+function configurarValidacionDNI() {
+    const inputDNI = document.getElementById('dni_est');
+    let timeout = null;
+
+    inputDNI.addEventListener('input', function() {
+        const dni = this.value.trim();
+        
+        // Limpiar timeout anterior
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        
+        // Ocultar advertencia anterior
+        ocultarAdvertenciaDNI();
+        
+        // Validar formato
+        if (dni.length === 8) {
+            if (!/^\d{8}$/.test(dni)) {
+                mostrarAdvertenciaDNI('El DNI debe contener solo 8 dígitos numéricos.');
+                return;
+            }
+            
+            // Esperar 500ms después de que el usuario deje de escribir
+            timeout = setTimeout(async () => {
+                const estudianteId = document.getElementById('estudianteId').value;
+                const existe = await verificarDNIExistente(dni, estudianteId);
+                if (existe) {
+                    if (estudianteId) {
+                        mostrarAdvertenciaDNI('Este DNI ya está registrado en OTRO estudiante. No podrás guardar los cambios.');
+                    } else {
+                        mostrarAdvertenciaDNI('Este DNI ya está registrado en el sistema. No podrás guardar el estudiante.');
+                    }
+                }
+            }, 500);
+        }
+    });
+}
+
+// ==============================
+// MANEJO DE UBIGEO
+// ==============================
+
+// Función para cargar provincias
+async function cargarProvincias(departamentoId, tipo) {
+    if (!departamentoId) return;
+    
+    try {
+        const response = await fetch(`index.php?c=Estudiante&a=obtenerProvincias&departamento_id=${departamentoId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const selectProvincia = document.getElementById(`provincia_${tipo}`);
+            const selectDistrito = document.getElementById(`distrito_${tipo}`);
+            
+            // Limpiar y habilitar provincia
+            selectProvincia.innerHTML = '<option value="">Provincia</option>';
+            selectProvincia.disabled = false;
+            
+            // Limpiar y deshabilitar distrito
+            selectDistrito.innerHTML = '<option value="">Distrito</option>';
+            selectDistrito.disabled = true;
+            
+            // Llenar provincias
+            result.data.forEach(provincia => {
+                const option = document.createElement('option');
+                option.value = provincia.id;
+                option.textContent = provincia.provincia;
+                selectProvincia.appendChild(option);
+            });
+            
+            // 🔥 CORRECCIÓN: Limpiar hidden correctamente
+            document.getElementById(`ubigeo${tipo}_est`).value = '';
+        }
+    } catch (error) {
+        console.error('Error al cargar provincias:', error);
+        mostrarNotificacion('error', 'Error', 'No se pudieron cargar las provincias');
+    }
+}
+
+/// Función para cargar distritos
+async function cargarDistritos(provinciaId, tipo) {
+    if (!provinciaId) return;
+    
+    try {
+        const response = await fetch(`index.php?c=Estudiante&a=obtenerDistritos&provincia_id=${provinciaId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const selectDistrito = document.getElementById(`distrito_${tipo}`);
+            
+            // Limpiar y habilitar distrito
+            selectDistrito.innerHTML = '<option value="">Distrito</option>';
+            selectDistrito.disabled = false;
+            
+            // Llenar distritos
+            result.data.forEach(distrito => {
+                const option = new Option(distrito.distrito, distrito.id);
+                selectDistrito.add(option);
+            });
+            
+            // 🔥 CORRECCIÓN: Limpiar hidden
+            document.getElementById(`ubigeo${tipo}_est`).value = '';
+        }
+    } catch (error) {
+        console.error('Error al cargar distritos:', error);
+        mostrarNotificacion('error', 'Error', 'No se pudieron cargar los distritos');
+    }
+}
+
+// 🔥 CORRECCIÓN: Función mejorada para actualizar el ubigeo hidden
+function actualizarUbigeoHidden(tipo) {
+    const distritoId = document.getElementById(`distrito_${tipo}`).value;
+    console.log(`Ubigeo ${tipo} seleccionado:`, distritoId);
+}
+
+// Función para cargar ubigeo en edición
+async function cargarUbigeoEnEdicion(estudianteId) {
+    // Esta función necesitaría obtener los datos del estudiante y cargar los selects
+    // Se implementaría cuando cargues los datos para edición
+}
+
+// ==============================
 // EVENT LISTENERS PRINCIPALES
 // ==============================
 
@@ -814,37 +1143,109 @@ document.addEventListener('DOMContentLoaded', function() {
     // Botón Nuevo Estudiante
     document.getElementById('btnNuevoEstudiante').addEventListener('click', abrirModalNuevo);
 
-    // Envío del formulario de estudiante
-    document.getElementById('formEstudiante').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Event listeners para ubigeo - Nacimiento
+document.getElementById('departamento_nac').addEventListener('change', function() {
+    const departamentoId = this.value;
+    cargarProvincias(departamentoId, 'nac');
+});
+
+document.getElementById('provincia_nac').addEventListener('change', function() {
+    const provinciaId = this.value;
+    cargarDistritos(provinciaId, 'nac');
+});
+
+document.getElementById('distrito_nac').addEventListener('change', function() {
+    actualizarUbigeoHidden('nac');
+});
+
+// Event listeners para ubigeo - Dirección
+document.getElementById('departamento_dir').addEventListener('change', function() {
+    const departamentoId = this.value;
+    cargarProvincias(departamentoId, 'dir');
+});
+
+document.getElementById('provincia_dir').addEventListener('change', function() {
+    const provinciaId = this.value;
+    cargarDistritos(provinciaId, 'dir');
+});
+
+document.getElementById('distrito_dir').addEventListener('change', function() {
+    actualizarUbigeoHidden('dir');
+});
+
+// Envío del formulario de estudiante - VERSIÓN CON VALIDACIÓN DE DNI
+document.getElementById('formEstudiante').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('estudianteId').value;
+    const dni = document.getElementById('dni_est').value.trim();
+
+    // 🔥 VALIDACIÓN CRÍTICA: Verificar formato de DNI
+    if (!/^\d{8}$/.test(dni)) {
+        mostrarNotificacion('error', 'Error', 'El DNI debe tener exactamente 8 dígitos numéricos.');
+        return;
+    }
+
+    // 🔥 VALIDACIÓN CRÍTICA: Verificar si el DNI existe
+    mostrarCarga('Verificando DNI...');
+    try {
+        const existe = await verificarDNIExistente(dni, id);
         
-        const id = document.getElementById('estudianteId').value;
-        const datos = {
-            dni_est: document.getElementById('dni_est').value,
-            ap_est: document.getElementById('ap_est').value,
-            am_est: document.getElementById('am_est').value,
-            nom_est: document.getElementById('nom_est').value,
-            sex_est: document.getElementById('sex_est').value,
-            cel_est: document.getElementById('cel_est').value,
-            dir_est: document.getElementById('dir_est').value,
-            mailp_est: document.getElementById('mailp_est').value,
-            fecnac_est: document.getElementById('fecnac_est').value,
-            estado: document.getElementById('estado').checked ? 1 : 0,
-            csrf_token: document.getElementById('csrf_token').value
-        };
+        if (existe && !id) {
+            // Si es nuevo estudiante y el DNI existe
+            ocultarCarga();
+            mostrarNotificacion('error', 'DNI Duplicado', 'Este DNI ya está registrado en el sistema. No se puede guardar.');
+            return;
+        } else if (existe && id) {
+            // Si está editando y el DNI existe en OTRO estudiante
+            ocultarCarga();
+            mostrarNotificacion('error', 'DNI Duplicado', 'Este DNI ya está registrado en otro estudiante. No se puede guardar.');
+            return;
+        }
+
+        // 🔥 Si pasa todas las validaciones, proceder con el guardado
+        const formData = new FormData(this);
         
+        // 🔥 CORRECCIÓN: Obtener los NOMBRES completos en lugar de IDs
+        const departamentoNac = document.getElementById('departamento_nac');
+        const provinciaNac = document.getElementById('provincia_nac');
+        const distritoNac = document.getElementById('distrito_nac');
+        
+        const departamentoDir = document.getElementById('departamento_dir');
+        const provinciaDir = document.getElementById('provincia_dir');
+        const distritoDir = document.getElementById('distrito_dir');
+
+        // Obtener nombres completos para lugar de nacimiento
+        if (departamentoNac.value && provinciaNac.value && distritoNac.value) {
+            const lugarNacimiento = `${distritoNac.options[distritoNac.selectedIndex].text}, ${provinciaNac.options[provinciaNac.selectedIndex].text}, ${departamentoNac.options[departamentoNac.selectedIndex].text}`;
+            formData.set('ubigeonac_est', lugarNacimiento);
+        }
+
+        // Obtener nombres completos para lugar actual
+        if (departamentoDir.value && provinciaDir.value && distritoDir.value) {
+            const lugarActual = `${distritoDir.options[distritoDir.selectedIndex].text}, ${provinciaDir.options[provinciaDir.selectedIndex].text}, ${departamentoDir.options[departamentoDir.selectedIndex].text}`;
+            formData.set('ubigeodir_est', lugarActual);
+        }
+
         let exito = false;
         
         if (id) {
-            exito = await editarEstudiante(id, datos);
+            exito = await editarEstudiante(id, formData);
         } else {
-            exito = await agregarEstudiante(datos);
+            exito = await agregarEstudiante(formData);
         }
         
         if (exito) {
             cerrarModalEstudiante();
         }
-    });
+
+    } catch (error) {
+        console.error('Error en validación:', error);
+        mostrarNotificacion('error', 'Error', 'Ocurrió un error al verificar el DNI.');
+    } finally {
+        ocultarCarga();
+    }
+});
 
     // Botón Refrescar
     document.getElementById('btnRefrescar').addEventListener('click', function() {
