@@ -1,3 +1,21 @@
+async function debugServerResponse(url) {
+    try {
+        const response = await fetch(url);
+        const text = await response.text();
+        console.log('=== DEBUG SERVER RESPONSE ===');
+        console.log('URL:', url);
+        console.log('Status:', response.status);
+        console.log('Content-Type:', response.headers.get('content-type'));
+        console.log('Response:', text.substring(0, 500)); // Primeros 500 caracteres
+        return text;
+    } catch (error) {
+        console.error('Debug error:', error);
+    }
+}
+
+
+
+
 // ==============================
 // SISTEMA DE NOTIFICACIONES
 // ==============================
@@ -106,6 +124,54 @@ function mostrarConfirmacion(titulo, mensaje, tipo = 'warning') {
     });
 }
 
+// Agregar event listeners a los botones de acción - VERSIÓN MEJORADA
+function agregarEventListenersAcciones() {
+    // Usar event delegation para manejar clicks dinámicos
+    document.addEventListener('click', function(e) {
+        // Editar
+        if (e.target.closest('.editar-estudiante')) {
+            const btn = e.target.closest('.editar-estudiante');
+            const id = btn.getAttribute('data-id');
+            abrirModalEditar(id);
+        }
+        
+        // Ver detalles
+        if (e.target.closest('.ver-estudiante')) {
+            const btn = e.target.closest('.ver-estudiante');
+            const id = btn.getAttribute('data-id');
+            verEstudiante(id);
+        }
+        
+        // Eliminar
+        if (e.target.closest('.eliminar-estudiante')) {
+            const btn = e.target.closest('.eliminar-estudiante');
+            const id = btn.getAttribute('data-id');
+            eliminarEstudiante(id);
+        }
+    });
+    
+    // También mantener los listeners directos por compatibilidad
+    document.querySelectorAll('.editar-estudiante').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            abrirModalEditar(id);
+        });
+    });
+    
+    document.querySelectorAll('.ver-estudiante').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            verEstudiante(id);
+        });
+    });
+    
+    document.querySelectorAll('.eliminar-estudiante').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            await eliminarEstudiante(id);
+        });
+    });
+}
 // ==============================
 // SISTEMA DE CARGA
 // ==============================
@@ -136,6 +202,43 @@ const configPaginacion = {
     elementosPorPagina: 10,
     totalElementos: 0
 };
+
+// 🔥 FUNCIÓN MEJORADA para cargar turno
+function cargarTurnoEnEdicion(turno) {
+    const selectTurno = document.getElementById('turno');
+    if (!selectTurno) {
+        console.error('❌ Select de turno no encontrado');
+        return;
+    }
+    
+    console.log('🔄 Cargando turno:', turno);
+    
+    // 🔥 MAPEAR LOS VALORES CORRECTAMENTE
+    const mapeoTurnos = {
+        'D': 'DIURNO',
+        'DIURNO': 'DIURNO', 
+        'V': 'VESPERTINO',
+        'VESPERTINO': 'VESPERTINO',
+        'DIURNA': 'DIURNO',
+        'VESPERTINA': 'VESPERTINO'
+    };
+    
+    const turnoMapeado = mapeoTurnos[turno] || turno;
+    console.log('🔄 Turno mapeado:', turnoMapeado);
+    
+    // Buscar el turno en las opciones
+    for (let i = 0; i < selectTurno.options.length; i++) {
+        const option = selectTurno.options[i];
+        if (option.value === turnoMapeado) {
+            selectTurno.value = turnoMapeado;
+            console.log('✅ Turno cargado correctamente:', turnoMapeado);
+            return true;
+        }
+    }
+    
+    console.log('❌ No se pudo cargar el turno:', turno);
+    return false;
+}
 
 // ==============================
 // FUNCIONES PRINCIPALES
@@ -223,41 +326,73 @@ async function editarEstudiante(id, formData) {
     }
 }
 
-// Función para eliminar estudiante
+// Función para eliminar estudiante - ELIMINACIÓN FÍSICA
 async function eliminarEstudiante(id) {
+    console.log('🗑️ Iniciando ELIMINACIÓN FÍSICA del estudiante ID:', id);
+    
+    // Buscar estudiante en los datos actuales
     const estudiante = datosEstudiantes.estudiantes.find(e => e.id == id);
-    if (!estudiante) return false;
-
-    const confirmado = await mostrarConfirmacion(
-        'Eliminar Estudiante',
-        `¿Estás seguro de que deseas eliminar al estudiante ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}? Esta acción no se puede deshacer.`,
-        'danger'
-    );
-
-    if (!confirmado) {
-        mostrarNotificacion('info', 'Acción cancelada', 'El estudiante no fue eliminado');
+    if (!estudiante) {
+        console.error('❌ Estudiante no encontrado en datos locales');
+        mostrarNotificacion('error', 'Error', 'No se encontró el estudiante para eliminar');
         return false;
     }
 
-    mostrarCarga('Eliminando estudiante...');
+    // 🔥 MENSAJE SIMPLE SIN HTML
+const confirmado = await mostrarConfirmacion(
+    'Eliminar Estudiante',
+    `¿Estás seguro de que deseas ELIMINAR PERMANENTEMENTE al estudiante:\n\n${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}\n\n⚠️  Esta acción NO se puede deshacer\n⚠️  Se eliminarán todos los datos del estudiante\n⚠️  Se eliminarán matrículas y prácticas relacionadas`,
+    'danger'
+);
+
+    if (!confirmado) {
+        console.log('❌ Eliminación física cancelada por el usuario');
+        mostrarNotificacion('info', 'Eliminación cancelada', 'El estudiante se mantiene en el sistema');
+        return false;
+    }
+
+    mostrarCarga('Eliminando permanentemente...');
     
     try {
-        const response = await fetch(`index.php?c=Estudiante&a=eliminar&id=${id}`, {
-            method: 'POST'
+        const csrfToken = document.getElementById('csrf_token').value;
+        console.log('🔐 Token CSRF:', csrfToken ? '✅ Presente' : '❌ Faltante');
+        
+        const url = `index.php?c=Estudiante&a=eliminar&id=${id}`;
+        console.log('🌐 URL de eliminación física:', url);
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `csrf_token=${encodeURIComponent(csrfToken)}`
         });
         
-        const result = await response.json();
+        console.log('📡 Respuesta HTTP:', response.status, response.statusText);
+        
+        const text = await response.text();
+        console.log('📄 Respuesta del servidor:', text);
+        
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('❌ Error parseando JSON:', parseError);
+            throw new Error('Error en la respuesta del servidor');
+        }
         
         if (result.success) {
+            console.log('✅ ELIMINACIÓN FÍSICA exitosa, recargando datos...');
             await cargarDatosEstudiantes();
-            mostrarNotificacion('success', '¡Estudiante eliminado!', `El estudiante se ha eliminado correctamente`);
+            mostrarNotificacion('success', '¡ELIMINADO!', 'El estudiante ha sido eliminado permanentemente del sistema');
             return true;
         } else {
-            throw new Error(result.error);
+            console.error('❌ Error del servidor:', result.error);
+            throw new Error(result.error || 'Error al eliminar el estudiante permanentemente');
         }
     } catch (error) {
-        console.error('Error al eliminar estudiante:', error);
-        mostrarNotificacion('error', 'Error', 'No se pudo eliminar el estudiante');
+        console.error('💥 Error en eliminación física:', error);
+        mostrarNotificacion('error', 'Error', error.message);
         return false;
     } finally {
         ocultarCarga();
@@ -273,12 +408,16 @@ async function eliminarEstudiante(id) {
 function actualizarDashboardEstudiantes() {
     const totalEstudiantes = datosEstudiantes.estudiantes.length;
     
-    // 🔥 CORRECCIÓN: Contar estudiantes activos (incluyendo null como activos)
+    // Estudiantes activos (solo estado = 1)
     const estudiantesActivos = datosEstudiantes.estudiantes.filter(e => 
-        e.estado === 1 || e.estado === null
+        e.estado === 1
     ).length;
     
-    const estudiantesPracticas = datosEstudiantes.estudiantes.filter(e => e.en_practicas > 0).length;
+    // 🔥 CORRECCIÓN: Estudiantes en prácticas (solo "En curso")
+    const estudiantesPracticas = datosEstudiantes.estudiantes.filter(e => 
+        e.estado_practica === 'En curso'
+    ).length;
+    
     const totalProgramas = new Set(datosEstudiantes.estudiantes.map(e => e.prog_estudios)).size;
 
     // Actualizar contadores
@@ -290,8 +429,17 @@ function actualizarDashboardEstudiantes() {
     // Actualizar textos descriptivos
     document.getElementById('estudiantes-texto').textContent = `${totalEstudiantes} registrados`;
     document.getElementById('activos-texto').textContent = `${estudiantesActivos} activos`;
-    document.getElementById('practicas-texto').textContent = `${estudiantesPracticas} en prácticas`;
+    document.getElementById('practicas-texto').textContent = `${estudiantesPracticas} en prácticas activas`;
     document.getElementById('programas-texto').textContent = `${totalProgramas} programas`;
+
+    // 🔥 DEBUG: Ver estadísticas de prácticas
+    const practicasCount = {
+        'En curso': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'En curso').length,
+        'Finalizado': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'Finalizado').length,
+        'Pendiente': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'Pendiente').length,
+        'Sin prácticas': datosEstudiantes.estudiantes.filter(e => !e.estado_practica).length
+    };
+    console.log('Dashboard - Prácticas:', practicasCount);
 
     // Actualizar gráficos
     inicializarGraficosEstudiantes();
@@ -317,10 +465,17 @@ function aplicarFiltrosYRenderizar() {
         const programaCoincide = programaFiltro === 'all' || 
             estudiante.prog_estudios == programaFiltro;
         
-        // 🔥 CORRECCIÓN: Filtro por estado (maneja valores null)
-        const estadoCoincide = estadoFiltro === 'all' || 
-            (estadoFiltro === '1' && (estudiante.estado === 1 || estudiante.estado === null)) ||
-            (estadoFiltro === '0' && estudiante.estado === 0);
+        // Filtro por estado (null = inactivo)
+        let estadoCoincide = true;
+        if (estadoFiltro !== 'all') {
+            if (estadoFiltro === '1') {
+                // Solo activos (estado = 1)
+                estadoCoincide = estudiante.estado === 1;
+            } else if (estadoFiltro === '0') {
+                // Inactivos (estado = 0 o null)
+                estadoCoincide = estudiante.estado === 0 || estudiante.estado === null;
+            }
+        }
         
         // Filtro por género
         const generoCoincide = generoFiltro === 'all' || 
@@ -328,6 +483,9 @@ function aplicarFiltrosYRenderizar() {
         
         return textoCoincide && programaCoincide && estadoCoincide && generoCoincide;
     });
+    
+    // 🔥 CORRECCIÓN: Guardar estudiantes filtrados globalmente
+    window.estudiantesFiltradosActuales = estudiantesFiltrados;
     
     // Actualizar configuración de paginación
     configPaginacion.totalElementos = estudiantesFiltrados.length;
@@ -357,23 +515,25 @@ function renderizarTablaEstudiantes(estudiantes) {
         return;
     }
     
+    // 🔥 CORRECCIÓN: Usar los estudiantes filtrados actuales
+    const estudiantesParaRenderizar = window.estudiantesFiltradosActuales || estudiantes;
+    
     // Calcular índices para la paginación
     const inicio = (configPaginacion.paginaActual - 1) * configPaginacion.elementosPorPagina;
     const fin = inicio + configPaginacion.elementosPorPagina;
-    const estudiantesPagina = estudiantes.slice(inicio, fin);
+    const estudiantesPagina = estudiantesParaRenderizar.slice(inicio, fin);
     
     estudiantesPagina.forEach(estudiante => {
         const fila = document.createElement('tr');
         fila.className = 'hover:bg-gray-50 transition-all duration-300 fade-in';
         
         // Determinar badge de estado
-let estadoBadge = '';
-// 🔥 CORRECCIÓN: Considerar null como activo
-if (estudiante.estado === 1 || estudiante.estado === null) {
-    estadoBadge = '<span class="badge-estado badge-activo">Activo</span>';
-} else {
-    estadoBadge = '<span class="badge-estado badge-inactivo">Inactivo</span>';
-}
+        let estadoBadge = '';
+        if (estudiante.estado === 1) {
+            estadoBadge = '<span class="badge-estado badge-activo">Activo</span>';
+        } else {
+            estadoBadge = '<span class="badge-estado badge-inactivo">Inactivo</span>';
+        }
         
         // Determinar badge de prácticas
         let practicasBadge = '';
@@ -383,50 +543,49 @@ if (estudiante.estado === 1 || estudiante.estado === null) {
             practicasBadge = '<span class="badge-estado badge-inactivo">Sin prácticas</span>';
         }
         
-        // En renderizarTablaEstudiantes - CORREGIR esta parte:
-fila.innerHTML = `
-    <td class="px-6 py-4 whitespace-nowrap">
-        <div class="flex items-center">
-            <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold mr-3 ${estudiante.sex_est == 'F' ? 'avatar-estudiante-femenino' : 'avatar-estudiante-masculino'}">
-                ${estudiante.nom_est.charAt(0)}${estudiante.ap_est.charAt(0)}
-            </div>
-            <div>
-                <div class="text-sm font-semibold text-gray-900">
-                    ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}
+        fila.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold mr-3 ${estudiante.sex_est == 'F' ? 'avatar-estudiante-femenino' : 'avatar-estudiante-masculino'}">
+                        ${estudiante.nom_est.charAt(0)}${estudiante.ap_est.charAt(0)}
+                    </div>
+                    <div>
+                        <div class="text-sm font-semibold text-gray-900">
+                            ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            ${practicasBadge}
+                        </div>
+                    </div>
                 </div>
-                <div class="text-xs text-gray-500">
-                    ${practicasBadge}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.dni_est}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.nom_progest || 'No asignado'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div class="font-medium">${estudiante.id_matricula || 'N/A'}</div>
+                <div class="text-xs">${estudiante.turno || ''}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div>${estudiante.cel_est || 'N/A'}</div>
+                <div class="text-xs">${estudiante.mailp_est || ''}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${estadoBadge}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                    <button class="btn-accion btn-editar editar-estudiante" data-id="${estudiante.id}" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-accion btn-ver ver-estudiante" data-id="${estudiante.id}" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-accion btn-eliminar eliminar-estudiante" data-id="${estudiante.id}" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
-            </div>
-        </div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.dni_est}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${estudiante.nom_progest || 'No asignado'}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <div class="font-medium">${estudiante.id_matricula || 'N/A'}</div>
-        <div class="text-xs">${estudiante.turno || ''}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <div>${estudiante.cel_est || 'N/A'}</div>
-        <div class="text-xs">${estudiante.mailp_est || ''}</div>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        ${estadoBadge}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <div class="flex space-x-2">
-            <button class="btn-accion btn-editar editar-estudiante" data-id="${estudiante.id}" title="Editar">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-accion btn-ver ver-estudiante" data-id="${estudiante.id}" title="Ver detalles">
-                <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-accion btn-eliminar eliminar-estudiante" data-id="${estudiante.id}" title="Eliminar">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    </td>
-`;
+            </td>
+        `;
         
         tabla.appendChild(fila);
     });
@@ -461,14 +620,17 @@ function agregarEventListenersAcciones() {
 
 // Actualizar contadores de estudiantes
 function actualizarContadores(totalFiltrados) {
+    const estudiantesParaContar = window.estudiantesFiltradosActuales || datosEstudiantes.estudiantes;
+    const total = totalFiltrados || estudiantesParaContar.length;
+    
     const inicio = (configPaginacion.paginaActual - 1) * configPaginacion.elementosPorPagina + 1;
-    const fin = Math.min(inicio + configPaginacion.elementosPorPagina - 1, totalFiltrados);
+    const fin = Math.min(inicio + configPaginacion.elementosPorPagina - 1, total);
     
     document.getElementById('estudiantes-mostrados').textContent = `${inicio}-${fin}`;
-    document.getElementById('estudiantes-totales').textContent = totalFiltrados;
+    document.getElementById('estudiantes-totales').textContent = total;
     
     document.getElementById('info-paginacion').textContent = 
-        `Página ${configPaginacion.paginaActual} de ${Math.ceil(totalFiltrados / configPaginacion.elementosPorPagina)}`;
+        `Página ${configPaginacion.paginaActual} de ${Math.ceil(total / configPaginacion.elementosPorPagina)}`;
 }
 
 // Actualizar controles de paginación
@@ -489,7 +651,10 @@ function actualizarPaginacion() {
     btnAnterior.addEventListener('click', function() {
         if (configPaginacion.paginaActual > 1) {
             configPaginacion.paginaActual--;
-            aplicarFiltrosYRenderizar();
+            // 🔥 CORRECCIÓN: Renderizar usando los estudiantes filtrados actuales
+            renderizarTablaEstudiantes(window.estudiantesFiltradosActuales || datosEstudiantes.estudiantes);
+            actualizarContadores(window.estudiantesFiltradosActuales?.length || datosEstudiantes.estudiantes.length);
+            actualizarPaginacion();
         }
     });
     paginacion.appendChild(btnAnterior);
@@ -506,7 +671,10 @@ function actualizarPaginacion() {
         btnPagina.textContent = i;
         btnPagina.addEventListener('click', function() {
             configPaginacion.paginaActual = i;
-            aplicarFiltrosYRenderizar();
+            // 🔥 CORRECCIÓN: Renderizar usando los estudiantes filtrados actuales
+            renderizarTablaEstudiantes(window.estudiantesFiltradosActuales || datosEstudiantes.estudiantes);
+            actualizarContadores(window.estudiantesFiltradosActuales?.length || datosEstudiantes.estudiantes.length);
+            actualizarPaginacion();
         });
         paginacion.appendChild(btnPagina);
     }
@@ -521,7 +689,10 @@ function actualizarPaginacion() {
     btnSiguiente.addEventListener('click', function() {
         if (configPaginacion.paginaActual < totalPaginas) {
             configPaginacion.paginaActual++;
-            aplicarFiltrosYRenderizar();
+            // 🔥 CORRECCIÓN: Renderizar usando los estudiantes filtrados actuales
+            renderizarTablaEstudiantes(window.estudiantesFiltradosActuales || datosEstudiantes.estudiantes);
+            actualizarContadores(window.estudiantesFiltradosActuales?.length || datosEstudiantes.estudiantes.length);
+            actualizarPaginacion();
         }
     });
     paginacion.appendChild(btnSiguiente);
@@ -529,7 +700,7 @@ function actualizarPaginacion() {
 
 // Inicializar gráficos de estudiantes
 function inicializarGraficosEstudiantes() {
-    // Gráfico de distribución por programa
+    // Gráfico de distribución por programa (se mantiene igual)
     const programasCount = {};
     datosEstudiantes.estudiantes.forEach(estudiante => {
         const programa = estudiante.nom_progest || 'No asignado';
@@ -538,7 +709,6 @@ function inicializarGraficosEstudiantes() {
     
     const ctxProgramas = document.getElementById('programasChart');
     if (ctxProgramas) {
-        // Destruir gráfico existente si existe
         if (window.programasChartInstance) {
             window.programasChartInstance.destroy();
         }
@@ -579,15 +749,36 @@ function inicializarGraficosEstudiantes() {
         });
     }
 
-    // Gráfico de estado de prácticas
+    // 🔥 CORRECCIÓN: Gráfico de estado de prácticas REAL
     const practicasCount = {
-        'En prácticas': datosEstudiantes.estudiantes.filter(e => e.en_practicas > 0).length,
-        'Sin prácticas': datosEstudiantes.estudiantes.filter(e => e.en_practicas === 0).length
+        'En curso': 0,
+        'Finalizado': 0,
+        'Pendiente': 0,
+        'Sin prácticas': 0
     };
+
+    // Contar estudiantes por estado de prácticas
+    datosEstudiantes.estudiantes.forEach(estudiante => {
+        if (estudiante.estado_practica) {
+            // Si tiene estado de práctica definido
+            if (estudiante.estado_practica === 'En curso') {
+                practicasCount['En curso']++;
+            } else if (estudiante.estado_practica === 'Finalizado') {
+                practicasCount['Finalizado']++;
+            } else if (estudiante.estado_practica === 'Pendiente') {
+                practicasCount['Pendiente']++;
+            }
+        } else {
+            // Si no tiene prácticas registradas
+            practicasCount['Sin prácticas']++;
+        }
+    });
+
+    // 🔥 DEBUG: Ver conteo de prácticas
+    console.log('Estados de prácticas:', practicasCount);
     
     const ctxPracticas = document.getElementById('practicasChart');
     if (ctxPracticas) {
-        // Destruir gráfico existente si existe
         if (window.practicasChartInstance) {
             window.practicasChartInstance.destroy();
         }
@@ -599,8 +790,10 @@ function inicializarGraficosEstudiantes() {
                 datasets: [{
                     data: Object.values(practicasCount),
                     backgroundColor: [
-                        '#0dcaf0',
-                        '#6c757d'
+                        '#0dcaf0',    // En curso - Azul
+                        '#198754',    // Finalizado - Verde
+                        '#ffc107',    // Pendiente - Amarillo
+                        '#6c757d'     // Sin prácticas - Gris
                     ],
                     borderWidth: 2,
                     borderColor: '#fff'
@@ -619,6 +812,17 @@ function inicializarGraficosEstudiantes() {
                                 size: 11
                             }
                         }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }
@@ -631,17 +835,13 @@ function inicializarGraficosEstudiantes() {
 // ==============================
 
 // Función para abrir modal de nuevo estudiante
-// Función para abrir modal de nuevo estudiante
-// Función para abrir modal de nuevo estudiante
+// Función para abrir modal de NUEVO estudiante
 function abrirModalNuevo() {
     document.getElementById('modalTitulo').textContent = 'Nuevo Estudiante';
     document.getElementById('formEstudiante').reset();
     document.getElementById('estudianteId').value = '';
     
-    // 🔥 CORRECCIÓN: Actualizar el token CSRF
-    actualizarTokenCSRF();
-    
-    // 🔥 NUEVO: Configurar validación de DNI
+    // 🔥 SOLO en NUEVO: Configurar validación de DNI
     setTimeout(() => {
         configurarValidacionDNI();
     }, 100);
@@ -693,61 +893,170 @@ function generateRandomToken(length) {
     return token;
 }
 
-// Función para abrir modal de edición
-// Función para abrir modal de edición
 async function abrirModalEditar(id) {
     mostrarCarga('Cargando datos del estudiante...');
     
     try {
         const response = await fetch(`index.php?c=Estudiante&a=detalle&id=${id}`);
-        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const text = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Error parseando JSON:', parseError);
+            throw new Error('Error en el servidor: respuesta inválida');
+        }
         
         if (result.success) {
             const estudiante = result.data;
+            console.log('✅ Estudiante cargado para edición:', estudiante);
             
+            // 🔥 LLENAR TODOS LOS CAMPOS CORRECTAMENTE
             document.getElementById('modalTitulo').textContent = 'Editar Estudiante';
             document.getElementById('estudianteId').value = estudiante.id;
-            document.getElementById('dni_est').value = estudiante.dni_est;
-            document.getElementById('ap_est').value = estudiante.ap_est;
+            document.getElementById('dni_est').value = estudiante.dni_est || '';
+            document.getElementById('ap_est').value = estudiante.ap_est || '';
             document.getElementById('am_est').value = estudiante.am_est || '';
-            document.getElementById('nom_est').value = estudiante.nom_est;
+            document.getElementById('nom_est').value = estudiante.nom_est || '';
             document.getElementById('cel_est').value = estudiante.cel_est || '';
             document.getElementById('dir_est').value = estudiante.dir_est || '';
             document.getElementById('mailp_est').value = estudiante.mailp_est || '';
             document.getElementById('fecnac_est').value = estudiante.fecnac_est || '';
+            
+            // 🔥 ESTADO
             document.getElementById('estado').checked = estudiante.estado === 1;
             
-            // Seleccionar género
+            // 🔥 GÉNERO
             const sexEst = document.getElementById('sex_est');
-            if (sexEst && estudiante.sex_est) {
-                sexEst.value = estudiante.sex_est;
+            if (sexEst) {
+                sexEst.value = estudiante.sex_est || '';
+                console.log('✅ Género cargado:', estudiante.sex_est);
             }
             
-            // Seleccionar programa
+            // 🔥 PROGRAMA DE ESTUDIOS
             const progEstudios = document.getElementById('prog_estudios');
             if (progEstudios && estudiante.prog_estudios) {
                 progEstudios.value = estudiante.prog_estudios;
+                console.log('✅ Programa cargado:', estudiante.prog_estudios);
             }
             
-            // Seleccionar turno
-            const turno = document.getElementById('turno');
-            if (turno && estudiante.turno) {
-                turno.value = estudiante.turno;
-            }
+            // 🔥 TURNO - USAR FUNCIÓN MEJORADA
+            cargarTurnoEnEdicion(estudiante.turno);
             
-            // 🔥 NUEVO: Configurar validación de DNI excluyendo el ID actual
-            setTimeout(() => {
-                configurarValidacionDNIEdicion(estudiante.id);
-            }, 100);
+            // 🔥 CAMPOS DE MATRÍCULA
+            document.getElementById('id_matricula').value = estudiante.id_matricula || '';
+            document.getElementById('per_acad').value = estudiante.per_acad || '';
+            
+            // 🔥 CARGAR UBIGEO DESDE TEXTO
+            cargarUbigeoDesdeTexto(estudiante.ubigeonac_est, estudiante.ubigeodir_est);
             
             document.getElementById('estudianteModal').classList.remove('hidden');
+            
         } else {
-            throw new Error(result.error);
+            throw new Error(result.error || 'Error al cargar datos del estudiante');
         }
     } catch (error) {
+        console.error('Error al cargar estudiante para edición:', error);
         mostrarNotificacion('error', 'Error', error.message);
     } finally {
         ocultarCarga();
+    }
+}
+
+// 🔥 FUNCIÓN PARA CARGAR UBIGEO DESDE TEXTO
+async function cargarUbigeoDesdeTexto(ubigeoNac, ubigeoDir) {
+    console.log('🗺️ Intentando cargar ubigeo desde texto:');
+    console.log('📍 Nacimiento:', ubigeoNac);
+    console.log('📍 Dirección:', ubigeoDir);
+    
+    try {
+        // 🔥 PARA LUGAR DE NACIMIENTO
+        if (ubigeoNac) {
+            await cargarUbigeoIndividual('nac', ubigeoNac);
+        }
+        
+        // 🔥 PARA LUGAR ACTUAL
+        if (ubigeoDir) {
+            await cargarUbigeoIndividual('dir', ubigeoDir);
+        }
+        
+    } catch (error) {
+        console.error('Error cargando ubigeo:', error);
+    }
+}
+
+// 🔥 FUNCIÓN AUXILIAR PARA CARGAR UBIGEO INDIVIDUAL
+async function cargarUbigeoIndividual(tipo, ubigeoTexto) {
+    console.log(`🔄 Cargando ubigeo ${tipo}:`, ubigeoTexto);
+    
+    try {
+        // Parsear el texto (formato: "Distrito, Provincia, Departamento")
+        const partes = ubigeoTexto.split(', ').map(parte => parte.trim());
+        
+        if (partes.length === 3) {
+            const [distrito, provincia, departamento] = partes;
+            
+            console.log(`📍 ${tipo.toUpperCase()} - Distrito: ${distrito}, Provincia: ${provincia}, Departamento: ${departamento}`);
+            
+            // 🔥 BUSCAR DEPARTAMENTO
+            const selectDepto = document.getElementById(`departamento_${tipo}`);
+            if (selectDepto) {
+                for (let i = 0; i < selectDepto.options.length; i++) {
+                    const option = selectDepto.options[i];
+                    if (option.text === departamento) {
+                        selectDepto.value = option.value;
+                        console.log(`✅ Departamento ${tipo} cargado:`, departamento);
+                        
+                        // 🔥 CARGAR PROVINCIAS después de seleccionar departamento
+                        setTimeout(async () => {
+                            await cargarProvincias(option.value, tipo, provincia, distrito);
+                        }, 300);
+                        
+                        break;
+                    }
+                }
+            }
+        } else {
+            console.log(`❌ Formato de ubigeo ${tipo} no válido:`, ubigeoTexto);
+        }
+        
+    } catch (error) {
+        console.error(`Error procesando ubigeo ${tipo}:`, error);
+    }
+}
+
+// 🔥 NUEVA FUNCIÓN: Cargar datos de ubigeo en edición
+async function cargarUbigeoEnEdicion(estudiante) {
+    console.log('🗺️ Cargando datos de ubigeo para edición:', estudiante);
+    
+    try {
+        // 🔥 CARGAR LUGAR DE NACIMIENTO si existe
+        if (estudiante.ubigeonac_est) {
+            console.log('📍 Ubigeo nacimiento encontrado:', estudiante.ubigeonac_est);
+            // Aquí necesitaríamos una función para parsear el ubigeo y cargar los selects
+            // Por ahora, lo dejamos como texto en el campo oculto
+            document.getElementById('ubigeonac_est').value = estudiante.ubigeonac_est;
+        }
+        
+        // 🔥 CARGAR LUGAR ACTUAL si existe
+        if (estudiante.ubigeodir_est) {
+            console.log('📍 Ubigeo dirección encontrado:', estudiante.ubigeodir_est);
+            document.getElementById('ubigeodir_est').value = estudiante.ubigeodir_est;
+        }
+        
+        // 🔥 CARGAR DEPARTAMENTOS, PROVINCIAS Y DISTRITOS
+        // Esto es más complejo - necesitaríamos saber los IDs específicos
+        // Por ahora, mostramos un mensaje
+        console.log('ℹ️ Para cargar ubigeo automáticamente, necesitamos los IDs de departamento/provincia/distrito');
+        
+    } catch (error) {
+        console.error('Error cargando ubigeo:', error);
     }
 }
 
@@ -756,7 +1065,11 @@ function configurarValidacionDNIEdicion(estudianteId) {
     const inputDNI = document.getElementById('dni_est');
     let timeout = null;
 
-    inputDNI.addEventListener('input', function() {
+    // Limpiar event listeners anteriores
+    inputDNI.replaceWith(inputDNI.cloneNode(true));
+    const newInputDNI = document.getElementById('dni_est');
+    
+    newInputDNI.addEventListener('input', function() {
         const dni = this.value.trim();
         
         if (timeout) {
@@ -772,9 +1085,10 @@ function configurarValidacionDNIEdicion(estudianteId) {
             }
             
             timeout = setTimeout(async () => {
+                // 🔥 CORRECCIÓN: Pasar el ID del estudiante a excluir
                 const existe = await verificarDNIExistenteEdicion(dni, estudianteId);
                 if (existe) {
-                    mostrarAdvertenciaDNI('Este DNI ya está registrado en otro estudiante.');
+                    mostrarAdvertenciaDNI('Este DNI ya está registrado en OTRO estudiante. No podrás guardar los cambios.');
                 }
             }, 500);
         }
@@ -813,7 +1127,6 @@ async function verificarDNIExistenteEdicion(dni, excluirId) {
     try {
         const response = await fetch(`index.php?c=Estudiante&a=verificarDNI&dni=${dni}&excluir_id=${excluirId}`);
         
-        // Verificar si la respuesta es JSON válido
         const text = await response.text();
         let result;
         
@@ -824,6 +1137,7 @@ async function verificarDNIExistenteEdicion(dni, excluirId) {
             return false;
         }
         
+        console.log(`🔍 Verificación DNI: ${dni}, Excluir: ${excluirId}, Existe: ${result.existe}`);
         return result.existe || false;
         
     } catch (error) {
@@ -836,21 +1150,32 @@ function cerrarModalEstudiante() {
     document.getElementById('estudianteModal').classList.add('hidden');
 }
 
-// Función para ver detalles de estudiante
+// Función para ver detalles de estudiante - VERSIÓN CORREGIDA
 async function verEstudiante(id) {
     mostrarCarga('Cargando detalles...');
     
     try {
         const response = await fetch(`index.php?c=Estudiante&a=detalle&id=${id}`);
-        const result = await response.json();
+        
+        // 🔥 CORRECCIÓN: Verificar si la respuesta es JSON válido
+        const text = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Respuesta no es JSON:', text);
+            throw new Error('Error en el servidor: respuesta inválida');
+        }
         
         if (result.success) {
             const estudiante = result.data;
             mostrarDetallesEstudiante(estudiante);
         } else {
-            throw new Error(result.error);
+            throw new Error(result.error || 'Error al cargar detalles del estudiante');
         }
     } catch (error) {
+        console.error('Error al cargar detalles:', error);
         mostrarNotificacion('error', 'Error', error.message);
     } finally {
         ocultarCarga();
@@ -866,7 +1191,7 @@ function formatearFecha(fecha) {
 
 function mostrarDetallesEstudiante(estudiante) {
     // Llenar los detalles del estudiante
-    document.getElementById('detalleModalTitulo').textContent = `Detalles de ${estudiante.ap_est} ${estudiante.am_est}`;
+    document.getElementById('detalleModalTitulo').textContent = `Detalles de ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
     
     // Configurar avatar
     const detalleAvatar = document.getElementById('detalleAvatar');
@@ -877,21 +1202,22 @@ function mostrarDetallesEstudiante(estudiante) {
     document.getElementById('detalleNombre').textContent = `${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
     document.getElementById('detallePrograma').textContent = estudiante.nom_progest || 'No asignado';
     document.getElementById('detalleProgramaNombre').textContent = estudiante.nom_progest || 'No asignado';
-    document.getElementById('detalleDni').textContent = estudiante.dni_est;
+    document.getElementById('detalleDni').textContent = estudiante.dni_est || 'No especificado';
     document.getElementById('detalleNacimiento').textContent = formatearFecha(estudiante.fecnac_est);
-    document.getElementById('detalleCelular').textContent = estudiante.cel_est || 'N/A';
-    document.getElementById('detalleEmailPersonal').textContent = estudiante.mailp_est || 'N/A';
-    document.getElementById('detalleDireccion').textContent = estudiante.dir_est || 'N/A';
-    document.getElementById('detallePeriodo').textContent = estudiante.per_acad || 'N/A';
-    document.getElementById('detalleTurno').textContent = estudiante.turno || 'N/A';
-    document.getElementById('detalleMatricula').textContent = estudiante.id_matricula || 'N/A';
-
+    document.getElementById('detalleCelular').textContent = estudiante.cel_est || 'No especificado';
+    document.getElementById('detalleEmailPersonal').textContent = estudiante.mailp_est || 'No especificado';
+    document.getElementById('detalleDireccion').textContent = estudiante.dir_est || 'No especificado';
+    document.getElementById('detallePeriodo').textContent = estudiante.per_acad || 'No especificado';
+    document.getElementById('detalleTurno').textContent = estudiante.turno || 'No especificado';
+    document.getElementById('detalleMatricula').textContent = estudiante.id_matricula || 'No especificado';
+    
     // 🔥 NUEVO: Información de ubicación
     document.getElementById('detalleLugarNacimiento').textContent = estudiante.ubigeonac_est || 'No especificado';
     document.getElementById('detalleLugarActual').textContent = estudiante.ubigeodir_est || 'No especificado';
     
     // Estado
     const estadoElement = document.getElementById('detalleEstado');
+    // 🔥 CORRECCIÓN: Estado (null = inactivo)
     if (estudiante.estado === 1) {
         estadoElement.textContent = 'Activo';
         estadoElement.className = 'bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full';
@@ -945,6 +1271,9 @@ function mostrarDetallesEstudiante(estudiante) {
     };
     
     document.getElementById('detalleEstudianteModal').classList.remove('hidden');
+    
+    // 🔥 DEBUG: Ver datos cargados en detalles
+    console.log('Datos cargados para detalles:', estudiante);
 }
 
 function cerrarDetalleModalEstudiante() {
@@ -1007,8 +1336,7 @@ function validarFormatoDNI(dni) {
     return /^\d{8}$/.test(dni);
 }
 
-// Event listener para validación de DNI en tiempo real
-// Event listener para validación de DNI en tiempo real (SOLO ADVERTENCIA)
+// Función para configurar validación de DNI (solo para NUEVOS estudiantes)
 function configurarValidacionDNI() {
     const inputDNI = document.getElementById('dni_est');
     let timeout = null;
@@ -1016,31 +1344,23 @@ function configurarValidacionDNI() {
     inputDNI.addEventListener('input', function() {
         const dni = this.value.trim();
         
-        // Limpiar timeout anterior
         if (timeout) {
             clearTimeout(timeout);
         }
         
-        // Ocultar advertencia anterior
         ocultarAdvertenciaDNI();
         
-        // Validar formato
         if (dni.length === 8) {
-            if (!/^\d{8}$/.test(dni)) {
+            if (!validarFormatoDNI(dni)) {
                 mostrarAdvertenciaDNI('El DNI debe contener solo 8 dígitos numéricos.');
                 return;
             }
             
-            // Esperar 500ms después de que el usuario deje de escribir
+            // 🔥 SOLO en CREACIÓN: Verificar si el DNI existe
             timeout = setTimeout(async () => {
-                const estudianteId = document.getElementById('estudianteId').value;
-                const existe = await verificarDNIExistente(dni, estudianteId);
+                const existe = await verificarDNIExistente(dni);
                 if (existe) {
-                    if (estudianteId) {
-                        mostrarAdvertenciaDNI('Este DNI ya está registrado en OTRO estudiante. No podrás guardar los cambios.');
-                    } else {
-                        mostrarAdvertenciaDNI('Este DNI ya está registrado en el sistema. No podrás guardar el estudiante.');
-                    }
+                    mostrarAdvertenciaDNI('Este DNI ya está registrado en el sistema. No podrás guardar el estudiante.');
                 }
             }, 500);
         }
@@ -1051,8 +1371,8 @@ function configurarValidacionDNI() {
 // MANEJO DE UBIGEO
 // ==============================
 
-// Función para cargar provincias
-async function cargarProvincias(departamentoId, tipo) {
+// 🔥 FUNCIÓN MEJORADA PARA CARGAR PROVINCIAS CON SELECCIÓN
+async function cargarProvincias(departamentoId, tipo, provinciaTarget = null, distritoTarget = null) {
     if (!departamentoId) return;
     
     try {
@@ -1079,17 +1399,42 @@ async function cargarProvincias(departamentoId, tipo) {
                 selectProvincia.appendChild(option);
             });
             
-            // 🔥 CORRECCIÓN: Limpiar hidden correctamente
-            document.getElementById(`ubigeo${tipo}_est`).value = '';
+            // 🔥 SELECCIONAR PROVINCIA SI SE ESPECIFICA
+            if (provinciaTarget) {
+                setTimeout(() => {
+                    seleccionarProvincia(tipo, provinciaTarget, distritoTarget);
+                }, 200);
+            }
+            
         }
     } catch (error) {
         console.error('Error al cargar provincias:', error);
-        mostrarNotificacion('error', 'Error', 'No se pudieron cargar las provincias');
     }
 }
 
-/// Función para cargar distritos
-async function cargarDistritos(provinciaId, tipo) {
+// 🔥 FUNCIÓN PARA SELECCIONAR PROVINCIA
+async function seleccionarProvincia(tipo, provinciaTarget, distritoTarget = null) {
+    const selectProvincia = document.getElementById(`provincia_${tipo}`);
+    
+    for (let i = 0; i < selectProvincia.options.length; i++) {
+        const option = selectProvincia.options[i];
+        if (option.text === provinciaTarget) {
+            selectProvincia.value = option.value;
+            console.log(`✅ Provincia ${tipo} cargada:`, provinciaTarget);
+            
+            // 🔥 CARGAR DISTRITOS después de seleccionar provincia
+            setTimeout(async () => {
+                await cargarDistritos(option.value, tipo, distritoTarget);
+            }, 300);
+            
+            break;
+        }
+    }
+}
+
+
+// 🔥 FUNCIÓN MEJORADA PARA CARGAR DISTRITOS CON SELECCIÓN
+async function cargarDistritos(provinciaId, tipo, distritoTarget = null) {
     if (!provinciaId) return;
     
     try {
@@ -1109,12 +1454,26 @@ async function cargarDistritos(provinciaId, tipo) {
                 selectDistrito.add(option);
             });
             
-            // 🔥 CORRECCIÓN: Limpiar hidden
-            document.getElementById(`ubigeo${tipo}_est`).value = '';
+            // 🔥 SELECCIONAR DISTRITO SI SE ESPECIFICA
+            if (distritoTarget) {
+                setTimeout(() => {
+                    const selectDistrito = document.getElementById(`distrito_${tipo}`);
+                    for (let i = 0; i < selectDistrito.options.length; i++) {
+                        const option = selectDistrito.options[i];
+                        if (option.text === distritoTarget) {
+                            selectDistrito.value = option.value;
+                            console.log(`✅ Distrito ${tipo} cargado:`, distritoTarget);
+                            
+                            // Actualizar hidden field
+                            document.getElementById(`ubigeo${tipo}_est`).value = distritoTarget;
+                            break;
+                        }
+                    }
+                }, 200);
+            }
         }
     } catch (error) {
         console.error('Error al cargar distritos:', error);
-        mostrarNotificacion('error', 'Error', 'No se pudieron cargar los distritos');
     }
 }
 
@@ -1174,39 +1533,26 @@ document.getElementById('distrito_dir').addEventListener('change', function() {
 });
 
 // Envío del formulario de estudiante - VERSIÓN CON VALIDACIÓN DE DNI
+// En el event listener del formulario - MODIFICA esta parte:
 document.getElementById('formEstudiante').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const id = document.getElementById('estudianteId').value;
     const dni = document.getElementById('dni_est').value.trim();
 
-    // 🔥 VALIDACIÓN CRÍTICA: Verificar formato de DNI
+    // 🔥 Validación CRÍTICA: Solo formato, NO duplicados
     if (!/^\d{8}$/.test(dni)) {
         mostrarNotificacion('error', 'Error', 'El DNI debe tener exactamente 8 dígitos numéricos.');
         return;
     }
 
-    // 🔥 VALIDACIÓN CRÍTICA: Verificar si el DNI existe
-    mostrarCarga('Verificando DNI...');
+    // 🔥 NO HACER verificación de DNI existente - eliminamos completamente esta parte
+    mostrarCarga(id ? 'Actualizando estudiante...' : 'Guardando estudiante...');
+    
     try {
-        const existe = await verificarDNIExistente(dni, id);
-        
-        if (existe && !id) {
-            // Si es nuevo estudiante y el DNI existe
-            ocultarCarga();
-            mostrarNotificacion('error', 'DNI Duplicado', 'Este DNI ya está registrado en el sistema. No se puede guardar.');
-            return;
-        } else if (existe && id) {
-            // Si está editando y el DNI existe en OTRO estudiante
-            ocultarCarga();
-            mostrarNotificacion('error', 'DNI Duplicado', 'Este DNI ya está registrado en otro estudiante. No se puede guardar.');
-            return;
-        }
-
-        // 🔥 Si pasa todas las validaciones, proceder con el guardado
         const formData = new FormData(this);
         
-        // 🔥 CORRECCIÓN: Obtener los NOMBRES completos en lugar de IDs
+        // Obtener los NOMBRES completos en lugar de IDs
         const departamentoNac = document.getElementById('departamento_nac');
         const provinciaNac = document.getElementById('provincia_nac');
         const distritoNac = document.getElementById('distrito_nac');
@@ -1230,8 +1576,10 @@ document.getElementById('formEstudiante').addEventListener('submit', async funct
         let exito = false;
         
         if (id) {
+            // 🔥 EDICIÓN: Enviar directamente sin verificar DNI
             exito = await editarEstudiante(id, formData);
         } else {
+            // 🔥 CREACIÓN: Aquí SÍ verificar DNI (pero eso está en el backend)
             exito = await agregarEstudiante(formData);
         }
         
@@ -1240,8 +1588,8 @@ document.getElementById('formEstudiante').addEventListener('submit', async funct
         }
 
     } catch (error) {
-        console.error('Error en validación:', error);
-        mostrarNotificacion('error', 'Error', 'Ocurrió un error al verificar el DNI.');
+        console.error('Error en envío:', error);
+        mostrarNotificacion('error', 'Error', 'Ocurrió un error al guardar.');
     } finally {
         ocultarCarga();
     }
@@ -1252,15 +1600,90 @@ document.getElementById('formEstudiante').addEventListener('submit', async funct
         cargarDatosEstudiantes();
     });
 
-    // Botón Exportar
-    document.getElementById('btnExportar').addEventListener('click', function() {
-        mostrarCarga('Generando archivo de exportación...');
+ // Botón Exportar - VERSIÓN MEJORADA
+document.getElementById('btnExportar').addEventListener('click', function() {
+    exportarEstudiantesCSV();
+});
+
+// 🔥 NUEVA FUNCIÓN: Exportar estudiantes a CSV
+async function exportarEstudiantesCSV() {
+    mostrarCarga('Generando archivo CSV...');
+    
+    try {
+        // Obtener los filtros actuales
+        const filtros = {
+            busqueda: document.getElementById('buscarEstudiante').value,
+            programa: document.getElementById('filtroPrograma').value,
+            estado: document.getElementById('filtroEstado').value,
+            genero: document.getElementById('filtroGenero').value
+        };
         
+        // Construir URL con parámetros
+        const params = new URLSearchParams();
+        Object.keys(filtros).forEach(key => {
+            if (filtros[key] && filtros[key] !== 'all') {
+                params.append(key, filtros[key]);
+            }
+        });
+        
+        const url = `index.php?c=Estudiante&a=exportarCSV&${params.toString()}`;
+        
+        // Crear enlace temporal para descarga
+        const link = document.createElement('a');
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Esperar un momento para que se complete la descarga
         setTimeout(() => {
             ocultarCarga();
-            mostrarNotificacion('success', '¡Exportación completada!', 'El archivo Excel se ha generado correctamente');
+            mostrarNotificacion('success', '¡Exportación exitosa!', 'El archivo CSV se ha descargado correctamente');
         }, 2000);
-    });
+        
+    } catch (error) {
+        console.error('Error al exportar:', error);
+        ocultarCarga();
+        mostrarNotificacion('error', 'Error en exportación', 'No se pudo generar el archivo CSV');
+    }
+}
+
+// 🔥 FUNCIÓN AUXILIAR: Mostrar progreso de exportación
+function mostrarProgresoExportacion(progreso) {
+    let progresoElement = document.getElementById('progresoExportacion');
+    
+    if (!progresoElement) {
+        progresoElement = document.createElement('div');
+        progresoElement.id = 'progresoExportacion';
+        progresoElement.className = 'fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200 z-50';
+        progresoElement.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">Exportando datos</p>
+                    <p class="text-xs text-gray-500">${progreso}% completado</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${progreso}%"></div>
+            </div>
+        `;
+        document.body.appendChild(progresoElement);
+    } else {
+        const barra = progresoElement.querySelector('.bg-blue-600');
+        const texto = progresoElement.querySelector('.text-xs');
+        barra.style.width = `${progreso}%`;
+        texto.textContent = `${progreso}% completado`;
+    }
+}
+
+function ocultarProgresoExportacion() {
+    const progresoElement = document.getElementById('progresoExportacion');
+    if (progresoElement) {
+        progresoElement.remove();
+    }
+}
 
     // Event listeners para cerrar modales
     document.getElementById('cerrarModal').addEventListener('click', cerrarModalEstudiante);

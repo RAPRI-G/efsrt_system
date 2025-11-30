@@ -147,8 +147,8 @@ require_once 'views/layouts/header.php';
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="btnExportar" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center">
-                    <i class="fas fa-download mr-2"></i> Exportar
+                <button id="btnExportar" class="btn-exportar text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <i class="fas fa-file-csv mr-2"></i> Exportar CSV
                 </button>
                 <button id="btnRefrescar" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center">
                     <i class="fas fa-sync-alt mr-2"></i> Actualizar
@@ -566,9 +566,6 @@ require_once 'views/layouts/header.php';
                     <i class="fas fa-times mr-2"></i> Cerrar
                 </button>
                 <div class="flex space-x-3">
-                    <button id="imprimirDetalle" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-300 flex items-center">
-                        <i class="fas fa-print mr-2"></i> Imprimir
-                    </button>
                     <button id="editarDesdeDetalle" class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-300 flex items-center">
                         <i class="fas fa-edit mr-2"></i> Editar Estudiante
                     </button>

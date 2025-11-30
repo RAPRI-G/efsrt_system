@@ -222,3 +222,7 @@ FROM `empresa` e;
 -- 1. Agregar representante_legal a empresa
 ALTER TABLE `empresa` 
 ADD COLUMN `representante_legal` VARCHAR(255) DEFAULT NULL AFTER `razon_social`;
+
+-- Actualizar con distribución aleatoria simple
+UPDATE matricula 
+SET prog_estudios = FLOOR(1 + RAND() * 10);

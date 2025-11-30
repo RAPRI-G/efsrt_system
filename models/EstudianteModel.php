@@ -7,20 +7,23 @@ class EstudianteModel extends BaseModel
 
     public function obtenerEstudiantes($filtros = [])
     {
-        // 🔥 CORRECCIÓN: Mostrar solo estudiantes activos (estado = 1 o null)
-    $sql = "SELECT e.*, 
+        // 🔥 CORRECCIÓN: Sin ORDER BY problemático
+        $sql = "SELECT e.*, 
                    p.nom_progest, 
                    m.prog_estudios,
                    m.id_matricula,
                    m.per_acad,
                    m.turno,
+                   pr.estado as estado_practica,
+                   pr.modulo as modulo_practica,
                    (SELECT COUNT(*) FROM practicas pr WHERE pr.estudiante = e.id AND pr.estado = 'En curso') as en_practicas
             FROM estudiante e
             LEFT JOIN matricula m ON e.id = m.estudiante
             LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-            WHERE (e.estado IS NULL OR e.estado = 1)"; // 🔥 Solo activos
+            LEFT JOIN practicas pr ON e.id = pr.estudiante AND pr.estado IN ('En curso', 'Finalizado', 'Pendiente')
+            WHERE 1=1";
 
-    $params = [];
+        $params = [];
 
         // Aplicar filtros
         if (!empty($filtros['busqueda'])) {
@@ -34,8 +37,13 @@ class EstudianteModel extends BaseModel
         }
 
         if (!empty($filtros['estado']) && $filtros['estado'] != 'all') {
-            $sql .= " AND e.estado = :estado";
-            $params[':estado'] = $filtros['estado'];
+            if ($filtros['estado'] == '1') {
+                // Solo activos
+                $sql .= " AND e.estado = 1";
+            } else if ($filtros['estado'] == '0') {
+                // Inactivos (0 o null)
+                $sql .= " AND (e.estado = 0 OR e.estado IS NULL)";
+            }
         }
 
         if (!empty($filtros['genero']) && $filtros['genero'] != 'all') {
@@ -43,7 +51,7 @@ class EstudianteModel extends BaseModel
             $params[':genero'] = $filtros['genero'];
         }
 
-        $sql .= " ORDER BY e.ap_est, e.am_est, e.nom_est";
+        $sql .= " ORDER BY e.ap_est, e.am_est, e.nom_est"; // 🔥 Ordenar solo por campos seguros
 
         $stmt = $this->executeQuery($sql, $params);
         return $stmt->fetchAll();
@@ -103,17 +111,36 @@ class EstudianteModel extends BaseModel
     // 🔥 CAMBIAR DE private A public
     public function verificarDniExistente($dni, $excluirId = null)
     {
-        $sql = "SELECT COUNT(*) as count FROM estudiante WHERE dni_est = :dni AND (estado IS NULL OR estado = 1)";
-        $params = [':dni' => $dni];
+        try {
+            error_log("🔍 VERIFICANDO DNI: {$dni}, Excluir ID: " . ($excluirId ?? 'Ninguno'));
 
-        if ($excluirId) {
-            $sql .= " AND id != :excluir_id";
-            $params[':excluir_id'] = $excluirId;
+            // 🔥 CONSULTA DIRECTA CON PDO - SIN executeQuery
+            $sql = "SELECT COUNT(*) as count FROM estudiante WHERE dni_est = :dni AND (estado = 1 OR estado IS NULL)";
+            $params = [':dni' => $dni];
+
+            if ($excluirId !== null && $excluirId !== '') {
+                $sql .= " AND id != :excluir_id";
+                $params[':excluir_id'] = $excluirId;
+            }
+
+            // Ejecutar directamente con PDO
+            $stmt = $this->db->prepare($sql);
+
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+
+            $stmt->execute();
+            $result = $stmt->fetch();
+
+            $count = $result['count'] ?? 0;
+            error_log("🔍 RESULTADO: {$count} estudiantes encontrados con DNI: {$dni}");
+
+            return $count > 0;
+        } catch (Exception $e) {
+            error_log("💥 ERROR en verificarDniExistente: " . $e->getMessage());
+            return false;
         }
-
-        $stmt = $this->executeQuery($sql, $params);
-        $result = $stmt->fetch();
-        return $result['count'] > 0;
     }
 
     public function obtenerUbigeos()
@@ -230,37 +257,96 @@ class EstudianteModel extends BaseModel
 
     public function eliminarEstudiante($id)
     {
-        $sql = "UPDATE estudiante SET estado = 0 WHERE id = :id";
-        $stmt = $this->executeQuery($sql, [':id' => $id]);
-        return $stmt->rowCount() > 0;
+        try {
+            // 🔥 CORRECCIÓN: Verificar que el estudiante existe antes de eliminar
+            $sqlCheck = "SELECT id FROM estudiante WHERE id = :id";
+            $stmtCheck = $this->executeQuery($sqlCheck, [':id' => $id]);
+            $estudiante = $stmtCheck->fetch();
+
+            if (!$estudiante) {
+                error_log("❌ Estudiante con ID {$id} no encontrado para eliminar");
+                return false;
+            }
+
+            error_log("🔍 Estudiante encontrado - ID: {$id}, procediendo a eliminación física");
+
+            // 🔥 PRIMERO: Eliminar registros relacionados en otras tablas (si existen)
+
+            // 1. Eliminar matrículas del estudiante
+            try {
+                $sqlMatricula = "DELETE FROM matricula WHERE estudiante = :id";
+                $stmtMatricula = $this->executeQuery($sqlMatricula, [':id' => $id]);
+                error_log("📚 Matrículas eliminadas: " . $stmtMatricula->rowCount());
+            } catch (Exception $e) {
+                error_log("⚠️ Error eliminando matrículas: " . $e->getMessage());
+                // Continuar aunque falle esta parte
+            }
+
+            // 2. Eliminar prácticas del estudiante  
+            try {
+                $sqlPracticas = "DELETE FROM practicas WHERE estudiante = :id";
+                $stmtPracticas = $this->executeQuery($sqlPracticas, [':id' => $id]);
+                error_log("💼 Prácticas eliminadas: " . $stmtPracticas->rowCount());
+            } catch (Exception $e) {
+                error_log("⚠️ Error eliminando prácticas: " . $e->getMessage());
+                // Continuar aunque falle esta parte
+            }
+
+            // 🔥 FINALMENTE: Eliminar el estudiante
+            $sql = "DELETE FROM estudiante WHERE id = :id";
+            $stmt = $this->executeQuery($sql, [':id' => $id]);
+            $rowCount = $stmt->rowCount();
+
+            error_log("📊 Eliminación física - Filas afectadas: " . $rowCount);
+
+            if ($rowCount > 0) {
+                error_log("🎉 Estudiante ID {$id} eliminado físicamente de la base de datos");
+                return true;
+            } else {
+                error_log("❌ No se pudo eliminar el estudiante ID {$id}");
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("💥 Error en eliminarEstudiante ID {$id}: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function obtenerEstudianteCompleto($id)
     {
-        $sql = "SELECT e.*, p.nom_progest, m.prog_estudios, 
-                       pr.estado as estado_practica, pr.modulo,
-                       emp.razon_social as empresa_practica
-                FROM estudiante e
-                LEFT JOIN matricula m ON e.id = m.estudiante
-                LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-                LEFT JOIN practicas pr ON e.id = pr.estudiante AND pr.estado = 'En curso'
-                LEFT JOIN empresa emp ON pr.empresa = emp.id
-                WHERE e.id = :id";
+        // 🔥 CONSULTA MEJORADA para obtener TODOS los datos necesarios
+        $sql = "SELECT 
+                e.*, 
+                m.prog_estudios,
+                m.id_matricula,
+                m.per_acad,
+                m.turno,
+                p.nom_progest
+            FROM estudiante e
+            LEFT JOIN matricula m ON e.id = m.estudiante
+            LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
+            WHERE e.id = :id";
 
-        $stmt = $this->executeQuery($sql, [':id' => $id]);
-        return $stmt->fetch();
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        $result = $stmt->fetch();
+
+        // 🔥 DEBUG: Ver qué datos se obtienen
+        error_log("📊 Datos obtenidos para estudiante ID {$id}: " . print_r($result, true));
+
+        return $result;
     }
 
     public function obtenerEstadisticasEstudiantes()
     {
         $sql = "SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN estado = 1 THEN 1 ELSE 0 END) as activos,
-                SUM(CASE WHEN sex_est = 'M' THEN 1 ELSE 0 END) as masculinos,
-                SUM(CASE WHEN sex_est = 'F' THEN 1 ELSE 0 END) as femeninos,
-                (SELECT COUNT(DISTINCT estudiante) FROM practicas WHERE estado = 'En curso') as en_practicas
-                FROM estudiante 
-                WHERE estado IS NULL OR estado = 1";
+            COUNT(*) as total,
+            SUM(CASE WHEN estado = 1 THEN 1 ELSE 0 END) as activos,
+            SUM(CASE WHEN estado = 0 OR estado IS NULL THEN 1 ELSE 0 END) as inactivos,
+            SUM(CASE WHEN sex_est = 'M' THEN 1 ELSE 0 END) as masculinos,
+            SUM(CASE WHEN sex_est = 'F' THEN 1 ELSE 0 END) as femeninos,
+            (SELECT COUNT(DISTINCT estudiante) FROM practicas WHERE estado = 'En curso') as en_practicas
+            FROM estudiante";
 
         $stmt = $this->executeQuery($sql);
         return $stmt->fetch();
@@ -306,5 +392,29 @@ class EstudianteModel extends BaseModel
         $terminoBusqueda = '%' . $this->sanitize($termino) . '%';
         $stmt = $this->executeQuery($sql, [':termino' => $terminoBusqueda]);
         return $stmt->fetchAll();
+    }
+
+    // 🔥 AGREGA ESTE MÉTODO SI NO EXISTE
+    protected function executeQuery($sql, $params = [])
+    {
+        try {
+            $stmt = $this->db->prepare($sql);
+
+            foreach ($params as $key => $value) {
+                if ($value === null) {
+                    $stmt->bindValue($key, $value, PDO::PARAM_NULL);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+
+            $stmt->execute();
+            return $stmt;
+        } catch (Exception $e) {
+            error_log("💥 Error en executeQuery: " . $e->getMessage());
+            error_log("💥 SQL: " . $sql);
+            error_log("💥 Parámetros: " . print_r($params, true));
+            throw $e;
+        }
     }
 }
