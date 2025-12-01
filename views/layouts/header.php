@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - ESFRH</title>
-    
+
     <!-- CDN Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Local CSS -->
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -172,7 +172,7 @@
 
                     <!-- Módulos -->
                     <li>
-                        <a href="#" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
+                        <a href="index.php?c=Modulos&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Modulos' ? 'active-menu' : ''; ?>">
                             <i class="fas fa-cubes text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Módulos</span>
                         </a>

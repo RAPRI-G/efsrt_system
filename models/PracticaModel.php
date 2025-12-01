@@ -74,23 +74,30 @@ class PracticaModel extends BaseModel
         return $result['total'] ?? 0;
     }
 
+    // Agregar este método a models/PracticaModel.php
     public function obtenerDistribucionEstadoPracticas()
     {
-        $sql = "SELECT estado, COUNT(*) as cantidad FROM practicas GROUP BY estado";
-        $stmt = $this->executeQuery($sql);
-        $result = $stmt->fetchAll();
+        try {
+            $sql = "SELECT estado, COUNT(*) as cantidad FROM practicas GROUP BY estado";
+            $stmt = $this->executeQuery($sql);
+            $resultados = $stmt->fetchAll();
 
-        $distribucion = [
-            'En curso' => 0,
-            'Finalizado' => 0,
-            'Pendiente' => 0
-        ];
+            $distribucion = [
+                'En curso' => 0,
+                'Finalizado' => 0,
+                'Pendiente' => 0
+            ];
 
-        foreach ($result as $row) {
-            $distribucion[$row['estado']] = $row['cantidad'];
+            foreach ($resultados as $row) {
+                $estado = $row['estado'] ?? 'Pendiente';
+                $distribucion[$estado] = $row['cantidad'];
+            }
+
+            return $distribucion;
+        } catch (Exception $e) {
+            error_log("Error en obtenerDistribucionEstadoPracticas: " . $e->getMessage());
+            return ['En curso' => 0, 'Finalizado' => 0, 'Pendiente' => 0];
         }
-
-        return $distribucion;
     }
 
     public function obtenerDistribucionModulos()
@@ -312,5 +319,34 @@ class PracticaModel extends BaseModel
 
         $stmt = $this->executeQuery($sql, [':id' => $id]);
         return $stmt->fetch();
+    }
+
+    // Agregar este método al final de models/PracticaModel.php
+    public function obtenerEstudiantesConModulos()
+    {
+        try {
+            $sql = "SELECT DISTINCT 
+                    e.id, 
+                    e.dni_est, 
+                    e.ap_est, 
+                    e.am_est, 
+                    e.nom_est,
+                    p.nom_progest as programa,
+                    CONCAT(e.ap_est, ' ', e.am_est, ', ', e.nom_est) as nombre_completo,
+                    UPPER(CONCAT(SUBSTRING(e.ap_est, 1, 1), SUBSTRING(e.am_est, 1, 1))) as iniciales
+                FROM estudiante e
+                INNER JOIN matricula m ON e.id = m.estudiante
+                INNER JOIN prog_estudios p ON m.prog_estudios = p.id
+                INNER JOIN practicas pr ON e.id = pr.estudiante
+                WHERE e.estado = 1 
+                AND (m.est_matricula = '1' OR m.est_matricula IS NULL)
+                ORDER BY e.ap_est, e.am_est, e.nom_est";
+
+            $stmt = $this->executeQuery($sql);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Error en obtenerEstudiantesConModulos: " . $e->getMessage());
+            return [];
+        }
     }
 }
