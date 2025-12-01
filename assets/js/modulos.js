@@ -17,52 +17,60 @@ class ModulosDashboard {
     
     async cargarDatos() {
     try {
+        console.log('🚀 Iniciando carga de datos...');
         this.mostrarLoading(true);
         
-        console.log('🔍 Cargando datos de módulos...');
-        
-        // 🔥 CORREGIR: Usar URL absoluta o relativa correcta
-        const url = window.location.pathname.includes('index.php') 
-            ? 'index.php?c=Modulos&a=getModulosData'
-            : '/efsrt_system/index.php?c=Modulos&a=getModulosData';
-            
+        // 🔥 URL SIMPLE - ESTO DEBE FUNCIONAR
+        const url = 'index.php?c=Modulos&a=getModulosData';
         console.log('📡 URL de petición:', url);
         
-        const response = await fetch(url, {
+        // 🔥 Agregar timestamp para evitar cache
+        const timestamp = new Date().getTime();
+        const urlConCache = `${url}&_=${timestamp}`;
+        
+        console.log('⏳ Realizando petición fetch...');
+        const response = await fetch(urlConCache, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'same-origin' // 🔥 IMPORTANTE para sesiones PHP
+            credentials: 'same-origin'
         });
         
-        // Verificar si la respuesta es OK
+        console.log('✅ Respuesta recibida. Status:', response.status);
+        
         if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
         }
         
         const text = await response.text();
-        console.log('📄 Respuesta recibida (primeros 500 chars):', text.substring(0, 500));
+        console.log('📄 Respuesta (primeros 500 chars):', text.substring(0, 500));
         
-        // Verificar si la respuesta es JSON válido
         let result;
         try {
             result = JSON.parse(text);
         } catch (parseError) {
-            console.error('❌ Error parseando JSON. Texto completo:', text);
-            throw new Error('La respuesta del servidor no es JSON válido');
+            console.error('❌ Error parseando JSON:', parseError);
+            console.error('Texto completo:', text);
+            throw new Error('Respuesta no es JSON válido');
         }
         
         if (result.success) {
             this.data = result.data;
+            console.log('🎉 Datos cargados exitosamente');
+            console.log('📊 Estadísticas:', this.data.estadisticas);
+            console.log('👨‍🎓 Estudiantes:', this.data.estudiantes?.length || 0);
+            console.log('📚 Módulos:', this.data.modulos?.length || 0);
+            console.log('🏢 Empresas:', this.data.empresas?.length || 0);
+            
             this.actualizarDashboard();
-            console.log('✅ Datos cargados correctamente', this.data);
         } else {
+            console.error('❌ Error del servidor:', result.error);
             throw new Error(result.error || 'Error desconocido del servidor');
         }
     } catch (error) {
-        console.error('❌ Error al cargar datos:', error);
-        this.mostrarError('Error al cargar los datos: ' + error.message);
+        console.error('💥 Error crítico al cargar datos:', error);
+        this.mostrarError('Error: ' + error.message);
     } finally {
         this.mostrarLoading(false);
     }
@@ -353,54 +361,252 @@ renderizarVistaProgreso() {
     
     console.log('✅ Vista de progreso renderizada para', estudiantesFiltrados.length, 'estudiantes');
 }
+
+// Método para exportar datos a CSV
+exportarCSV() {
+    try {
+        if (!this.data || !this.data.estudiantes || !this.data.modulos) {
+            this.mostrarError('No hay datos para exportar');
+            return;
+        }
+        
+        // Aplicar los mismos filtros que en la vista
+        const estudiantesFiltrados = this.aplicarFiltros(this.data.estudiantes);
+        
+        if (estudiantesFiltrados.length === 0) {
+            this.mostrarError('No hay datos para exportar con los filtros aplicados');
+            return;
+        }
+        
+        // Preparar datos para CSV
+        const csvData = this.prepararDatosParaCSV(estudiantesFiltrados);
+        
+        // Crear y descargar archivo CSV
+        this.descargarArchivoCSV(csvData, 'modulos_efsrt_' + this.getFechaActual() + '.csv');
+        
+        this.mostrarNotificacion('Exportación completada', 'success');
+        
+    } catch (error) {
+        console.error('Error exportando CSV:', error);
+        this.mostrarError('Error al exportar: ' + error.message);
+    }
+}
+
+// Preparar datos estructurados para CSV
+prepararDatosParaCSV(estudiantes) {
+    const lineas = [];
     
-    aplicarFiltros(estudiantes) {
-        const filtroPrograma = document.getElementById('filtroPrograma');
-        const filtroEstado = document.getElementById('filtroEstado');
-        const busqueda = document.getElementById('buscarEstudiante');
+    // 🔥 ENCABEZADOS DETALLADOS
+    const encabezados = [
+        'ID Estudiante',
+        'DNI',
+        'Estudiante',
+        'Programa',
+        'Módulo',
+        'Tipo de Módulo',
+        'Empresa',
+        'Área de Ejecución',
+        'Supervisor Empresa',
+        'Cargo Supervisor',
+        'Período Académico',
+        'Fecha Inicio',
+        'Fecha Fin',
+        'Horas Totales',
+        'Horas Acumuladas',
+        'Progreso (%)',
+        'Estado',
+        'Fecha Registro'
+    ];
+    
+    lineas.push(encabezados.join(','));
+    
+    // 🔥 DATOS DE CADA MÓDULO
+    estudiantes.forEach(estudiante => {
+        const modulosEstudiante = this.data.modulos.filter(m => 
+            m.estudiante && m.estudiante == estudiante.id
+        );
         
-        if (!filtroPrograma || !filtroEstado || !busqueda) {
-            return estudiantes;
-        }
-        
-        const filtroProgramaValor = filtroPrograma.value;
-        const filtroEstadoValor = filtroEstado.value;
-        const busquedaValor = busqueda.value.toLowerCase();
-        
-        let estudiantesFiltrados = estudiantes;
-        
-        // Filtrar por programa
-        if (filtroProgramaValor !== 'all') {
-            estudiantesFiltrados = estudiantesFiltrados.filter(e => e.programa === filtroProgramaValor);
-        }
-        
-        // Filtrar por búsqueda
-        if (busquedaValor) {
-            estudiantesFiltrados = estudiantesFiltrados.filter(e => 
-                e.nombre_completo.toLowerCase().includes(busquedaValor) ||
-                e.dni_est.includes(busquedaValor)
-            );
-        }
-        
-        // Filtrar por estado de módulos
-        if (filtroEstadoValor !== 'all' && this.data.modulos) {
-            estudiantesFiltrados = estudiantesFiltrados.filter(estudiante => {
-                const modulosEstudiante = this.data.modulos.filter(m => m.estudiante === estudiante.id);
+        if (modulosEstudiante.length === 0) {
+            // Si no tiene módulos, mostrar solo datos del estudiante
+            const filaEstudiante = [
+                estudiante.id || '',
+                estudiante.dni_est || '',
+                `"${estudiante.nombre_completo || ''}"`,
+                `"${estudiante.programa || ''}"`,
+                'SIN MÓDULOS',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '0%',
+                'Sin asignar',
+                ''
+            ];
+            lineas.push(filaEstudiante.join(','));
+        } else {
+            modulosEstudiante.forEach(modulo => {
+                const empresa = this.data.empresas ? 
+                    this.data.empresas.find(e => e.id == modulo.empresa) : null;
                 
-                if (filtroEstadoValor === 'completado') {
-                    return modulosEstudiante.some(m => m.estado === 'Finalizado');
-                } else if (filtroEstadoValor === 'en-progreso') {
-                    return modulosEstudiante.some(m => m.estado === 'En curso');
-                } else if (filtroEstadoValor === 'pendiente') {
-                    return modulosEstudiante.some(m => m.estado === 'Pendiente');
-                }
+                const horasAcum = parseInt(modulo.horas_acumuladas) || 0;
+                const horasTotal = parseInt(modulo.total_horas) || 0;
+                const progreso = horasTotal > 0 ? 
+                    Math.round((horasAcum / horasTotal) * 100) : 0;
                 
-                return true;
+                // 🔥 ESCAPAR COMILLAS EN TEXTOS
+                const escapeCSV = (text) => {
+                    if (text === null || text === undefined) return '';
+                    const textStr = String(text);
+                    if (textStr.includes(',') || textStr.includes('"') || textStr.includes('\n')) {
+                        return `"${textStr.replace(/"/g, '""')}"`;
+                    }
+                    return textStr;
+                };
+                
+                const fila = [
+                    estudiante.id || '',
+                    estudiante.dni_est || '',
+                    escapeCSV(estudiante.nombre_completo),
+                    escapeCSV(estudiante.programa),
+                    this.getNombreModulo(modulo.tipo_efsrt),
+                    modulo.tipo_efsrt || '',
+                    escapeCSV(empresa ? empresa.razon_social : ''),
+                    escapeCSV(modulo.area_ejecucion),
+                    escapeCSV(modulo.supervisor_empresa),
+                    escapeCSV(modulo.cargo_supervisor),
+                    modulo.periodo_academico || '',
+                    modulo.fecha_inicio || '',
+                    modulo.fecha_fin || '',
+                    horasTotal,
+                    horasAcum,
+                    `${progreso}%`,
+                    modulo.estado || 'Pendiente',
+                    modulo.fecha_registro || new Date().toISOString().split('T')[0]
+                ];
+                
+                lineas.push(fila.join(','));
             });
         }
-        
-        return estudiantesFiltrados;
+    });
+    
+    // 🔥 AGREGAR RESUMEN AL FINAL
+    lineas.push(''); // Línea en blanco
+    lineas.push('RESUMEN ESTADÍSTICO');
+    lineas.push(`"Total Estudiantes","${estudiantes.length}"`);
+    lineas.push(`"Total Módulos","${this.data.modulos.length}"`);
+    
+    const modulosActivos = this.data.modulos.filter(m => m.estado === 'En curso').length;
+    const modulosFinalizados = this.data.modulos.filter(m => m.estado === 'Finalizado').length;
+    
+    lineas.push(`"Módulos Activos","${modulosActivos}"`);
+    lineas.push(`"Módulos Finalizados","${modulosFinalizados}"`);
+    lineas.push(`"Módulos Pendientes","${this.data.modulos.length - modulosActivos - modulosFinalizados}"`);
+    lineas.push(`"Fecha de Exportación","${this.getFechaHoraActual()}"`);
+    
+    return lineas.join('\n');
+}
+
+// Función para descargar archivo CSV
+descargarArchivoCSV(csvContent, fileName) {
+    // Crear blob
+    const blob = new Blob(['\ufeff' + csvContent], { 
+        type: 'text/csv;charset=utf-8;' 
+    });
+    
+    // Crear enlace de descarga
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Liberar memoria
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+// Función para obtener fecha actual formateada
+getFechaActual() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+getFechaHoraActual() {
+    const now = new Date();
+    return now.toISOString().replace('T', ' ').substring(0, 19);
+}
+    
+    aplicarFiltros(estudiantes) {
+    const filtroPrograma = document.getElementById('filtroPrograma');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const busqueda = document.getElementById('buscarEstudiante');
+    
+    if (!filtroPrograma || !filtroEstado || !busqueda) {
+        return estudiantes;
     }
+    
+    const filtroProgramaValor = filtroPrograma.value;
+    const filtroEstadoValor = filtroEstado.value;
+    const busquedaValor = busqueda.value.toLowerCase();
+    
+    let estudiantesFiltrados = estudiantes;
+    
+    // Filtrar por programa
+    if (filtroProgramaValor !== 'all') {
+        estudiantesFiltrados = estudiantesFiltrados.filter(e => 
+            e.programa && e.programa === filtroProgramaValor
+        );
+    }
+    
+    // Filtrar por búsqueda
+    if (busquedaValor) {
+        estudiantesFiltrados = estudiantesFiltrados.filter(e => {
+            const nombreCompleto = e.nombre_completo ? e.nombre_completo.toLowerCase() : '';
+            const dni = e.dni_est ? e.dni_est : '';
+            return nombreCompleto.includes(busquedaValor) || dni.includes(busquedaValor);
+        });
+    }
+    
+    // 🔥 CORRECCIÓN: Filtrar por estado de módulos
+    if (filtroEstadoValor !== 'all' && this.data && this.data.modulos) {
+        estudiantesFiltrados = estudiantesFiltrados.filter(estudiante => {
+            const modulosEstudiante = this.data.modulos.filter(m => 
+                m.estudiante && m.estudiante == estudiante.id
+            );
+            
+            if (modulosEstudiante.length === 0) return false;
+            
+            if (filtroEstadoValor === 'completado') {
+                // Al menos un módulo finalizado
+                return modulosEstudiante.some(m => m.estado === 'Finalizado');
+            } else if (filtroEstadoValor === 'en-progreso') {
+                // Al menos un módulo en curso
+                return modulosEstudiante.some(m => m.estado === 'En curso');
+            } else if (filtroEstadoValor === 'pendiente') {
+                // Todos los módulos pendientes o al menos uno pendiente
+                return modulosEstudiante.some(m => m.estado === 'Pendiente') || 
+                       modulosEstudiante.every(m => m.estado === 'Pendiente');
+            }
+            
+            return true;
+        });
+    }
+    
+    console.log(`🔍 Filtros aplicados: Programa=${filtroProgramaValor}, Estado=${filtroEstadoValor}, Búsqueda=${busquedaValor}`);
+    console.log(`📊 Resultados filtrados: ${estudiantesFiltrados.length} de ${estudiantes.length} estudiantes`);
+    
+    return estudiantesFiltrados;
+}
     
     actualizarContadores(totalFiltrados) {
         const inicio = (this.configPaginacion.paginaActual - 1) * this.configPaginacion.elementosPorPagina + 1;
@@ -600,40 +806,49 @@ renderizarVistaProgreso() {
         console.log('✅ Botón vista progreso configurado para ir al inicio');
     }
 
-        // Botón Refrescar
-        const btnRefrescar = document.getElementById('btnRefrescar');
-        if (btnRefrescar) {
-            btnRefrescar.addEventListener('click', () => {
-                this.cargarDatos();
-                this.mostrarNotificacion('Datos actualizados', 'info');
-            });
-        }
+    // Botón Exportar
+    const btnExportar = document.getElementById('btnExportar');
+    if (btnExportar) {
+        btnExportar.addEventListener('click', () => {
+            this.exportarCSV();
+        });
+    }
 
-        // Event listeners para filtros
-        const filtroPrograma = document.getElementById('filtroPrograma');
-        const filtroEstado = document.getElementById('filtroEstado');
-        const buscarEstudiante = document.getElementById('buscarEstudiante');
-        
-        if (filtroPrograma) {
-            filtroPrograma.addEventListener('change', () => {
-                this.configPaginacion.paginaActual = 1;
-                this.renderizarVistaProgreso();
-            });
-        }
-        
-        if (filtroEstado) {
-            filtroEstado.addEventListener('change', () => {
-                this.configPaginacion.paginaActual = 1;
-                this.renderizarVistaProgreso();
-            });
-        }
-        
-        if (buscarEstudiante) {
-            buscarEstudiante.addEventListener('input', () => {
-                this.configPaginacion.paginaActual = 1;
-                this.renderizarVistaProgreso();
-            });
-        }
+        // Botón Refrescar
+    const btnRefrescar = document.getElementById('btnRefrescar');
+    if (btnRefrescar) {
+        btnRefrescar.addEventListener('click', () => {
+            this.cargarDatos();
+            this.mostrarNotificacion('Datos actualizados', 'info');
+        });
+    }
+
+         // Filtros
+    const filtroPrograma = document.getElementById('filtroPrograma');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const buscarEstudiante = document.getElementById('buscarEstudiante');
+    
+    if (filtroPrograma) {
+        filtroPrograma.addEventListener('change', () => {
+            this.configPaginacion.paginaActual = 1;
+            this.renderizarVistaProgreso();
+        });
+    }
+    
+    if (filtroEstado) {
+        filtroEstado.addEventListener('change', () => {
+            this.configPaginacion.paginaActual = 1;
+            this.renderizarVistaProgreso();
+        });
+    }
+    
+    if (buscarEstudiante) {
+        buscarEstudiante.addEventListener('input', () => {
+            this.configPaginacion.paginaActual = 1;
+            this.renderizarVistaProgreso();
+        });
+    }
+
     }
     
     mostrarError(mensaje) {
@@ -665,9 +880,52 @@ renderizarVistaProgreso() {
     }
     
     mostrarNotificacion(mensaje, tipo = 'info') {
-        console.log(`${tipo}: ${mensaje}`);
-        // Implementar sistema de notificaciones
-    }
+    const colores = {
+        'success': 'bg-green-500',
+        'error': 'bg-red-500',
+        'info': 'bg-blue-500',
+        'warning': 'bg-yellow-500'
+    };
+    
+    const iconos = {
+        'success': 'fa-check-circle',
+        'error': 'fa-exclamation-circle',
+        'info': 'fa-info-circle',
+        'warning': 'fa-exclamation-triangle'
+    };
+    
+    // Remover notificaciones anteriores
+    const notificacionesAnteriores = document.querySelectorAll('.notificacion-toast');
+    notificacionesAnteriores.forEach(notif => notif.remove());
+    
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion-toast fixed top-24 right-4 ${colores[tipo]} text-white p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full flex items-center`;
+    
+    notificacion.innerHTML = `
+        <i class="fas ${iconos[tipo]} mr-3 text-lg"></i>
+        <div>
+            <div class="font-medium">${mensaje}</div>
+            <div class="text-xs opacity-80 mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        </div>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    // Animación de entrada
+    setTimeout(() => {
+        notificacion.classList.remove('translate-x-full');
+    }, 10);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        notificacion.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.parentNode.removeChild(notificacion);
+            }
+        }, 300);
+    }, 5000);
+}
 }
 
 // Inicializar cuando el DOM esté listo

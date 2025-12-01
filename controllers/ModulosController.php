@@ -98,36 +98,39 @@ class ModulosController {
     }
     
     private function getEstudiantesConModulos() {
-        try {
-            // Obtener estudiantes que tienen prácticas
-            $sql = "SELECT DISTINCT 
-                    e.id, 
-                    e.dni_est, 
-                    CONCAT(e.ap_est, ' ', e.am_est, ', ', e.nom_est) as nombre_completo,
-                    e.ap_est, 
-                    e.am_est, 
-                    e.nom_est, 
-                    p.nom_progest as programa,
-                    UPPER(CONCAT(SUBSTRING(e.ap_est, 1, 1), SUBSTRING(e.am_est, 1, 1))) as iniciales
-                FROM estudiante e
-                INNER JOIN matricula m ON e.id = m.estudiante
-                INNER JOIN prog_estudios p ON m.prog_estudios = p.id
-                INNER JOIN practicas pr ON e.id = pr.estudiante
-                WHERE e.estado = 1 
-                ORDER BY e.ap_est, e.am_est, e.nom_est";
-            
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare($sql);
-            $stmt->execute();
-            $estudiantes = $stmt->fetchAll();
-            
-            return $estudiantes ?: [];
-            
-        } catch (Exception $e) {
-            error_log("Error en getEstudiantesConModulos: " . $e->getMessage());
-            return [];
-        }
+    try {
+        // Obtener estudiantes que tienen prácticas
+        $sql = "SELECT DISTINCT 
+                e.id, 
+                e.dni_est, 
+                CONCAT(e.ap_est, ' ', e.am_est, ', ', e.nom_est) as nombre_completo,
+                e.ap_est, 
+                e.am_est, 
+                e.nom_est, 
+                p.nom_progest as programa,
+                UPPER(CONCAT(SUBSTRING(e.ap_est, 1, 1), SUBSTRING(e.am_est, 1, 1))) as iniciales
+            FROM estudiante e
+            INNER JOIN matricula m ON e.id = m.estudiante
+            INNER JOIN prog_estudios p ON m.prog_estudios = p.id
+            INNER JOIN practicas pr ON e.id = pr.estudiante
+            WHERE e.estado = 1 
+            ORDER BY e.ap_est, e.am_est, e.nom_est";
+        
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        $estudiantes = $stmt->fetchAll();
+        
+        // 🔥 DEBUG
+        error_log("📊 Total estudiantes con módulos: " . count($estudiantes));
+        
+        return $estudiantes ?: [];
+        
+    } catch (Exception $e) {
+        error_log("❌ Error en getEstudiantesConModulos: " . $e->getMessage());
+        return [];
     }
+}
     
     private function getTodosModulos() {
         try {

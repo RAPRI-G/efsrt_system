@@ -20,12 +20,14 @@ class PracticaModel extends BaseModel
     }
 
     // NUEVOS MÉTODOS PARA EL DASHBOARD
-    public function obtenerPracticasDashboard()
-    {
+   public function obtenerPracticasDashboard()
+{
+    try {
         $sql = "SELECT 
                     p.id,
+                    p.estudiante,
+                    p.empresa,
                     p.tipo_efsrt,
-                    p.modulo,
                     p.periodo_academico,
                     p.fecha_inicio,
                     p.fecha_fin,
@@ -35,28 +37,34 @@ class PracticaModel extends BaseModel
                     p.supervisor_empresa,
                     p.cargo_supervisor,
                     p.estado,
+                    COALESCE(p.horas_acumuladas, 0) as horas_acumuladas, -- 🔥 Asegurar que siempre tenga valor
                     e.dni_est,
                     e.ap_est,
                     e.am_est,
                     e.nom_est,
-                    e.cel_est,
-                    emp.ruc,
-                    emp.razon_social,
-                    d.apnom_emp as docente_nombre,
-                    pg.nom_progest as programa_nombre
+                    emp.razon_social
                 FROM practicas p
                 LEFT JOIN estudiante e ON p.estudiante = e.id
                 LEFT JOIN empresa emp ON p.empresa = emp.id
-                LEFT JOIN empleado d ON p.docente_supervisor = d.id
-                LEFT JOIN matricula m ON e.id = m.estudiante
-                LEFT JOIN prog_estudios pg ON m.prog_estudios = pg.id
                 WHERE p.estado IS NOT NULL
-                ORDER BY p.fecha_inicio DESC, p.id DESC
-                LIMIT 50";
-
+                ORDER BY p.fecha_inicio DESC, p.id DESC";
+        
         $stmt = $this->executeQuery($sql);
-        return $stmt->fetchAll();
+        $resultados = $stmt->fetchAll();
+        
+        // 🔥 DEBUG: Ver qué datos se están obteniendo
+        error_log("📊 Total módulos obtenidos: " . count($resultados));
+        if (count($resultados) > 0) {
+            error_log("📋 Primer módulo: " . print_r($resultados[0], true));
+        }
+        
+        return $resultados;
+        
+    } catch (Exception $e) {
+        error_log("❌ Error en obtenerPracticasDashboard: " . $e->getMessage());
+        return [];
     }
+}
 
     public function contarPracticasPorEstado($estado)
     {

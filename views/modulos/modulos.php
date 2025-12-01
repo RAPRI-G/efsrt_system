@@ -4,7 +4,7 @@ include 'views/layouts/header.php';
 ?>
 
 <!-- Main Content -->
- <link rel="stylesheet" href="assets/css/modulos.css">
+<link rel="stylesheet" href="assets/css/modulos.css">
 
 <div class="p-6">
     <!-- Área de Bienvenida -->
@@ -145,9 +145,11 @@ include 'views/layouts/header.php';
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="btnExportar" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center">
-                    <i class="fas fa-download mr-2"></i> Exportar
+                <!-- Botón Exportar ya existe -->
+                <button id="btnExportar" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center btn-exportar">
+                    <i class="fas fa-download mr-2"></i> Exportar CSV
                 </button>
+
                 <button id="btnRefrescar" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center">
                     <i class="fas fa-sync-alt mr-2"></i> Actualizar
                 </button>
