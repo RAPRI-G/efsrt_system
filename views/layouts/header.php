@@ -178,6 +178,14 @@
                         </a>
                     </li>
 
+                    <!-- Prácticas -->
+<li>
+    <a href="index.php?c=Practica&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Practica' ? 'active-menu' : ''; ?>">
+        <i class="fas fa-briefcase text-lg w-6"></i>
+        <span class="menu-text ml-3 font-medium">Prácticas</span>
+    </a>
+</li>
+
                     <!-- Asistencias -->
                     <li>
                         <a href="index.php?c=Asistencia&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Asistencia' ? 'active-menu' : ''; ?>">
@@ -191,14 +199,6 @@
                         <a href="index.php?c=Evaluacion&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Evaluacion' ? 'active-menu' : ''; ?>">
                             <i class="fas fa-star text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Evaluaciones</span>
-                        </a>
-                    </li>
-
-                    <!-- Programas -->
-                    <li>
-                        <a href="#" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
-                            <i class="fas fa-book text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Programas</span>
                         </a>
                     </li>
 

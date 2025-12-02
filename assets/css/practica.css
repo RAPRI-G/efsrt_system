@@ -1,0 +1,268 @@
+/* Estilos específicos para el módulo de prácticas */
+            .badge-estado {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            .badge-en-curso {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+            .badge-finalizado {
+                background-color: #d1fae5;
+                color: #065f46;
+            }
+            .badge-pendiente {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            .badge-modulo1 {
+                background-color: #e0f2fe;
+                color: #0369a1;
+            }
+            .badge-modulo2 {
+                background-color: #f0fdf4;
+                color: #166534;
+            }
+            .badge-modulo3 {
+                background-color: #fef7cd;
+                color: #854d0e;
+            }
+            
+            .avatar-estudiante {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: bold;
+                color: white;
+                background: linear-gradient(135deg, #0C1F36, #1a365d);
+            }
+
+            /* Estilos para la tabla de prácticas */
+            .tabla-practicas {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+            
+            .tabla-practicas th {
+                background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+                color: white;
+                padding: 14px 16px;
+                text-align: left;
+                font-weight: 600;
+                border-bottom: none;
+            }
+            
+            .tabla-practicas td {
+                padding: 14px 16px;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
+            }
+            
+            .tabla-practicas tr:hover td {
+                background-color: #f8fafc;
+            }
+            
+            .tabla-practicas .acciones {
+                display: flex;
+                gap: 8px;
+            }
+            
+            .tabla-practicas .btn-accion {
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                transition: all 0.2s;
+                cursor: pointer;
+                border: none;
+                background: none;
+            }
+            
+            .tabla-practicas .btn-ver {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+            
+            .tabla-practicas .btn-ver:hover {
+                background-color: #bfdbfe;
+            }
+            
+            .tabla-practicas .btn-editar {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            
+            .tabla-practicas .btn-editar:hover {
+                background-color: #fde68a;
+            }
+            
+            .tabla-practicas .btn-eliminar {
+                background-color: #fee2e2;
+                color: #dc2626;
+            }
+            
+            .tabla-practicas .btn-eliminar:hover {
+                background-color: #fecaca;
+            }
+
+            /* ============================================
+       SISTEMA DE NOTIFICACIONES PROFESIONAL
+       ============================================ */
+    .notification-container {
+        position: fixed;
+        top: 90px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 400px;
+    }
+
+    .notification {
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transform: translateX(400px);
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border-left: 4px solid;
+        background: white;
+        opacity: 0;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .notification.hide {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+
+    .notification-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .notification-success {
+        border-left-color: #10b981;
+    }
+
+    .notification-success .notification-icon {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .notification-error {
+        border-left-color: #ef4444;
+    }
+
+    .notification-error .notification-icon {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .notification-info {
+        border-left-color: #3b82f6;
+    }
+
+    .notification-info .notification-icon {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .notification-warning {
+        border-left-color: #f59e0b;
+    }
+
+    .notification-warning .notification-icon {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .notification-message {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .notification-close {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .notification-close:hover {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+
+    /* Animación de carga */
+    .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Overlay de carga */
+    #loadingOverlayPracticas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+    }
+
+    #loadingOverlayPracticas .loading-content {
+        background-color: white;
+        padding: 24px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
