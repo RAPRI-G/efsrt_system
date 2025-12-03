@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-12-2025 a las 08:06:15
+-- Tiempo de generación: 03-12-2025 a las 06:48:26
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -59,6 +59,162 @@ CREATE TABLE `asistencias` (
   `visto_bueno_empresa` varchar(150) DEFAULT NULL,
   `visto_bueno_docente` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `asistencias`
+--
+
+INSERT INTO `asistencias` (`id`, `practicas`, `fecha`, `hora_entrada`, `hora_salida`, `horas_acumuladas`, `actividad`, `visto_bueno_empresa`, `visto_bueno_docente`) VALUES
+(53, 2, '2024-07-02', '08:00:00', '14:00:00', 6, 'Análisis de requerimientos avanzados', NULL, NULL),
+(54, 2, '2024-07-03', '08:30:00', '13:30:00', 5, 'Diseño de arquitectura escalable', NULL, NULL),
+(55, 2, '2024-07-04', '09:00:00', '15:00:00', 6, 'Configuración de servidores en la nube', NULL, NULL),
+(56, 2, '2024-07-05', '08:00:00', '12:00:00', 4, 'Implementación de CI/CD', NULL, NULL),
+(57, 2, '2024-07-08', '08:30:00', '12:30:00', 4, 'Desarrollo de microservicios', NULL, NULL),
+(63, 6, '2024-03-18', '08:00:00', '12:00:00', 4, 'Inducción al Departamento de TI', NULL, NULL),
+(64, 6, '2024-03-19', '08:30:00', '13:30:00', 5, 'Conocimiento de la infraestructura de red', NULL, NULL),
+(65, 6, '2024-03-20', '09:00:00', '14:00:00', 5, 'Configuración de equipos de red', NULL, NULL),
+(66, 6, '2024-03-21', '08:00:00', '14:00:00', 6, 'Monitoreo de servidores', NULL, NULL),
+(67, 6, '2024-03-22', '08:30:00', '12:30:00', 4, 'Administración de usuarios de dominio', NULL, NULL),
+(68, 7, '2024-04-15', '08:00:00', '12:00:00', 4, 'Inducción al desarrollo frontend', NULL, NULL),
+(69, 7, '2024-04-16', '08:30:00', '14:30:00', 6, 'Estudio de framework React', NULL, NULL),
+(70, 7, '2024-04-17', '09:00:00', '15:00:00', 6, 'Configuración de entorno de desarrollo', NULL, NULL),
+(71, 7, '2024-04-18', '08:00:00', '13:00:00', 5, 'Desarrollo de componentes básicos', NULL, NULL),
+(72, 7, '2024-04-19', '08:30:00', '12:30:00', 4, 'Implementación de estado con Redux', NULL, NULL),
+(73, 8, '2024-05-10', '08:00:00', '13:00:00', 5, 'Revisión de código y buenas prácticas', NULL, NULL),
+(74, 8, '2024-05-11', '08:30:00', '14:30:00', 6, 'Optimización de consultas a base de datos', NULL, NULL),
+(75, 8, '2024-05-12', '09:00:00', '15:00:00', 6, 'Implementación de seguridad en API', NULL, NULL),
+(76, 8, '2024-05-13', '08:00:00', '14:00:00', 6, 'Pruebas de integración', NULL, NULL),
+(77, 8, '2024-05-14', '08:30:00', '13:30:00', 5, 'Documentación técnica', NULL, NULL),
+(78, 9, '2024-06-01', '08:00:00', '14:00:00', 6, 'Análisis de datos con Python', NULL, NULL),
+(79, 9, '2024-06-02', '08:30:00', '13:30:00', 5, 'Visualización de datos con Power BI', NULL, NULL),
+(80, 9, '2024-06-03', '09:00:00', '15:00:00', 6, 'Modelado predictivo', NULL, NULL),
+(81, 9, '2024-06-04', '08:00:00', '13:00:00', 5, 'Reporte de resultados', NULL, NULL),
+(82, 9, '2024-06-05', '08:30:00', '12:30:00', 4, 'Presentación de hallazgos', NULL, NULL),
+(88, 5, '2024-07-01', '08:00:00', '13:00:00', 5, 'Reunión inicial con supervisor de empresa', NULL, NULL),
+(89, 5, '2024-07-02', '08:30:00', '13:30:00', 5, 'Análisis de requerimientos del sistema', NULL, NULL),
+(90, 5, '2024-07-03', '09:00:00', '14:00:00', 5, 'Estudio de tecnologías a utilizar', NULL, NULL),
+(91, 5, '2024-07-04', '08:00:00', '14:00:00', 6, 'Configuración del entorno de desarrollo', NULL, NULL),
+(92, 5, '2024-07-05', '08:30:00', '12:30:00', 4, 'Diseño de la base de datos', NULL, NULL),
+(93, 5, '2024-07-08', '08:00:00', '14:00:00', 6, 'Creación de tablas y relaciones', NULL, NULL),
+(94, 5, '2024-07-09', '08:30:00', '13:30:00', 5, 'Implementación de modelos de datos', NULL, NULL),
+(95, 5, '2024-07-10', '09:00:00', '15:00:00', 6, 'Desarrollo de API REST', NULL, NULL),
+(96, 5, '2024-07-11', '08:00:00', '12:00:00', 4, 'Pruebas unitarias del backend', NULL, NULL),
+(97, 5, '2024-07-12', '08:30:00', '13:30:00', 5, 'Corrección de bugs identificados', NULL, NULL),
+(98, 5, '2024-07-15', '08:00:00', '14:00:00', 6, 'Desarrollo del frontend - Interfaz de usuario', NULL, NULL),
+(99, 5, '2024-07-16', '08:30:00', '13:30:00', 5, 'Integración frontend-backend', NULL, NULL),
+(100, 5, '2024-07-17', '09:00:00', '15:00:00', 6, 'Implementación de autenticación', NULL, NULL),
+(101, 5, '2024-07-18', '08:00:00', '12:00:00', 4, 'Pruebas de integración', NULL, NULL),
+(102, 5, '2024-07-19', '08:30:00', '13:30:00', 5, 'Optimización del rendimiento', NULL, NULL),
+(103, 5, '2024-07-22', '08:00:00', '14:00:00', 6, 'Desarrollo de reportes y estadísticas', NULL, NULL),
+(104, 5, '2024-07-23', '08:30:00', '13:30:00', 5, 'Implementación de roles y permisos', NULL, NULL),
+(105, 5, '2024-07-24', '09:00:00', '15:00:00', 6, 'Pruebas de seguridad', NULL, NULL),
+(106, 5, '2024-07-25', '08:00:00', '12:00:00', 4, 'Documentación técnica del sistema', NULL, NULL),
+(107, 5, '2024-07-26', '08:30:00', '13:30:00', 5, 'Preparación de despliegue', NULL, NULL),
+(108, 5, '2024-07-29', '08:00:00', '14:00:00', 6, 'Despliegue en entorno de prueba', NULL, NULL),
+(109, 5, '2024-07-30', '08:30:00', '13:30:00', 5, 'Pruebas de aceptación con usuario', NULL, NULL),
+(110, 5, '2024-07-31', '09:00:00', '15:00:00', 6, 'Corrección de observaciones', NULL, NULL),
+(111, 5, '2024-08-01', '08:00:00', '12:00:00', 4, 'Despliegue en producción', NULL, NULL),
+(112, 5, '2024-08-02', '08:30:00', '13:30:00', 5, 'Capacitación a usuarios finales', NULL, NULL),
+(113, 5, '2024-08-05', '08:00:00', '14:00:00', 6, 'Soporte post-implementación', NULL, NULL),
+(114, 5, '2024-08-06', '08:30:00', '13:30:00', 5, 'Documentación final del proyecto', NULL, NULL),
+(115, 5, '2024-08-07', '09:00:00', '14:00:00', 5, 'Preparación de informe final', NULL, NULL),
+(116, 5, '2024-08-08', '08:00:00', '12:00:00', 4, 'Presentación del proyecto', NULL, NULL),
+(117, 1, '2024-03-04', '08:00:00', '13:00:00', 5, 'Inducción general a la empresa', NULL, NULL),
+(118, 1, '2024-03-05', '08:30:00', '14:30:00', 6, 'Conocimiento del área de desarrollo', NULL, NULL),
+(119, 1, '2024-03-06', '09:00:00', '14:00:00', 5, 'Presentación del equipo de trabajo', NULL, NULL),
+(120, 1, '2024-03-07', '08:00:00', '12:00:00', 4, 'Configuración de equipo de cómputo', NULL, NULL),
+(121, 1, '2024-03-08', '08:30:00', '13:30:00', 5, 'Instalación de software requerido', NULL, NULL),
+(122, 1, '2024-03-11', '08:00:00', '14:00:00', 6, 'Estudio del sistema actual de la empresa', NULL, NULL),
+(123, 1, '2024-03-12', '08:30:00', '13:30:00', 5, 'Análisis de requerimientos del nuevo sistema', NULL, NULL),
+(124, 1, '2024-03-13', '09:00:00', '15:00:00', 6, 'Documentación de procesos de negocio', NULL, NULL),
+(125, 1, '2024-03-14', '08:00:00', '12:00:00', 4, 'Diseño de diagramas de flujo', NULL, NULL),
+(126, 1, '2024-03-15', '08:30:00', '13:30:00', 5, 'Definición de casos de uso', NULL, NULL),
+(127, 1, '2024-03-18', '08:00:00', '14:00:00', 6, 'Diseño de base de datos - Modelo entidad-relación', NULL, NULL),
+(128, 1, '2024-03-19', '08:30:00', '13:30:00', 5, 'Normalización de tablas', NULL, NULL),
+(129, 1, '2024-03-20', '09:00:00', '15:00:00', 6, 'Creación de script SQL para tablas', NULL, NULL),
+(130, 1, '2024-03-21', '08:00:00', '12:00:00', 4, 'Implementación de restricciones y llaves', NULL, NULL),
+(131, 1, '2024-03-22', '08:30:00', '13:30:00', 5, 'Inserción de datos de prueba', NULL, NULL),
+(132, 1, '2024-03-25', '08:00:00', '14:00:00', 6, 'Desarrollo backend - Configuración de proyecto', NULL, NULL),
+(133, 1, '2024-03-26', '08:30:00', '13:30:00', 5, 'Creación de modelos y migraciones', NULL, NULL),
+(134, 1, '2024-03-27', '09:00:00', '15:00:00', 6, 'Implementación de controladores', NULL, NULL),
+(135, 1, '2024-03-28', '08:00:00', '12:00:00', 4, 'Desarrollo de rutas API REST', NULL, NULL),
+(136, 1, '2024-03-29', '08:30:00', '13:30:00', 5, 'Pruebas de endpoints con Postman', NULL, NULL),
+(137, 1, '2024-04-01', '08:00:00', '14:00:00', 6, 'Desarrollo frontend - Configuración de React', NULL, NULL),
+(138, 1, '2024-04-02', '08:30:00', '13:30:00', 5, 'Creación de componentes principales', NULL, NULL),
+(139, 1, '2024-04-03', '09:00:00', '15:00:00', 6, 'Implementación de navegación con React Router', NULL, NULL),
+(140, 1, '2024-04-04', '08:00:00', '12:00:00', 4, 'Conexión frontend-backend con Axios', NULL, NULL),
+(141, 1, '2024-04-05', '08:30:00', '13:30:00', 5, 'Manejo de estado con Context API', NULL, NULL),
+(142, 1, '2024-04-08', '08:00:00', '14:00:00', 6, 'Desarrollo de formularios y validaciones', NULL, NULL),
+(143, 1, '2024-04-09', '08:30:00', '13:30:00', 5, 'Implementación de autenticación JWT', NULL, NULL),
+(144, 1, '2024-04-10', '09:00:00', '15:00:00', 6, 'Pruebas de integración completa', NULL, NULL),
+(145, 1, '2024-04-11', '08:00:00', '12:00:00', 4, 'Corrección de errores identificados', NULL, NULL),
+(146, 1, '2024-04-12', '08:30:00', '13:30:00', 5, 'Optimización de consultas a base de datos', NULL, NULL),
+(147, 1, '2024-04-15', '08:00:00', '14:00:00', 6, 'Documentación técnica del sistema', NULL, NULL),
+(148, 1, '2024-04-16', '08:30:00', '13:30:00', 5, 'Preparación de manual de usuario', NULL, NULL),
+(149, 1, '2024-04-17', '09:00:00', '14:00:00', 5, 'Presentación final al supervisor', NULL, NULL),
+(150, 1, '2024-04-18', '08:00:00', '12:00:00', 4, 'Entrega de código fuente documentado', NULL, NULL);
+
+--
+-- Disparadores `asistencias`
+--
+DELIMITER $$
+CREATE TRIGGER `after_asistencia_delete` AFTER DELETE ON `asistencias` FOR EACH ROW BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = OLD.practicas
+    )
+    WHERE id = OLD.practicas;
+    
+    -- Verificar si baja de 128 horas
+    UPDATE practicas 
+    SET estado = 'En curso' 
+    WHERE id = OLD.practicas 
+    AND horas_acumuladas < 128 
+    AND estado = 'Finalizado';
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_asistencia_insert` AFTER INSERT ON `asistencias` FOR EACH ROW BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = NEW.practicas
+    )
+    WHERE id = NEW.practicas;
+    
+    -- Verificar si alcanza 128 horas
+    UPDATE practicas 
+    SET estado = 'Finalizado' 
+    WHERE id = NEW.practicas 
+    AND horas_acumuladas >= 128 
+    AND estado != 'Finalizado';
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_asistencia_update` AFTER UPDATE ON `asistencias` FOR EACH ROW BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = NEW.practicas
+    )
+    WHERE id = NEW.practicas;
+    
+    -- Verificar estado según horas
+    UPDATE practicas 
+    SET estado = CASE 
+        WHEN horas_acumuladas >= 128 THEN 'Finalizado'
+        ELSE 'En curso'
+    END
+    WHERE id = NEW.practicas;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -573,14 +729,14 @@ CREATE TABLE `estudiante` (
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
 (1, NULL, '09986759', 'VILCHEZ', 'ASTUPI?AN', 'ADOLFO', 'M', '994122181', '', '', '', '', '09986759@institutocajas.edu.pe', '0000-00-00', '', 1),
 (2, NULL, '10753076', 'SERRANO', 'ECHEVARRIA', 'CHRISTIAN EDUARDO', 'M', '982989635', '', '', '', '', '10753076@institutocajas.edu.pe', '0000-00-00', '', 1),
-(3, NULL, '19868839', 'CAPACYACHI', 'OROYA', 'JAVIER ALFONSO', 'M', '954541040', '', '', '', '', '19868839@institutocajas.edu.pe', '0000-00-00', '', 1),
-(4, NULL, '20053901', 'ORE', 'ROJAS', 'JORGE LUIS', 'M', '996559992', '', '', '', '', '20053901@institutocajas.edu.pe', '0000-00-00', '', 1),
-(5, NULL, '20066638', 'ZARATE', 'AGUILAR', 'MIGUEL ANGEL', 'M', '931744607', '', '', '', '', '20066638@institutocajas.edu.pe', '0000-00-00', '', 1),
-(6, NULL, '20080751', 'CASTRO', 'PAYTAN', 'ALEXIS JOHANN', 'M', '964476156', '', '', '', '', '20080751@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(7, NULL, '20443029', 'MEZA', 'CARHUANCHO', 'JOSE DANIEL', 'M', '955831935', '', '', '', '', '20443029@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(8, NULL, '40831887', 'ALANOCA', 'ROJAS', 'JOSE LUIS', 'M', '989772866', '', '', '', '', '40831887@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(9, NULL, '40997599', 'CUYUTUPAC', 'MUSUCANCHA', 'FRANKLIN ELVIS', 'M', '964300415', '', '', '', '', '40997599@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(10, NULL, '41394400', 'CAMAYO', 'ADRIANO', 'JOSE ALBERTO', 'M', '914162943', '', '', '', '', '41394400@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(3, NULL, '19868839', 'CAPACYACHI', 'OROYA', 'JAVIER ALFONSO', 'M', '954541040', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '19868839@institutocajas.edu.pe', '2000-12-12', '', 0),
+(4, NULL, '20053901', 'ORE', 'ROJAS', 'JORGE LUIS', 'M', '996559992', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '20053901@institutocajas.edu.pe', '2000-12-12', '', 0),
+(5, NULL, '20066638', 'ZARATE', 'AGUILAR', 'MIGUEL ANGEL', 'M', '931744607', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '20066638@institutocajas.edu.pe', '2000-12-12', '', 1),
+(6, NULL, '20080751', 'CASTRO', 'PAYTAN', 'ALEXIS JOHANN', 'M', '964476156', '', '', '', '', '20080751@institutocajas.edu.pe', '1999-04-12', '', 0),
+(7, NULL, '20443029', 'MEZA', 'CARHUANCHO', 'JOSE DANIEL', 'M', '955831935', '', '', '', '', '20443029@institutocajas.edu.pe', '1999-12-24', '', 0),
+(8, NULL, '40831887', 'ALANOCA', 'ROJAS', 'JOSE LUIS', 'M', '989772866', '', '', '', '', '40831887@institutocajas.edu.pe', '1999-09-12', '', 0),
+(9, NULL, '40997599', 'CUYUTUPAC', 'MUSUCANCHA', 'FRANKLIN ELVIS', 'M', '964300415', '', '', '', '', '40997599@institutocajas.edu.pe', '2000-01-31', '', 0),
+(10, NULL, '41394400', 'CAMAYO', 'ADRIANO', 'JOSE ALBERTO', 'M', '914162943', '', '', '', '', '41394400@institutocajas.edu.pe', '1999-12-20', '', 0),
 (11, NULL, '42370958', 'ROJAS', 'LUIS', 'ROBERTO ALEX', 'M', '941700588', '', '', '', '', 'sayd4237@gmail.com', '0000-00-00', '', NULL),
 (12, NULL, '42409503', 'COSSIO', 'PARIONA', 'MARX', 'M', '953104387', '', '', '', '', '42409503@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (13, NULL, '42474078', 'GUZMAN', 'RAYMUNDO', 'FRAY FRANKLYN', 'M', '955211658', '', '', '', '', '42474078@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -897,9 +1053,9 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (324, NULL, '60910987', 'GUILLEN', 'ROJAS', 'HAMESHA ANGHELY', 'F', '924056346', '', '', '', '', '60910987@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (325, NULL, '60911044', 'PAREDES', 'RAMOS', 'LUIS DANIEL', 'M', '906029725', '', '', '', '', '60911044@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (326, NULL, '60911065', 'CORDOVA', 'MONTA?EZ', 'MAYKEL ANTONIO', 'M', '951808697', '', '', '', '', '60911065@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(327, NULL, '60920757', 'TAIPE', 'PEDRAZA', 'YAAK YANFER', 'M', '985346096', '', '', '', '', '60920757@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(328, NULL, '60930372', 'MENDOZA', 'RODRIGUEZ', 'MIGUEL ANGEL', 'M', '963170616', '', '', '', '', '60930372@institutocajas.edu.pe', '0000-00-00', '', NULL);
+(327, NULL, '60920757', 'TAIPE', 'PEDRAZA', 'YAAK YANFER', 'M', '985346096', '', '', '', '', '60920757@institutocajas.edu.pe', '0000-00-00', '', NULL);
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
+(328, NULL, '60930372', 'MENDOZA', 'RODRIGUEZ', 'MIGUEL ANGEL', 'M', '963170616', '', '', '', '', '60930372@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (329, NULL, '60931370', 'CHANCOS', 'HUAMAN', 'MARIELA XIOMARA', 'F', '904409401', '', '', '', '', '60931370@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (330, NULL, '60932581', 'HINOSTROZA', 'AMES', 'JIMY HUOSEIN', 'M', '989516177', '', '', '', '', '60932581@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (331, NULL, '60932620', 'HERRERA', 'PEREZ', 'CALEF DANIEL', 'M', '932172215', '', '', '', '', '60932620@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1225,9 +1381,9 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (651, NULL, '72182119', 'HINOSTROZA', 'MALLAUPOMA', 'CARLOS CAZSELY', 'M', '989779735', '', '', '', '', '72182119@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (652, NULL, '72189188', 'GASPAR', 'AGUILAR', 'ANDERSON JHOEL', 'M', '993370325', '', '', '', '', '72189188@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (653, NULL, '72211807', 'ORE', 'MAYTA', 'LUIS JHOVANY', 'M', '920235869', '', '', '', '', '72211807@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(654, NULL, '72223191', 'MATOS', 'GALARZA', 'ALEXIS MESIAS', 'M', '963256464', '', '', '', '', '72223191@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(655, NULL, '72228730', 'MU?OZ', 'SALVADOR', 'ALEX JILMER', 'M', '978283208', '', '', '', '', '72228730@institutocajas.edu.pe', '0000-00-00', '', NULL);
+(654, NULL, '72223191', 'MATOS', 'GALARZA', 'ALEXIS MESIAS', 'M', '963256464', '', '', '', '', '72223191@institutocajas.edu.pe', '0000-00-00', '', NULL);
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
+(655, NULL, '72228730', 'MU?OZ', 'SALVADOR', 'ALEX JILMER', 'M', '978283208', '', '', '', '', '72228730@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (656, NULL, '72236296', 'GOMEZ', 'CARLOS', 'EMERSON YEVIN', 'M', '935955396', '', '', '', '', '72236296@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (657, NULL, '72236341', 'AMBOLAYA', 'CORCINO', 'FRANKLIN LEONARDO', 'M', '922988646', '', '', '', '', '72236341@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (658, NULL, '72244994', 'LOVERA', 'MARAVI', 'CINEDIN SEBASTIAN', 'M', '901828393', '', '', '', '', '72244994@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1273,11 +1429,11 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (698, NULL, '72517182', 'QUISPE', 'FUERO', 'JESUS ANGEL', 'M', '952185414', '', '', '', '', '72517182@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (699, NULL, '72541102', 'HUAYNATE', 'ACHACHAU', 'JOSE LUIS', 'M', '975818374', '', '', '', '', '72541102@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (700, NULL, '72549332', 'ESPIRITU', 'ALAYO', 'ANGEL EFRAIN', 'M', '910601456', '', '', '', '', '72549332@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(701, NULL, '72551943', 'PEREZ', 'TAYPE', 'LILIANA PAMELA', 'F', '964517277', '', '', '', '', '72551943@institutocajas.edu.pe', '0000-00-00', '', 1),
+(701, NULL, '72551943', 'PEREZ', 'TAYPE', 'LILIANA PAMELA', 'F', '964517277', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72551943@institutocajas.edu.pe', '2000-12-12', '', 0),
 (702, NULL, '72571243', 'RAPRI', 'CAPCHA', 'GABRIEL FRANCIS', 'M', '958684615', '', '', '', '', '72571243@institutocajas.edu.pe', '0000-00-00', '', 1),
 (703, NULL, '72571245', 'RAPRI', 'CAPCHA', 'ANGHEL FRAN LEE', 'M', '937422626', '', '', '', '', '72571245@institutocajas.edu.pe', '0000-00-00', '', 1),
-(704, NULL, '72614777', 'PANIAGUA', 'VASQUEZ', 'XIOMARA', 'F', '916217856', '', '', '', '', '72614777@institutocajas.edu.pe', '0000-00-00', '', 1),
-(705, NULL, '72628543', 'AVILA', 'HUATUCO', 'ALEXIS KEVIN', 'M', '998166159', '', '', '', '', '72628543@institutocajas.edu.pe', '0000-00-00', '', 1),
+(704, NULL, '72614777', 'PANIAGUA', 'VASQUEZ', 'XIOMARA', 'F', '916217856', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72614777@institutocajas.edu.pe', '2000-12-12', '', 0),
+(705, NULL, '72628543', 'AVILA', 'HUATUCO', 'ALEXIS KEVIN', 'M', '998166159', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72628543@institutocajas.edu.pe', '2000-12-12', '', 0),
 (706, NULL, '72637201', 'DE LA CRUZ', 'MEZA', 'DIANA YESENIA', 'F', '934612747', '', '', '', '', '72637201@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (707, NULL, '72637203', 'ASCONA', 'HUAMAN', 'DEREEK LEO', 'M', '950533764', '', '', '', '', '72637203@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (708, NULL, '72670254', 'SULLCA', 'VARGAS', 'DEYVI IRWING', 'M', '902221894', '', '', '', '', '72670254@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1303,7 +1459,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (728, NULL, '72947603', 'TOSCANO', 'AREVALO', 'JAK BISMARKC', 'M', '937302228', '', '', '', '', '72947603@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (729, NULL, '72979547', 'PAREJAS', 'ARAUJO', 'ABRAHAM', 'M', '906250556', '', '', '', '', '72979547@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (730, NULL, '73027117', 'CORAZON', 'FLORES', 'JOSUE ALEJANDRO', 'M', '968683050', '', '', '', '', '73027117@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(731, NULL, '73027729', 'SOLLER', 'RIVERA', 'SAMIRA TAYLI', 'F', '964902460', '', '', '', '', '73027729@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(731, NULL, '73027729', 'SOLLER', 'RIVERA', 'SAMIRA TAYLI', 'F', '964902460', '', '', '', '', '73027729@institutocajas.edu.pe', '1999-11-19', '', 1),
 (732, NULL, '73063421', 'LULO', 'TAIPE', 'LUIS MIGUEL', 'M', '900301508', '', '', '', '', '73063421@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (733, NULL, '73078042', 'RIVAS', 'CAMARENA', 'JEFREY FRANCIS', 'M', '999694924', '', '', '', '', '73078042@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (734, NULL, '73087118', 'MEZA', 'CASTILLON', 'PAUL GUYIN', 'M', '954019858', '', '', '', '', '73087118@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1363,7 +1519,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (788, NULL, '73765047', 'TAYPE', 'FERNANDEZ', 'DAYSON WALDIR', 'M', '901840591', '', '', '', '', '73765047@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (789, NULL, '73777855', 'SUAREZ', 'CAIRO', 'JERSON', 'M', '992539340', '', '', '', '', '73777855@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (790, NULL, '73779070', 'VALERO', 'CAINICELA', 'SOFIA DEL PILAR', 'F', '915353261', '', '', '', '', '73779070@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(791, NULL, '73779071', 'VALERO', 'CAINICELA', 'CHRIS GISENIA', 'F', '986602090', '', '', '', '', '73779071@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(791, NULL, '73779071', 'VALERO', 'CAINICELA', 'CHRIS GISENIA', 'F', '986602090', '', '', '', '', '73779071@institutocajas.edu.pe', '2002-01-04', '', 0),
 (792, NULL, '73787249', 'ESTRELLA', 'PALACIOS', 'JEFFRY ANJELO', 'M', '946015018', '', '', '', '', '73787249@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (793, NULL, '73792538', 'DE LA CRUZ', 'INGA', 'JHONNY', 'M', '957854617', '', '', '', '', '73792538@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (794, NULL, '73792935', 'RIVERA', 'CONDOR', 'MARCOS JEANPIERE', 'M', '922682958', '', '', '', '', '73792935@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1552,10 +1708,10 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (977, NULL, '75243613', 'QUISPE', 'CHANCASANAMPA', 'GELIN', 'F', '926838005', '', '', '', '', '75243613@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (978, NULL, '75243614', 'QUISPE', 'CHANCASANAMPA', 'SAIRA NERI', 'F', '931892151', '', '', '', '', '75243614@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (979, NULL, '75245456', 'FRANCO', 'TAIPE', 'DIEGO ANDERSON', 'M', '922883209', '', '', '', '', '75245456@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(980, NULL, '75263886', 'BARRA', 'CHAVEZ', 'POOL JHOSEP', 'M', '981756759', '', '', '', '', '75263886@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(981, NULL, '75276788', 'BARRERA', 'SULLCA', 'NILTON JAVIER', 'M', '900094048', '', '', '', '', '75276788@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(982, NULL, '75276870', 'RAFAEL', 'VILCA?AUPA', 'JUAN MAX', 'M', '904741282', '', '', '', '', '75276870@institutocajas.edu.pe', '0000-00-00', '', NULL);
+(980, NULL, '75263886', 'BARRA', 'CHAVEZ', 'POOL JHOSEP', 'M', '981756759', '', '', '', '', '75263886@institutocajas.edu.pe', '0000-00-00', '', NULL);
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
+(981, NULL, '75276788', 'BARRERA', 'SULLCA', 'NILTON JAVIER', 'M', '900094048', '', '', '', '', '75276788@institutocajas.edu.pe', '0000-00-00', '', NULL),
+(982, NULL, '75276870', 'RAFAEL', 'VILCA?AUPA', 'JUAN MAX', 'M', '904741282', '', '', '', '', '75276870@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (983, NULL, '75277168', 'GUZMAN', 'TUNQUE', 'JOSMAR BENYI', 'M', '924770085', '', '', '', '', '75277168@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (984, NULL, '75285913', 'FERNANDEZ', 'HUACCHO', 'DENZEL DUDIKOFF', 'M', '931892438', '', '', '', '', '75285913@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (985, NULL, '75292211', 'ESTRADA', 'TOSCANO', 'JOHAO HUMBERTO', 'M', '927114820', '', '', '', '', '75292211@institutocajas.edu.pe', '0000-00-00', '', NULL),
@@ -1826,7 +1982,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (1250, NULL, '80835602', 'YUPANQUI', 'HUARINGA', 'JHORDYN', 'M', '928446964', '', '', '', '', '80835602@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (1251, NULL, '80842547', 'POMA', 'TIZA', 'JORGE LUIS', 'M', '977661408', '', '', '', '', '80842547@institutocajas.edu.pe', '0000-00-00', '', NULL),
 (1252, NULL, '80848836', 'TORRES', 'MUCHA', 'YERALDIN YHADIRA', 'F', '988814184', '', '', '', '', '80848836@institutocajas.edu.pe', '0000-00-00', '', NULL),
-(1262, NULL, '71111111', 'reeeee', 'eereeee', 'rererer', 'M', '933333333', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', 'Av. Milpo I SN', 'gabrielrapri14@gmail.com', NULL, '1999-04-14', NULL, 1);
+(1262, NULL, '71111111', 'reeeee', 'eereeee', 'rererer', 'M', '933333333', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', 'Av. Milpo I SN', 'gabrielrapri14@gmail.com', NULL, '1999-04-14', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -3387,19 +3543,22 @@ CREATE TABLE `practicas` (
   `cargo_supervisor` varchar(150) DEFAULT NULL,
   `periodo_academico_efsrt` varchar(50) DEFAULT NULL,
   `turno_efsrt` varchar(20) DEFAULT NULL,
-  `estado` enum('En curso','Finalizado','Pendiente') DEFAULT 'Pendiente'
+  `estado` enum('En curso','Finalizado','Pendiente') DEFAULT 'Pendiente',
+  `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `practicas`
 --
 
-INSERT INTO `practicas` (`id`, `estudiante`, `empleado`, `docente_supervisor`, `empresa`, `modulo`, `tipo_efsrt`, `periodo_academico`, `fecha_inicio`, `fecha_fin`, `total_horas`, `horas_acumuladas`, `area_ejecucion`, `supervisor_empresa`, `cargo_supervisor`, `periodo_academico_efsrt`, `turno_efsrt`, `estado`) VALUES
-(1, 1, 3, NULL, 1, 'INTEGRACIÓN DE APLICACIONES WEB Y MÓVILES', 'modulo2', 'VI', '2024-09-26', '2024-12-13', 128, 16, NULL, NULL, NULL, NULL, NULL, 'En curso'),
-(2, 2, 3, NULL, 1, 'DESARROLLO DE APLICACIONES WEB', 'modulo1', 'VI', '2024-09-25', '2024-12-12', 128, 20, NULL, NULL, NULL, NULL, NULL, 'En curso'),
-(3, 3, 3, NULL, 1, 'DISEÑO DE INTERFACES DE USUARIO', 'modulo3', 'VI', '2024-09-24', '2024-12-11', 128, 24, NULL, NULL, NULL, NULL, NULL, 'En curso'),
-(4, 4, 3, NULL, 1, 'PROGRAMACIÓN WEB AVANZADA', 'modulo1', 'VI', '2024-09-23', '2024-12-10', 128, 28, NULL, NULL, NULL, NULL, NULL, 'Pendiente'),
-(5, 5, 3, NULL, 1, 'BASE DE DATOS Y BACKEND', 'modulo1', 'VI', '2024-09-22', '2024-12-09', 128, 128, NULL, NULL, NULL, NULL, NULL, 'Finalizado');
+INSERT INTO `practicas` (`id`, `estudiante`, `empleado`, `docente_supervisor`, `empresa`, `modulo`, `tipo_efsrt`, `periodo_academico`, `fecha_inicio`, `fecha_fin`, `total_horas`, `horas_acumuladas`, `area_ejecucion`, `supervisor_empresa`, `cargo_supervisor`, `periodo_academico_efsrt`, `turno_efsrt`, `estado`, `fecha_registro`) VALUES
+(1, 1, 3, NULL, 1, 'Módulo 2', 'modulo2', 'VI', '2024-09-26', '2024-12-13', 128, 175, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'Finalizado', '2025-12-02 06:55:15'),
+(2, 2, 3, NULL, 1, 'Módulo 1', 'modulo1', 'II', '2024-09-25', NULL, 128, 25, 'tttt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 06:55:15'),
+(5, 5, 3, NULL, 1, 'Módulo 1', 'modulo1', 'II', '2024-09-22', '2024-12-09', 128, 149, 'tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'Finalizado', '2025-12-02 06:55:15'),
+(6, 1, 74, NULL, 1, 'Módulo 1', 'modulo1', 'VI', '2025-12-02', NULL, 128, 24, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 06:56:08'),
+(7, 703, 85, NULL, 2, 'Módulo 2', 'modulo2', 'VI', '2025-12-02', NULL, 128, 25, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:06:58'),
+(8, 702, 94, NULL, 3, 'Módulo 2', 'modulo2', 'VI', '2025-12-02', NULL, 128, 28, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:18:58'),
+(9, 731, 80, NULL, 2, 'Módulo 3', 'modulo3', 'VI', '2025-12-02', NULL, 128, 26, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:33:03');
 
 -- --------------------------------------------------------
 
@@ -5831,7 +5990,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `nivel`) VALUES
 (1, 'admin', '$2y$10$8asrZfSaluo8qKPoMaGdcuEeDucF9ue21hcD820LPLW36q/6gtYMm', 2, 1, NULL, NULL, NULL),
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, NULL, 1, 1);
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, '54c6565bbd0a4ba0d50630706309946079e2e4e91beb1dc155795e128ecc8841', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -6319,7 +6478,7 @@ ALTER TABLE `alerta_ia`
 -- AUTO_INCREMENT de la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
 
 --
 -- AUTO_INCREMENT de la tabla `asistencia_cap`
@@ -6529,7 +6688,7 @@ ALTER TABLE `participante_reunion`
 -- AUTO_INCREMENT de la tabla `practicas`
 --
 ALTER TABLE `practicas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `prog_estudios`
