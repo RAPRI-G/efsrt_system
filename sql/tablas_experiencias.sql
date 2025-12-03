@@ -100,7 +100,7 @@ CREATE TABLE `efsrt_documentos` (
   `fecha_documento` date DEFAULT NULL,
   `fecha_generacion` datetime DEFAULT CURRENT_TIMESTAMP,
   `generado_por` int(11) DEFAULT NULL,
-  `estado` enum('generado','firmado','enviado') DEFAULT 'generado',
+  `estado` enum('pendiente','generado') DEFAULT 'pendiente',
   PRIMARY KEY (`id`),
   KEY `practica_id` (`practica_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
@@ -222,6 +222,79 @@ FROM `empresa` e;
 -- 1. Agregar representante_legal a empresa
 ALTER TABLE `empresa` 
 ADD COLUMN `representante_legal` VARCHAR(255) DEFAULT NULL AFTER `razon_social`;
+
+ALTER TABLE practicas
+ADD COLUMN IF NOT EXISTS fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP AFTER estado;
+
+-- Trigger para INSERT en asistencias
+DELIMITER $$
+CREATE TRIGGER after_asistencia_insert 
+AFTER INSERT ON asistencias 
+FOR EACH ROW
+BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = NEW.practicas
+    )
+    WHERE id = NEW.practicas;
+    
+    -- Verificar si alcanza 128 horas
+    UPDATE practicas 
+    SET estado = 'Finalizado' 
+    WHERE id = NEW.practicas 
+    AND horas_acumuladas >= 128 
+    AND estado != 'Finalizado';
+END$$
+DELIMITER ;
+
+-- Trigger para DELETE en asistencias
+DELIMITER $$
+CREATE TRIGGER after_asistencia_delete 
+AFTER DELETE ON asistencias 
+FOR EACH ROW
+BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = OLD.practicas
+    )
+    WHERE id = OLD.practicas;
+    
+    -- Verificar si baja de 128 horas
+    UPDATE practicas 
+    SET estado = 'En curso' 
+    WHERE id = OLD.practicas 
+    AND horas_acumuladas < 128 
+    AND estado = 'Finalizado';
+END$$
+DELIMITER ;
+
+-- Trigger para UPDATE en asistencias
+DELIMITER $$
+CREATE TRIGGER after_asistencia_update 
+AFTER UPDATE ON asistencias 
+FOR EACH ROW
+BEGIN
+    UPDATE practicas 
+    SET horas_acumuladas = (
+        SELECT COALESCE(SUM(horas_acumuladas), 0) 
+        FROM asistencias 
+        WHERE practicas = NEW.practicas
+    )
+    WHERE id = NEW.practicas;
+    
+    -- Verificar estado según horas
+    UPDATE practicas 
+    SET estado = CASE 
+        WHEN horas_acumuladas >= 128 THEN 'Finalizado'
+        ELSE 'En curso'
+    END
+    WHERE id = NEW.practicas;
+END$$
+DELIMITER ;
 
 -- Actualizar con distribución aleatoria simple
 UPDATE matricula 

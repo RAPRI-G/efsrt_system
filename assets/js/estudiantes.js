@@ -404,18 +404,27 @@ const confirmado = await mostrarConfirmacion(
 // ==============================
 
 // Actualizar estadísticas del dashboard
-// Actualizar estadísticas del dashboard
 function actualizarDashboardEstudiantes() {
     const totalEstudiantes = datosEstudiantes.estudiantes.length;
     
-    // Estudiantes activos (solo estado = 1)
+    // Estudiantes activos
     const estudiantesActivos = datosEstudiantes.estudiantes.filter(e => 
         e.estado === 1
     ).length;
     
-    // 🔥 CORRECCIÓN: Estudiantes en prácticas (solo "En curso")
-    const estudiantesPracticas = datosEstudiantes.estudiantes.filter(e => 
+    // 🔥 CORRECCIÓN: Estudiantes con prácticas "En curso"
+    const estudiantesPracticasCurso = datosEstudiantes.estudiantes.filter(e => 
         e.estado_practica === 'En curso'
+    ).length;
+    
+    // 🔥 NUEVO: Estudiantes con prácticas "Pendiente"
+    const estudiantesPracticasPendiente = datosEstudiantes.estudiantes.filter(e => 
+        e.estado_practica === 'Pendiente'
+    ).length;
+    
+    // 🔥 NUEVO: Estudiantes con prácticas "Finalizado"
+    const estudiantesPracticasFinalizado = datosEstudiantes.estudiantes.filter(e => 
+        e.estado_practica === 'Finalizado'
     ).length;
     
     const totalProgramas = new Set(datosEstudiantes.estudiantes.map(e => e.prog_estudios)).size;
@@ -423,23 +432,21 @@ function actualizarDashboardEstudiantes() {
     // Actualizar contadores
     document.getElementById('total-estudiantes').textContent = totalEstudiantes;
     document.getElementById('estudiantes-activos').textContent = estudiantesActivos;
-    document.getElementById('estudiantes-practicas').textContent = estudiantesPracticas;
+    
+    // 🔥 ACTUALIZAR: Mostrar estudiantes EN CURSO (no todos)
+    document.getElementById('estudiantes-practicas').textContent = estudiantesPracticasCurso;
+    
     document.getElementById('total-programas').textContent = totalProgramas;
 
     // Actualizar textos descriptivos
     document.getElementById('estudiantes-texto').textContent = `${totalEstudiantes} registrados`;
     document.getElementById('activos-texto').textContent = `${estudiantesActivos} activos`;
-    document.getElementById('practicas-texto').textContent = `${estudiantesPracticas} en prácticas activas`;
+    
+    // 🔥 TEXTO MEJORADO: Mostrar desglose de prácticas
+    document.getElementById('practicas-texto').textContent = 
+        `${estudiantesPracticasCurso} en curso, ${estudiantesPracticasPendiente} pendientes, ${estudiantesPracticasFinalizado} finalizados`;
+    
     document.getElementById('programas-texto').textContent = `${totalProgramas} programas`;
-
-    // 🔥 DEBUG: Ver estadísticas de prácticas
-    const practicasCount = {
-        'En curso': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'En curso').length,
-        'Finalizado': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'Finalizado').length,
-        'Pendiente': datosEstudiantes.estudiantes.filter(e => e.estado_practica === 'Pendiente').length,
-        'Sin prácticas': datosEstudiantes.estudiantes.filter(e => !e.estado_practica).length
-    };
-    console.log('Dashboard - Prácticas:', practicasCount);
 
     // Actualizar gráficos
     inicializarGraficosEstudiantes();
@@ -535,13 +542,12 @@ function renderizarTablaEstudiantes(estudiantes) {
             estadoBadge = '<span class="badge-estado badge-inactivo">Inactivo</span>';
         }
         
-        // Determinar badge de prácticas
-        let practicasBadge = '';
-        if (estudiante.en_practicas > 0) {
-            practicasBadge = '<span class="badge-estado badge-activo">En prácticas</span>';
-        } else {
-            practicasBadge = '<span class="badge-estado badge-inactivo">Sin prácticas</span>';
-        }
+        // 🔥 CON ESTO:
+const practicasInfo = getInfoPracticas(estudiante);
+const practicasBadge = `<span class="${practicasInfo.clase}" title="${practicasInfo.tooltip}">
+    <i class="fas ${practicasInfo.icono} mr-1"></i>
+    ${practicasInfo.texto}
+</span>`;
         
         fila.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap">
@@ -592,6 +598,54 @@ function renderizarTablaEstudiantes(estudiantes) {
     
     // Agregar event listeners a los botones de acción
     agregarEventListenersAcciones();
+}
+
+function getInfoPracticas(estudiante) {
+    const tienePracticas = estudiante.estado_practica || estudiante.total_practicas > 0;
+    
+    if (!tienePracticas) {
+        return {
+            texto: 'Sin prácticas',
+            clase: 'badge-estado badge-inactivo',
+            icono: 'fa-times-circle',
+            tooltip: 'No tiene prácticas registradas',
+            modulo: ''
+        };
+    }
+    
+    // Tiene prácticas - determinar estado
+    const estado = estudiante.estado_practica || 'Sin estado';
+    const modulo = estudiante.modulo_practica || 'Módulo no especificado';
+    
+    // Configurar según estado
+    const configEstados = {
+        'En curso': {
+            texto: `En prácticas (${modulo})`,
+            clase: 'badge-estado badge-activo',
+            icono: 'fa-spinner fa-pulse',
+            tooltip: `Prácticas en curso - Módulo: ${modulo}`
+        },
+        'Pendiente': {
+            texto: `Pendiente (${modulo})`,
+            clase: 'badge-estado badge-warning',
+            icono: 'fa-clock',
+            tooltip: `Prácticas pendientes - Módulo: ${modulo}`
+        },
+        'Finalizado': {
+            texto: `Finalizado (${modulo})`,
+            clase: 'badge-estado badge-success',
+            icono: 'fa-check-circle',
+            tooltip: `Prácticas finalizadas - Módulo: ${modulo}`
+        },
+        'default': {
+            texto: `Prácticas (${modulo})`,
+            clase: 'badge-estado badge-info',
+            icono: 'fa-briefcase',
+            tooltip: `Estado: ${estado} - Módulo: ${modulo}`
+        }
+    };
+    
+    return configEstados[estado] || configEstados['default'];
 }
 
 // Agregar event listeners a los botones de acción

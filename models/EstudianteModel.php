@@ -7,25 +7,44 @@ class EstudianteModel extends BaseModel
 
     public function obtenerEstudiantes($filtros = [])
     {
-        // 🔥 CORRECCIÓN: Sin ORDER BY problemático
-        $sql = "SELECT e.*, 
-                   p.nom_progest, 
-                   m.prog_estudios,
-                   m.id_matricula,
-                   m.per_acad,
-                   m.turno,
-                   pr.estado as estado_practica,
-                   pr.modulo as modulo_practica,
-                   (SELECT COUNT(*) FROM practicas pr WHERE pr.estudiante = e.id AND pr.estado = 'En curso') as en_practicas
+        // 🔥 CONSULTA MEJORADA: Obtiene la ÚLTIMA práctica activa de cada estudiante
+        $sql = "SELECT 
+                e.*, 
+                p.nom_progest, 
+                m.prog_estudios,
+                m.id_matricula,
+                m.per_acad,
+                m.turno,
+                -- Última práctica activa (si existe)
+                pr.estado as estado_practica,
+                pr.modulo as modulo_practica,
+                pr.empresa as empresa_practica,
+                pr.fecha_inicio as fecha_inicio_practica,
+                -- Contador de prácticas en curso
+                (SELECT COUNT(*) FROM practicas pr2 
+                 WHERE pr2.estudiante = e.id 
+                 AND pr2.estado = 'En curso') as total_practicas_curso,
+                -- Contador total de prácticas
+                (SELECT COUNT(*) FROM practicas pr3 
+                 WHERE pr3.estudiante = e.id) as total_practicas
             FROM estudiante e
             LEFT JOIN matricula m ON e.id = m.estudiante
             LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-            LEFT JOIN practicas pr ON e.id = pr.estudiante AND pr.estado IN ('En curso', 'Finalizado', 'Pendiente')
+            -- 🔥 IMPORTANTE: Obtener solo la ÚLTIMA práctica (la más reciente)
+            LEFT JOIN (
+                SELECT estudiante, estado, modulo, empresa, fecha_inicio
+                FROM practicas
+                WHERE (estudiante, fecha_inicio) IN (
+                    SELECT estudiante, MAX(fecha_inicio)
+                    FROM practicas
+                    GROUP BY estudiante
+                )
+            ) pr ON e.id = pr.estudiante
             WHERE 1=1";
 
         $params = [];
 
-        // Aplicar filtros
+        // Aplicar filtros (mantener tu código actual)
         if (!empty($filtros['busqueda'])) {
             $sql .= " AND (e.dni_est LIKE :busqueda OR e.ap_est LIKE :busqueda OR e.nom_est LIKE :busqueda)";
             $params[':busqueda'] = '%' . $filtros['busqueda'] . '%';
@@ -38,10 +57,8 @@ class EstudianteModel extends BaseModel
 
         if (!empty($filtros['estado']) && $filtros['estado'] != 'all') {
             if ($filtros['estado'] == '1') {
-                // Solo activos
                 $sql .= " AND e.estado = 1";
             } else if ($filtros['estado'] == '0') {
-                // Inactivos (0 o null)
                 $sql .= " AND (e.estado = 0 OR e.estado IS NULL)";
             }
         }
@@ -51,7 +68,7 @@ class EstudianteModel extends BaseModel
             $params[':genero'] = $filtros['genero'];
         }
 
-        $sql .= " ORDER BY e.ap_est, e.am_est, e.nom_est"; // 🔥 Ordenar solo por campos seguros
+        $sql .= " ORDER BY e.ap_est, e.am_est, e.nom_est";
 
         $stmt = $this->executeQuery($sql, $params);
         return $stmt->fetchAll();
