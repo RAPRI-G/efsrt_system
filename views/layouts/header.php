@@ -188,7 +188,7 @@
 
                     <!-- Asistencias -->
                     <li>
-                        <a href="index.php?c=Asistencia&a=dashboard" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 active-menu">
+                        <a href="index.php?c=Asistencia&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 active-menu">
                             <i class="fas fa-calendar-check text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Asistencias</span>
                         </a>
@@ -204,7 +204,7 @@
 
                     <!-- Reportes -->
                     <li>
-                        <a href="index.php?c=Reporte&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Reporte' ? 'active-menu' : ''; ?>">
+                        <a href="index.php?c=Reportes&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Reporte' ? 'active-menu' : ''; ?>">
                             <i class="fas fa-chart-bar text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Reportes</span>
                         </a>
