@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 03-12-2025 a las 06:48:26
+-- Tiempo de generación: 04-12-2025 a las 10:18:44
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -5981,6 +5981,8 @@ CREATE TABLE `usuarios` (
   `estuempleado` int(11) DEFAULT NULL,
   `token` text DEFAULT NULL,
   `estado` int(11) DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ultimo_acceso` timestamp NULL DEFAULT NULL,
   `nivel` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -5988,9 +5990,12 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `nivel`) VALUES
-(1, 'admin', '$2y$10$8asrZfSaluo8qKPoMaGdcuEeDucF9ue21hcD820LPLW36q/6gtYMm', 2, 1, NULL, NULL, NULL),
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, '54c6565bbd0a4ba0d50630706309946079e2e4e91beb1dc155795e128ecc8841', 1, 1);
+INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `fecha_creacion`, `ultimo_acceso`, `nivel`) VALUES
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, '61d0df24b2abab8a4dad8bc29f9a83853fdef4fd8051f5f9380f2a5f1c53f1e7', 1, '2025-12-04 03:47:13', '2025-12-04 09:18:22', 1),
+(3, '72571243', '$2y$10$q4AL2.KYyAj.LFMi/jWssuFQ2mKyLTPzvCHksFHQ1NP6n0Bcr8jjy', 3, 702, NULL, 1, '2025-12-04 03:48:18', '2025-12-04 06:31:47', NULL),
+(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', NULL, NULL),
+(5, '73027729', '$2y$10$jr4tjz7TdMI6lDLYA.jzs.59DGjr8c6zBaJR6n73Motd3v3lmry3i', 3, 731, NULL, 1, '2025-12-04 04:09:16', NULL, NULL),
+(6, 'admin', '$2y$10$Q8LLFSKOwNGc3pU7gCDXhOFQ.L/5wkrN54HZYGwV4RosdW3/AWiv.', 2, NULL, NULL, 0, '2025-12-04 06:14:36', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -6820,7 +6825,7 @@ ALTER TABLE `unidades_didacticas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restricciones para tablas volcadas
