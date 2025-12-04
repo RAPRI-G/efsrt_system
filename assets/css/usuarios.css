@@ -1,0 +1,431 @@
+ /* Estilos para modales profesionales */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .modal.show {
+        display: flex;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalAppear 0.3s ease-out;
+        overflow: hidden;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    @keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .modal-header {
+        padding: 24px 30px;
+        background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-body {
+        padding: 30px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        background-color: #f8fafc;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+        letter-spacing: 0.3px;
+    }
+    
+    .form-input, .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: #0C1F36;
+        box-shadow: 0 0 0 3px rgba(12, 31, 54, 0.1);
+    }
+    
+    /* Botones profesionales */
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        letter-spacing: 0.3px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+        color: white;
+        box-shadow: 0 4px 6px rgba(12, 31, 54, 0.1);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(12, 31, 54, 0.15);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 6px rgba(25, 135, 84, 0.1);
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(25, 135, 84, 0.15);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #8b939b 100%);
+        color: white;
+        box-shadow: 0 4px 6px rgba(108, 117, 125, 0.1);
+    }
+    
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(108, 117, 125, 0.15);
+    }
+    
+    /* Persona seleccionada */
+    .persona-option {
+        padding: 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .persona-option:hover {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    
+    .persona-option.selected {
+        background-color: #dbeafe;
+        border-color: #3b82f6;
+    }
+    
+    .persona-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .persona-nombre {
+        font-weight: 600;
+        color: #111827;
+    }
+    
+    .persona-detalle {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    .persona-tipo {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .tipo-estudiante {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .tipo-docente {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    /* Avatar de usuario */
+    .avatar-usuario {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 14px;
+        background: linear-gradient(135deg, #0C1F36, #1a365d);
+    }
+
+    /* Estilos para las cards del dashboard */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e5e7eb;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 
+                0 5px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card.total::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.stat-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+}
+
+.stat-card.admin::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.stat-card.estudiantes::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+}
+
+/* Animaciones para los números */
+.counter {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Efecto de brillo en hover */
+.stat-card:hover .icon-container {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* ==============================
+   NOTIFICACIONES (ESTILO ESTÁTICO)
+   ============================== */
+
+.notification-container {
+    position: fixed;
+    top: 90px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.notification {
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(400px);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-left: 4px solid;
+    background: white;
+    min-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.hide {
+    transform: translateX(400px);
+    opacity: 0;
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.notification-icon .fa-check-circle {
+    color: #10b981;
+}
+
+.notification-icon .fa-exclamation-circle {
+    color: #ef4444;
+}
+
+.notification-icon .fa-exclamation-triangle {
+    color: #f59e0b;
+}
+
+.notification-icon .fa-info-circle {
+    color: #3b82f6;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.notification-close:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* Estilos para último acceso */
+.ultimo-acceso-reciente {
+    color: #10b981;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+.ultimo-acceso-medio {
+    color: #f59e0b;
+}
+
+.ultimo-acceso-antiguo {
+    color: #6b7280;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Tooltip para fechas */
+[title] {
+    position: relative;
+}
+
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

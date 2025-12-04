@@ -296,6 +296,12 @@ BEGIN
 END$$
 DELIMITER ;
 
+ALTER TABLE usuarios 
+ADD COLUMN fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER estado;
+
+ALTER TABLE usuarios 
+ADD COLUMN ultimo_acceso TIMESTAMP NULL DEFAULT NULL AFTER fecha_creacion;
+
 -- Actualizar con distribución aleatoria simple
 UPDATE matricula 
 SET prog_estudios = FLOOR(1 + RAND() * 10);

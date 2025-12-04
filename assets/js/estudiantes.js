@@ -258,7 +258,6 @@ async function cargarDatosEstudiantes() {
             
             aplicarFiltrosYRenderizar();
             actualizarDashboardEstudiantes();
-            mostrarNotificacion('success', '¡Datos cargados!', 'La información de estudiantes se ha cargado correctamente', 3000);
         } else {
             throw new Error(result.error);
         }

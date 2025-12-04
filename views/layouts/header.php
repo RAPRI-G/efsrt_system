@@ -194,14 +194,6 @@
                         </a>
                     </li>
 
-                    <!-- Evaluaciones -->
-                    <li>
-                        <a href="index.php?c=Evaluacion&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Evaluacion' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-star text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Evaluaciones</span>
-                        </a>
-                    </li>
-
                     <!-- Documentos -->
                     <li>
                         <a href="index.php?c=Documento&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Documento' ? 'active-menu' : ''; ?>">
@@ -223,7 +215,7 @@
                 <ul class="space-y-2 mt-6">
                     <!-- Usuarios -->
                     <li>
-                        <a href="crear_usuario.php" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
+                        <a href="index.php?c=Usuario&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
                             <i class="fas fa-users text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Usuarios</span>
                         </a>

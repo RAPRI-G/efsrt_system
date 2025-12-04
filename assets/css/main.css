@@ -370,3 +370,50 @@ body {
 .ruc-loading {
     animation: spin 1s linear infinite;
 }
+
+/* En tu archivo main.css o usuarios.css */
+
+/* Persona seleccionada */
+.persona-seleccionada {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+    display: none;
+}
+
+.persona-seleccionada.visible {
+    display: block;
+}
+
+/* Buscador en modal */
+.buscador-persona {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.buscador-persona input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+}
+
+.buscador-persona i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+/* Lista de personas */
+.lista-personas {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px;
+}

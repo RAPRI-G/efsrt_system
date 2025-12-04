@@ -434,4 +434,22 @@ class EstudianteModel extends BaseModel
             throw $e;
         }
     }
+
+    // models/EstudianteModel.php - Agregar este método
+
+    public function obtenerParaUsuarios()
+    {
+        try {
+            $sql = "SELECT id, dni_est, CONCAT(ap_est, ' ', am_est, ', ', nom_est) as nombre_completo 
+                FROM estudiante 
+                WHERE estado = 1 
+                ORDER BY ap_est, am_est, nom_est";
+
+            $stmt = $this->executeQuery($sql);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Error al obtener estudiantes para usuarios: " . $e->getMessage());
+            return [];
+        }
+    }
 }
