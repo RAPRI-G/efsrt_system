@@ -196,7 +196,8 @@
 
                     <!-- Documentos -->
                     <li>
-                        <a href="index.php?c=Documento&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Documento' ? 'active-menu' : ''; ?>">
+                        <a href="index.php?c=Documento&a=index"
+                            class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo (isset($_GET['c']) && $_GET['c'] == 'Documento') ? 'active-menu' : ''; ?>">
                             <i class="fas fa-file-alt text-lg w-6"></i>
                             <span class="menu-text ml-3 font-medium">Documentos</span>
                         </a>

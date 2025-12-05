@@ -452,4 +452,51 @@ class EstudianteModel extends BaseModel
             return [];
         }
     }
+
+        /**
+     * Obtener estudiantes con datos completos para documentos
+     */
+    public function obtenerEstudiantesConModulos()
+    {
+        try {
+            $sql = "SELECT 
+                    e.id, 
+                    e.dni_est,
+                    e.ap_est,
+                    e.am_est,
+                    e.nom_est,
+                    e.cel_est,
+                    e.mailp_est,
+                    CONCAT(e.ap_est, ' ', COALESCE(e.am_est, ''), ', ', e.nom_est) as nombre_completo,
+                    p.nom_progest as programa,
+                    -- Obtener prácticas del estudiante
+                    (SELECT GROUP_CONCAT(CONCAT(pr.modulo, ' (', pr.estado, ')') SEPARATOR ', ') 
+                     FROM practicas pr 
+                     WHERE pr.estudiante = e.id 
+                     AND pr.estado IN ('En curso', 'Finalizado')
+                     LIMIT 3) as practicas_info,
+                    -- Contar prácticas completadas
+                    (SELECT COUNT(*) FROM practicas pr2 
+                     WHERE pr2.estudiante = e.id 
+                     AND (pr2.estado = 'Finalizado' OR pr2.horas_acumuladas >= pr2.total_horas)) as modulos_completados,
+                    -- Última práctica
+                    (SELECT MAX(fecha_inicio) FROM practicas pr3 WHERE pr3.estudiante = e.id) as ultima_practica_fecha
+                FROM estudiante e
+                LEFT JOIN matricula m ON e.id = m.estudiante
+                LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
+                WHERE e.estado = 1 
+                ORDER BY e.ap_est, e.am_est, e.nom_est";
+
+            $stmt = $this->executeQuery($sql);
+            $estudiantes = $stmt->fetchAll();
+            
+            error_log("✅ Estudiantes con módulos obtenidos: " . count($estudiantes));
+            
+            return $estudiantes;
+            
+        } catch (Exception $e) {
+            error_log("❌ Error en obtenerEstudiantesConModulos: " . $e->getMessage());
+            return [];
+        }
+    }
 }
