@@ -2,6 +2,8 @@
 class Dashboard {
     constructor() {
         this.data = null;
+        this.estadoChart = null;
+        this.modulosChart = null;
         this.init();
     }
     
@@ -134,6 +136,9 @@ class Dashboard {
         const contenedor = document.getElementById('practicas-en-curso');
         const practicasEnCurso = this.data.graficos.practicas_en_curso;
         
+        // Limpiar contenido existente
+        contenedor.innerHTML = '';
+        
         if (!practicasEnCurso || practicasEnCurso.length === 0) {
             contenedor.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
@@ -144,25 +149,26 @@ class Dashboard {
             return;
         }
         
-        contenedor.innerHTML = practicasEnCurso.map(practica => {
+        practicasEnCurso.forEach(practica => {
             const porcentaje = practica.total_horas > 0 ? 
                 ((practica.horas_acumuladas / practica.total_horas) * 100).toFixed(1) : 0;
             
-            return `
-                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-                    <div>
-                        <p class="font-semibold text-primary-blue">${this.getNombreModulo(practica.tipo_efsrt)}</p>
-                        <p class="text-sm text-gray-600">${practica.nom_est || ''} ${practica.ap_est || ''} - ${practica.razon_social || 'N/A'}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-semibold text-blue-500">${practica.horas_acumuladas || 0}/${practica.total_horas || 0}h</p>
-                        <div class="w-24 bg-gray-200 rounded-full h-2 mt-1">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: ${porcentaje}%"></div>
-                        </div>
+            const card = document.createElement('div');
+            card.className = 'flex items-center justify-between p-4 bg-blue-50 rounded-xl mb-3';
+            card.innerHTML = `
+                <div>
+                    <p class="font-semibold text-primary-blue">${this.getNombreModulo(practica.tipo_efsrt)}</p>
+                    <p class="text-sm text-gray-600">${practica.nom_est || ''} ${practica.ap_est || ''} - ${practica.razon_social || 'N/A'}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold text-blue-500">${practica.horas_acumuladas || 0}/${practica.total_horas || 0}h</p>
+                    <div class="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: ${porcentaje}%"></div>
                     </div>
                 </div>
             `;
-        }).join('');
+            contenedor.appendChild(card);
+        });
     }
     
     inicializarGraficos() {
@@ -171,15 +177,34 @@ class Dashboard {
     }
     
     crearGraficoEstadoPracticas() {
-        const ctx = document.getElementById('estadoPracticasChart').getContext('2d');
-        const datos = this.data.graficos.estado_practicas;
+        const ctx = document.getElementById('estadoPracticasChart');
+        
+        // Verificar si el canvas existe
+        if (!ctx) {
+            console.error('Canvas estadoPracticasChart no encontrado');
+            return;
+        }
         
         // Destruir gráfico anterior si existe
         if (this.estadoChart) {
             this.estadoChart.destroy();
+            this.estadoChart = null;
         }
         
-        this.estadoChart = new Chart(ctx, {
+        const datos = this.data.graficos.estado_practicas;
+        
+        // Verificar si hay datos
+        if (!datos || Object.keys(datos).length === 0) {
+            ctx.parentElement.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-chart-pie text-3xl mb-2"></i>
+                    <p>No hay datos para mostrar</p>
+                </div>
+            `;
+            return;
+        }
+        
+        this.estadoChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: Object.keys(datos),
@@ -208,15 +233,34 @@ class Dashboard {
     }
     
     crearGraficoDistribucionModulos() {
-        const ctx = document.getElementById('modulosChart').getContext('2d');
-        const datos = this.data.graficos.distribucion_modulos;
+        const ctx = document.getElementById('modulosChart');
+        
+        // Verificar si el canvas existe
+        if (!ctx) {
+            console.error('Canvas modulosChart no encontrado');
+            return;
+        }
         
         // Destruir gráfico anterior si existe
         if (this.modulosChart) {
             this.modulosChart.destroy();
+            this.modulosChart = null;
         }
         
-        this.modulosChart = new Chart(ctx, {
+        const datos = this.data.graficos.distribucion_modulos;
+        
+        // Verificar si hay datos
+        if (!datos || Object.keys(datos).length === 0) {
+            ctx.parentElement.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-chart-bar text-3xl mb-2"></i>
+                    <p>No hay datos para mostrar</p>
+                </div>
+            `;
+            return;
+        }
+        
+        this.modulosChart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: Object.keys(datos),
@@ -246,19 +290,23 @@ class Dashboard {
         const contenedor = document.getElementById('actividad-reciente');
         const actividades = this.data.actividad_reciente;
         
+        // Limpiar contenido existente
+        contenedor.innerHTML = '';
+        
         if (!actividades || actividades.length === 0) {
-            contenedor.innerHTML += `
-                <div class="flex items-start">
-                    <div class="bg-gray-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-info-circle text-gray-600"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-primary-blue">Sin actividad reciente</p>
-                        <p class="text-sm text-gray-600">No hay actividad registrada en los últimos días</p>
-                        <p class="text-xs text-gray-400 mt-1">Hace unos momentos</p>
-                    </div>
+            const div = document.createElement('div');
+            div.className = 'flex items-start';
+            div.innerHTML = `
+                <div class="bg-gray-100 p-3 rounded-lg mr-4">
+                    <i class="fas fa-info-circle text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-primary-blue">Sin actividad reciente</p>
+                    <p class="text-sm text-gray-600">No hay actividad registrada en los últimos días</p>
+                    <p class="text-xs text-gray-400 mt-1">Hace unos momentos</p>
                 </div>
             `;
+            contenedor.appendChild(div);
             return;
         }
         
@@ -266,17 +314,18 @@ class Dashboard {
             const icono = actividad.tipo === 'practica' ? 'fa-briefcase' : 'fa-calendar-check';
             const color = actividad.tipo === 'practica' ? 'blue' : 'green';
             
-            contenedor.innerHTML += `
-                <div class="flex items-start">
-                    <div class="bg-${color}-100 p-3 rounded-lg mr-4">
-                        <i class="fas ${icono} text-${color}-600"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-primary-blue">${actividad.descripcion}</p>
-                        <p class="text-xs text-gray-400 mt-1">${this.formatearFecha(actividad.fecha)}</p>
-                    </div>
+            const div = document.createElement('div');
+            div.className = 'flex items-start mb-4 last:mb-0';
+            div.innerHTML = `
+                <div class="bg-${color}-100 p-3 rounded-lg mr-4">
+                    <i class="fas ${icono} text-${color}-600"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-primary-blue">${actividad.descripcion}</p>
+                    <p class="text-xs text-gray-400 mt-1">${this.formatearFecha(actividad.fecha)}</p>
                 </div>
             `;
+            contenedor.appendChild(div);
         });
     }
     
@@ -314,32 +363,64 @@ class Dashboard {
     }
     
     mostrarError(mensaje) {
-        // Puedes implementar un sistema de notificaciones aquí
-        console.error(mensaje);
-        alert(mensaje);
+        // Crear notificación de error
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+        errorDiv.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span>${mensaje}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(errorDiv);
+        
+        // Remover después de 5 segundos
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 5000);
     }
     
     mostrarLoading(mostrar) {
-        // Implementar indicador de carga si es necesario
+        const loadingElement = document.getElementById('loading-indicator');
+        if (loadingElement) {
+            loadingElement.style.display = mostrar ? 'block' : 'none';
+        }
     }
     
     inicializarEventos() {
         // Filtro por estado
-        document.getElementById('filterEstado').addEventListener('change', (e) => {
-            this.filtrarTablaPorEstado(e.target.value);
-        });
+        const filterEstado = document.getElementById('filterEstado');
+        if (filterEstado) {
+            filterEstado.addEventListener('change', (e) => {
+                this.filtrarTablaPorEstado(e.target.value);
+            });
+        }
         
         // Botón de exportar
-        document.getElementById('btnExportar').addEventListener('click', () => {
-            this.exportarDatos();
-        });
+        const btnExportar = document.getElementById('btnExportar');
+        if (btnExportar) {
+            btnExportar.addEventListener('click', () => {
+                this.exportarDatos();
+            });
+        }
+        
+        // Botón de actualizar
+        const btnActualizar = document.getElementById('btnActualizar');
+        if (btnActualizar) {
+            btnActualizar.addEventListener('click', () => {
+                this.cargarDatos();
+            });
+        }
     }
     
     filtrarTablaPorEstado(estado) {
         const filas = document.querySelectorAll('#tabla-practicas tr');
         
         filas.forEach(fila => {
-            if (estado === 'all') {
+            if (estado === 'all' || filas.length === 1) {
                 fila.style.display = '';
             } else {
                 const estadoCelda = fila.querySelector('td:nth-child(6) span');
@@ -355,14 +436,41 @@ class Dashboard {
         // Implementar exportación de datos
         alert('Funcionalidad de exportación en desarrollo');
     }
+    
+    // Método para limpiar gráficos antes de actualizar
+    limpiarGraficos() {
+        if (this.estadoChart) {
+            this.estadoChart.destroy();
+            this.estadoChart = null;
+        }
+        if (this.modulosChart) {
+            this.modulosChart.destroy();
+            this.modulosChart = null;
+        }
+    }
 }
+
+// Variable global para la instancia de Dashboard
+let dashboardInstance = null;
 
 // Inicializar dashboard cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    new Dashboard();
+    dashboardInstance = new Dashboard();
     
-    // Actualizar datos cada 30 segundos
+    // Actualizar datos cada 30 segundos (usando la misma instancia)
     setInterval(() => {
-        new Dashboard().cargarDatos();
+        if (dashboardInstance) {
+            dashboardInstance.cargarDatos();
+        }
     }, 30000);
+    
+    // Limpiar gráficos al cerrar/actualizar la página
+    window.addEventListener('beforeunload', () => {
+        if (dashboardInstance) {
+            dashboardInstance.limpiarGraficos();
+        }
+    });
 });
+
+// Exportar instancia para uso global si es necesario
+window.Dashboard = Dashboard;

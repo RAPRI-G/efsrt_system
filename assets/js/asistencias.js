@@ -243,7 +243,6 @@ agregarTooltipsEstadisticas(estadisticas) {
                             ${modulosCompletados > 0 ? `<span class="modulo-badge badge-completado"><i class="fas fa-check-circle mr-1"></i> ${modulosCompletados}</span>` : ''}
                             ${modulosEnCurso > 0 ? `<span class="modulo-badge badge-en-curso"><i class="fas fa-spinner mr-1"></i> ${modulosEnCurso}</span>` : ''}
                             ${modulosPendientes > 0 ? `<span class="modulo-badge badge-pendiente"><i class="fas fa-clock mr-1"></i> ${modulosPendientes}</span>` : ''}
-                            ${modulosNoIniciados > 0 ? `<span class="modulo-badge badge-no-iniciado"><i class="fas fa-ban mr-1"></i> ${modulosNoIniciados}</span>` : ''}
                         </div>
                     </div>
                     

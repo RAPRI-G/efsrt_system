@@ -115,7 +115,7 @@ class AsistenciaModel extends BaseModel
     public function obtenerEstudiantesConModulos()
     {
         try {
-            // Usar GROUP BY para evitar duplicados
+            // MODIFICADO: Solo estudiantes con prácticas activas o en curso
             $sqlEstudiantes = "SELECT 
             e.id,
             e.dni_est,
@@ -133,8 +133,17 @@ class AsistenciaModel extends BaseModel
         FROM estudiante e
         LEFT JOIN matricula m ON e.id = m.estudiante
         LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
+        
+        -- NUEVA CONDICIÓN: Solo estudiantes que tienen al menos una práctica
         WHERE e.estado = 1 
-        GROUP BY e.id, e.dni_est, e.ap_est, e.am_est, e.nom_est  -- Agrupar por estudiante
+        AND EXISTS (
+            SELECT 1 FROM practicas pr 
+            WHERE pr.estudiante = e.id 
+            AND pr.estado IN ('En curso', 'Finalizado', 'Pendiente')
+            -- Si quieres solo prácticas activas, usa: AND pr.estado IN ('En curso')
+        )
+        
+        GROUP BY e.id, e.dni_est, e.ap_est, e.am_est, e.nom_est
         ORDER BY e.ap_est, e.am_est, e.nom_est";
 
             $stmt = $this->executeQuery($sqlEstudiantes);
@@ -146,7 +155,7 @@ class AsistenciaModel extends BaseModel
                 $estudiante['empresa'] = $this->obtenerEmpresaEstudiante($estudiante['id']);
             }
 
-            error_log("✅ Estudiantes únicos obtenidos: " . count($estudiantes));
+            error_log("✅ Estudiantes con prácticas obtenidos: " . count($estudiantes));
             return $estudiantes;
         } catch (Exception $e) {
             error_log("Error en obtenerEstudiantesConModulos: " . $e->getMessage());

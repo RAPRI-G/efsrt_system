@@ -100,7 +100,6 @@
                     <option value="completado">Completado</option>
                     <option value="en_curso">En curso</option>
                     <option value="pendiente">Pendiente</option>
-                    <option value="no_iniciado">No iniciado</option>
                 </select>
             </div>
         </div>
