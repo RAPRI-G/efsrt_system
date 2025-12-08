@@ -25,19 +25,28 @@ class UsuarioModel extends BaseModel
 
         // CONSULTA SIMPLIFICADA - SOLO JALAMOS DE EMPLEADO
         $sql = "SELECT u.*, 
-                       e.apnom_emp as nombre_completo,
-                       e.dni_emp as dni,
-                       CASE 
-                           WHEN u.tipo = 1 THEN 'docente'
-                           WHEN u.tipo = 2 THEN 'administrador'
-                           WHEN u.tipo = 3 THEN 'estudiante'
-                           ELSE 'usuario'
-                       END as rol
-                FROM usuarios u
-                LEFT JOIN empleado e ON u.estuempleado = e.id
-                WHERE u.usuario = :usuario 
-                  AND u.estado = 1
-                  $tipoFiltro";
+       CASE 
+           WHEN u.tipo = 1 THEN e.apnom_emp
+           WHEN u.tipo = 3 THEN CONCAT(es.ap_est, ' ', es.am_est, ', ', es.nom_est)
+           ELSE 'Administrador'
+       END as nombre_completo,
+       CASE 
+           WHEN u.tipo = 1 THEN e.dni_emp
+           WHEN u.tipo = 3 THEN es.dni_est
+           ELSE NULL
+       END as dni,
+       CASE 
+           WHEN u.tipo = 1 THEN 'docente'
+           WHEN u.tipo = 2 THEN 'administrador'
+           WHEN u.tipo = 3 THEN 'estudiante'
+           ELSE 'usuario'
+       END as rol
+FROM usuarios u
+LEFT JOIN empleado e ON u.estuempleado = e.id AND u.tipo = 1
+LEFT JOIN estudiante es ON u.estuempleado = es.id AND u.tipo = 3
+WHERE u.usuario = :usuario 
+  AND u.estado = 1
+  $tipoFiltro";
 
         $stmt = $this->executeQuery($sql, $params);
         $user = $stmt->fetch();
@@ -70,16 +79,16 @@ class UsuarioModel extends BaseModel
     }
 
     public function actualizarUltimoAcceso($userId)
-{
-    try {
-        $sql = "UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = :id";
-        $this->executeQuery($sql, [':id' => $userId]);
-        return true;
-    } catch (Exception $e) {
-        error_log("Error al actualizar último acceso: " . $e->getMessage());
-        return false;
+    {
+        try {
+            $sql = "UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = :id";
+            $this->executeQuery($sql, [':id' => $userId]);
+            return true;
+        } catch (Exception $e) {
+            error_log("Error al actualizar último acceso: " . $e->getMessage());
+            return false;
+        }
     }
-}
 
     public function actualizarToken($userId, $token)
     {
@@ -139,9 +148,9 @@ class UsuarioModel extends BaseModel
     // ====================================
 
     public function obtenerTodos()
-{
-    try {
-        $sql = "SELECT 
+    {
+        try {
+            $sql = "SELECT 
                     u.*,
                     CASE 
                         WHEN u.tipo = 1 THEN e.apnom_emp
@@ -171,60 +180,60 @@ class UsuarioModel extends BaseModel
                 LEFT JOIN estudiante es ON u.estuempleado = es.id AND u.tipo = 3
                 ORDER BY u.id DESC";
 
-        $stmt = $this->executeQuery($sql);
-        $usuarios = $stmt->fetchAll();
-        
-        // Formatear fechas para mejor presentación
-        foreach ($usuarios as &$usuario) {
-            $usuario['ultimo_acceso'] = $this->formatearUltimoAcceso($usuario['ultimo_acceso']);
-        }
-        
-        return $usuarios;
-    } catch (Exception $e) {
-        error_log("Error al obtener usuarios: " . $e->getMessage());
-        return [];
-    }
-}
+            $stmt = $this->executeQuery($sql);
+            $usuarios = $stmt->fetchAll();
 
-private function formatearUltimoAcceso($fecha)
-{
-    if (!$fecha || $fecha == '0000-00-00 00:00:00') {
-        return 'Nunca';
-    }
-    
-    try {
-        $dateTime = new DateTime($fecha);
-        $now = new DateTime();
-        $diff = $now->diff($dateTime);
-        
-        // Si fue hoy, mostrar hace cuánto tiempo
-        if ($diff->days == 0) {
-            if ($diff->h > 0) {
-                return "Hace {$diff->h}h {$diff->i}min";
-            } elseif ($diff->i > 0) {
-                return "Hace {$diff->i}min";
-            } else {
-                return "Hace unos segundos";
+            // Formatear fechas para mejor presentación
+            foreach ($usuarios as &$usuario) {
+                $usuario['ultimo_acceso'] = $this->formatearUltimoAcceso($usuario['ultimo_acceso']);
             }
+
+            return $usuarios;
+        } catch (Exception $e) {
+            error_log("Error al obtener usuarios: " . $e->getMessage());
+            return [];
         }
-        
-        // Si fue ayer
-        if ($diff->days == 1) {
-            return "Ayer a las " . $dateTime->format('H:i');
-        }
-        
-        // Si fue esta semana
-        if ($diff->days < 7) {
-            $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            return $dias[$dateTime->format('w')] . " " . $dateTime->format('H:i');
-        }
-        
-        // Para fechas más antiguas
-        return $dateTime->format('d/m/Y H:i');
-    } catch (Exception $e) {
-        return 'Fecha inválida';
     }
-}
+
+    private function formatearUltimoAcceso($fecha)
+    {
+        if (!$fecha || $fecha == '0000-00-00 00:00:00') {
+            return 'Nunca';
+        }
+
+        try {
+            $dateTime = new DateTime($fecha);
+            $now = new DateTime();
+            $diff = $now->diff($dateTime);
+
+            // Si fue hoy, mostrar hace cuánto tiempo
+            if ($diff->days == 0) {
+                if ($diff->h > 0) {
+                    return "Hace {$diff->h}h {$diff->i}min";
+                } elseif ($diff->i > 0) {
+                    return "Hace {$diff->i}min";
+                } else {
+                    return "Hace unos segundos";
+                }
+            }
+
+            // Si fue ayer
+            if ($diff->days == 1) {
+                return "Ayer a las " . $dateTime->format('H:i');
+            }
+
+            // Si fue esta semana
+            if ($diff->days < 7) {
+                $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                return $dias[$dateTime->format('w')] . " " . $dateTime->format('H:i');
+            }
+
+            // Para fechas más antiguas
+            return $dateTime->format('d/m/Y H:i');
+        } catch (Exception $e) {
+            return 'Fecha inválida';
+        }
+    }
 
     public function obtenerEstadisticas()
     {
