@@ -144,82 +144,101 @@
             </div>
 
             <!-- Menú de Navegación -->
+            <!-- [Parte del menú lateral - modificar desde línea 99 aproximadamente] -->
             <nav class="mt-2 px-3">
                 <ul class="space-y-2">
                     <!-- Inicio -->
-                    <li>
-                        <a href="index.php?c=Inicio&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Inicio' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-home text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Inicio</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('inicio')): ?>
+                        <li>
+                            <a href="index.php?c=Inicio&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Inicio' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-home text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Inicio</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Estudiantes -->
-                    <li>
-                        <a href="index.php?c=Estudiante&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Estudiante' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-user-graduate text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Estudiantes</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('estudiantes')): ?>
+                        <li>
+                            <a href="index.php?c=Estudiante&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Estudiante' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-user-graduate text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Estudiantes</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Empresas -->
-                    <li>
-                        <a href="index.php?c=Empresa&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Empresa' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-building text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Empresas</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('empresas')): ?>
+                        <li>
+                            <a href="index.php?c=Empresa&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Empresa' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-building text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Empresas</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Módulos -->
-                    <li>
-                        <a href="index.php?c=Modulos&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Modulos' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-cubes text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Módulos</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('modulos')): ?>
+                        <li>
+                            <a href="index.php?c=Modulos&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Modulos' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-cubes text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Módulos</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Prácticas -->
-                    <li>
-                        <a href="index.php?c=Practica&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Practica' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-briefcase text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Prácticas</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('practicas')): ?>
+                        <li>
+                            <a href="index.php?c=Practica&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Practica' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-briefcase text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Prácticas</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Asistencias -->
-                    <li>
-                        <a href="index.php?c=Asistencia&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 active-menu">
-                            <i class="fas fa-calendar-check text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Asistencias</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('asistencias')): ?>
+                        <li>
+                            <a href="index.php?c=Asistencia&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Asistencia' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-calendar-check text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Asistencias</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Reportes -->
-                    <li>
-                        <a href="index.php?c=Reportes&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Reportes' ? 'active-menu' : ''; ?>">
-                            <i class="fas fa-chart-bar text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Reportes</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('reportes')): ?>
+                        <li>
+                            <a href="index.php?c=Reportes&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Reportes' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-chart-bar text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Reportes</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
 
                 <!-- Menús inferiores -->
                 <ul class="space-y-2 mt-6">
-                    <!-- Usuarios -->
-                    <li>
-                        <a href="index.php?c=Usuario&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
-                            <i class="fas fa-users text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Usuarios</span>
-                        </a>
-                    </li>
+                    <!-- Usuarios - SOLO ADMINISTRADOR -->
+                    <?php if (SessionHelper::puedeVerMenu('usuarios')): ?>
+                        <li>
+                            <a href="index.php?c=Usuario&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Usuario' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-users text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Usuarios</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
                     <!-- Información -->
-                    <li>
-                        <a href="#" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
-                            <i class="fas fa-info-circle text-lg w-6"></i>
-                            <span class="menu-text ml-3 font-medium">Información</span>
-                        </a>
-                    </li>
+                    <?php if (SessionHelper::puedeVerMenu('informacion')): ?>
+                        <li>
+                            <a href="#" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
+                                <i class="fas fa-info-circle text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Información</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </div>

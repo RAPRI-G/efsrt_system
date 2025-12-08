@@ -1,6 +1,7 @@
 <?php
 require_once 'models/UsuarioModel.php';
 require_once 'helpers/SessionHelper.php';
+require_once 'helpers/RolesHelper.php'; // ← AGREGAR ESTA LÍNEA
 
 class LoginController
 {
@@ -13,7 +14,6 @@ class LoginController
 
     public function index()
     {
-
         // Si ya está logueado, redirigir al INICIO
         if (SessionHelper::isLoggedIn()) {
             header("Location: index.php?c=Inicio&a=index");
@@ -75,6 +75,20 @@ class LoginController
                     $nombreCompleto = $user['usuario']; // Fallback al nombre de usuario
                 }
 
+                // ✅ ASEGURAR QUE EL ROL ESTÉ BIEN DEFINIDO
+                if (!isset($user['rol']) || empty($user['rol'])) {
+                    // Si no viene del modelo, determinarlo por tipo usando RolesHelper
+                    $user['rol'] = RolesHelper::getRolFromTipo($user['tipo']);
+                }
+
+                // ✅ VALIDAR QUE EL ROL COINCIDA CON EL SELECCIONADO
+                if ($user['rol'] !== $rol) {
+                    $error = "El tipo de usuario no coincide con las credenciales";
+                    error_log("Rol mismatch: DB={$user['rol']}, Selected={$rol} for user: {$user['usuario']}");
+                    require_once 'views/login/login.php';
+                    return;
+                }
+
                 // Guardar datos en sesión (INCLUYENDO EL TOKEN)
                 SessionHelper::set('usuario', [
                     'id' => $user['id'],
@@ -89,13 +103,14 @@ class LoginController
                 // Registrar el login en logs con más detalles
                 error_log("✅ Login exitoso: " . $user['usuario'] .
                     " - Nombre: " . $nombreCompleto .
-                    " - Rol: " . $user['rol']);
+                    " - Rol: " . $user['rol'] .
+                    " - Tipo: " . $user['tipo']);
 
                 // 🔐 REGENERAR CSRF PARA LA SESIÓN
                 SessionHelper::regenerateCSRF();
 
-                // 🔐 REDIRECCIÓN QUE IMPIDE VOLVER ATRÁS AL LOGIN
-                header("Location: index.php?c=Inicio&a=index");
+                // 🔐 REDIRECCIÓN SEGÚN ROL (USANDO EL NUEVO MÉTODO)
+                $this->redirectByRole($user['rol']);
                 exit;
             } else {
                 $error = "Credenciales incorrectas o tipo de usuario no coincide";
@@ -135,16 +150,22 @@ class LoginController
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Fecha pasada
     }
 
+    // 🔐 MODIFICAR ESTE MÉTODO PARA REDIRECCIONES ESPECÍFICAS POR ROL
     private function redirectByRole($rol)
     {
         switch ($rol) {
             case 'administrador':
+                // Administrador va al inicio (tiene acceso a todo)
                 header("Location: index.php?c=Inicio&a=index");
                 break;
             case 'docente':
+                // Docente podría ir directamente a asistencias o reportes
+                //header("Location: index.php?c=Asistencia&a=index");
                 header("Location: index.php?c=Inicio&a=index");
                 break;
             case 'estudiante':
+                // Estudiante va directamente a prácticas (su módulo principal)
+                //header("Location: index.php?c=Practica&a=index");
                 header("Location: index.php?c=Inicio&a=index");
                 break;
             default:
@@ -153,3 +174,4 @@ class LoginController
         exit;
     }
 }
+?>

@@ -1,7 +1,4 @@
-<?php
-// views/practica/index.php
-$usuario = SessionHelper::getUser();
-?>
+
 <link rel="stylesheet" href="assets/css/practica.css">
 <!-- Contenido Principal -->
 

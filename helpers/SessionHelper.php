@@ -62,5 +62,50 @@ class SessionHelper {
     public static function validateUserToken($token) {
         return preg_match('/^[a-f0-9]{64}$/', $token);
     }
+
+    public static function getRole() {
+        self::init();
+        if (isset($_SESSION['usuario'])) {
+            return $_SESSION['usuario']['rol'] ?? null;
+        }
+        return null;
+    }
+    
+    public static function getTipo() {
+        self::init();
+        if (isset($_SESSION['usuario'])) {
+            return $_SESSION['usuario']['tipo'] ?? null;
+        }
+        return null;
+    }
+    
+    public static function puedeAcceder($controlador) {
+        $rol = self::getRole();
+        if (!$rol) return false;
+        
+        require_once 'helpers/RolesHelper.php';
+        return RolesHelper::puedeAccederControlador($rol, $controlador);
+    }
+    
+    public static function puedeVerMenu($moduloMenu) {
+        $rol = self::getRole();
+        if (!$rol) return false;
+        
+        require_once 'helpers/RolesHelper.php';
+        return RolesHelper::puedeVerMenu($rol, $moduloMenu);
+    }
+    
+    public static function esAdministrador() {
+        return self::getRole() === 'administrador';
+    }
+    
+    public static function esDocente() {
+        return self::getRole() === 'docente';
+    }
+    
+    public static function esEstudiante() {
+        return self::getRole() === 'estudiante';
+    }
+    
 }
 ?>
