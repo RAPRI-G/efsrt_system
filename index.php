@@ -1,6 +1,6 @@
 <?php
 date_default_timezone_set('America/Lima');
-// index.php - Validación de tokens en cada request
+// index.php - Validación de tokens y roles en cada request
 require_once 'helpers/SessionHelper.php';
 SessionHelper::init();
 
@@ -14,13 +14,13 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 require_once 'config/database.php';
 
 // Función de autocarga mejorada
-spl_autoload_register(function($class) {
+spl_autoload_register(function ($class) {
     $paths = [
         'controllers/' . $class . '.php',
         'models/' . $class . '.php',
         'helpers/' . $class . '.php'
     ];
-    
+
     foreach ($paths as $path) {
         if (file_exists($path)) {
             require_once $path;
@@ -40,11 +40,19 @@ $action = $_GET['a'] ?? 'index';
 if (!in_array($controller, $publicControllers) && SessionHelper::isLoggedIn()) {
     $usuario = SessionHelper::getUser();
     $usuarioModel = new UsuarioModel();
-    
+
     if (!$usuarioModel->verificarToken($usuario['id'], $usuario['token'])) {
         // Token inválido - forzar logout
         SessionHelper::destroy();
         header("Location: index.php?c=Login&a=index&error=token_invalido");
+        exit;
+    }
+
+    // 🔐 VALIDAR ACCESO POR ROL
+    if (!SessionHelper::puedeAcceder($controller)) {
+        // Acceso denegado por rol
+        error_log("Acceso denegado: Rol " . SessionHelper::getRole() . " intentó acceder a $controller");
+        header("Location: index.php?c=Inicio&a=index&error=acceso_denegado");
         exit;
     }
 }
@@ -60,7 +68,7 @@ $controller_class = $controller . 'Controller';
 
 if (class_exists($controller_class)) {
     $controller_instance = new $controller_class();
-    
+
     if (method_exists($controller_instance, $action)) {
         $controller_instance->$action();
     } else {
@@ -71,4 +79,3 @@ if (class_exists($controller_class)) {
     http_response_code(404);
     echo "Controlador no encontrado: $controller_class";
 }
-?>
