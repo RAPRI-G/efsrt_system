@@ -23,30 +23,32 @@ class UsuarioModel extends BaseModel
             $params[':tipo'] = $rolToTipo[$rolSolicitado];
         }
 
-        // CONSULTA SIMPLIFICADA - SOLO JALAMOS DE EMPLEADO
-        $sql = "SELECT u.*, 
-       CASE 
-           WHEN u.tipo = 1 THEN e.apnom_emp
-           WHEN u.tipo = 3 THEN CONCAT(es.ap_est, ' ', es.am_est, ', ', es.nom_est)
-           ELSE 'Administrador'
-       END as nombre_completo,
-       CASE 
-           WHEN u.tipo = 1 THEN e.dni_emp
-           WHEN u.tipo = 3 THEN es.dni_est
-           ELSE NULL
-       END as dni,
-       CASE 
-           WHEN u.tipo = 1 THEN 'docente'
-           WHEN u.tipo = 2 THEN 'administrador'
-           WHEN u.tipo = 3 THEN 'estudiante'
-           ELSE 'usuario'
-       END as rol
-FROM usuarios u
-LEFT JOIN empleado e ON u.estuempleado = e.id AND u.tipo = 1
-LEFT JOIN estudiante es ON u.estuempleado = es.id AND u.tipo = 3
-WHERE u.usuario = :usuario 
-  AND u.estado = 1
-  $tipoFiltro";
+        // CONSULTA MEJORADA - Asegurar que trae estuempleado
+        $sql = "SELECT 
+        u.*, 
+        CASE 
+            WHEN u.tipo = 1 THEN e.apnom_emp
+            WHEN u.tipo = 3 THEN CONCAT(es.ap_est, ' ', es.am_est, ', ', es.nom_est)
+            ELSE 'Administrador'
+        END as nombre_completo,
+        CASE 
+            WHEN u.tipo = 1 THEN e.dni_emp
+            WHEN u.tipo = 3 THEN es.dni_est
+            ELSE NULL
+        END as dni,
+        CASE 
+            WHEN u.tipo = 1 THEN 'docente'
+            WHEN u.tipo = 2 THEN 'administrador'
+            WHEN u.tipo = 3 THEN 'estudiante'
+            ELSE 'usuario'
+        END as rol,
+        u.estuempleado  -- ← ¡IMPORTANTE! Asegurar que trae este campo
+    FROM usuarios u
+    LEFT JOIN empleado e ON u.estuempleado = e.id AND u.tipo = 1
+    LEFT JOIN estudiante es ON u.estuempleado = es.id AND u.tipo = 3
+    WHERE u.usuario = :usuario 
+      AND u.estado = 1
+      $tipoFiltro";
 
         $stmt = $this->executeQuery($sql, $params);
         $user = $stmt->fetch();
@@ -68,8 +70,12 @@ WHERE u.usuario = :usuario
             // Remover password
             unset($user['password']);
 
-            // DEBUG
-            error_log("✅ Login exitoso - Usuario: {$user['usuario']}, Nombre: {$user['nombre_completo']}, Rol: {$user['rol']}, Tipo: {$user['tipo']}");
+            // DEBUG - Verificar datos
+            error_log("✅ Login exitoso - Usuario: {$user['usuario']}, " .
+                "Nombre: {$user['nombre_completo']}, " .
+                "Rol: {$user['rol']}, " .
+                "Tipo: {$user['tipo']}, " .
+                "Estuempleado: " . ($user['estuempleado'] ?? 'NULL'));
 
             return $user;
         }

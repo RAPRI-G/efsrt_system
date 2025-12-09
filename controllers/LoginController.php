@@ -89,7 +89,17 @@ class LoginController
                     return;
                 }
 
-                // Guardar datos en sesión (INCLUYENDO EL TOKEN)
+                // ✅ IMPORTANTE: Asegurar que estuempleado esté presente
+                $estuempleado = $user['estuempleado'] ?? null;
+                if ($user['rol'] === 'estudiante' && !$estuempleado) {
+                    error_log("⚠️ ADVERTENCIA: Estudiante sin estuempleado. User ID: {$user['id']}");
+                    // Podrías buscar el estudiante por DNI si está disponible
+                    if (isset($user['dni'])) {
+                        $estuempleado = $this->buscarEstudiantePorDNI($user['dni']);
+                    }
+                }
+
+                // Guardar datos en sesión (INCLUYENDO EL TOKEN Y ESTUEMPLEADO)
                 SessionHelper::set('usuario', [
                     'id' => $user['id'],
                     'usuario' => $user['usuario'],
@@ -97,6 +107,7 @@ class LoginController
                     'rol' => $user['rol'],
                     'tipo' => $user['tipo'],
                     'dni' => $user['dni'] ?? null,
+                    'estuempleado' => $estuempleado, // ← ¡ESTO ES LO QUE FALTA!
                     'token' => $user['token'] // 🔐 GUARDAR TOKEN EN SESIÓN
                 ]);
 
@@ -104,7 +115,8 @@ class LoginController
                 error_log("✅ Login exitoso: " . $user['usuario'] .
                     " - Nombre: " . $nombreCompleto .
                     " - Rol: " . $user['rol'] .
-                    " - Tipo: " . $user['tipo']);
+                    " - Tipo: " . $user['tipo'] .
+                    " - Estuempleado: " . ($estuempleado ?? 'NO HAY'));
 
                 // 🔐 REGENERAR CSRF PARA LA SESIÓN
                 SessionHelper::regenerateCSRF();
@@ -166,12 +178,29 @@ class LoginController
             case 'estudiante':
                 // Estudiante va directamente a prácticas (su módulo principal)
                 //header("Location: index.php?c=Practica&a=index");
-                header("Location: index.php?c=Inicio&a=index");
+                header("Location: index.php?c=DashboardEstudiante&a=index");
                 break;
             default:
                 header("Location: index.php?c=Inicio&a=index");
         }
         exit;
     }
+
+    private function buscarEstudiantePorDNI($dni)
+{
+    require_once 'config/database.php';
+    $db = Database::getInstance()->getConnection();
+    
+    try {
+        $sql = "SELECT id FROM estudiante WHERE dni_est = :dni AND (estado = 1 OR estado IS NULL) LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':dni' => $dni]);
+        $result = $stmt->fetch();
+        
+        return $result['id'] ?? null;
+    } catch (Exception $e) {
+        error_log("Error buscando estudiante por DNI: " . $e->getMessage());
+        return null;
+    }
 }
-?>
+}

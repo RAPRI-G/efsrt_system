@@ -157,6 +157,17 @@
                         </li>
                     <?php endif; ?>
 
+                    <!-- 🎯 DASHBOARD DEL ESTUDIANTE (Usando puedeVerMenu) -->
+                    <?php if (SessionHelper::puedeVerMenu('dashboard_estudiante')): ?>
+                        <li>
+                            <a href="index.php?c=DashboardEstudiante&a=index"
+                                class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'DashboardEstudiante' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-tachometer-alt text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Mi Dashboard</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
                     <!-- Estudiantes -->
                     <?php if (SessionHelper::puedeVerMenu('estudiantes')): ?>
                         <li>
