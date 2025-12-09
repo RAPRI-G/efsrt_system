@@ -1,0 +1,768 @@
+/* ============================================
+   asistencias-estudiante.css
+   Estilos IDÉNTICOS a la página estática original
+   ============================================ */
+
+/* Estilos para la página de asistencias */
+.card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.badge-completed {
+    background-color: #e0f2fe;
+    color: #075985;
+}
+
+.badge-pendiente {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.badge-en-curso {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #e5e7eb;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.progress-fill-completed {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.progress-fill-pendiente {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.tab-button {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.5rem 0.5rem 0 0;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.tab-button:hover {
+    background-color: #f3f4f6;
+}
+
+.tab-button.active {
+    background-color: white;
+    border-bottom-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.tab-content {
+    /* No ocultar por defecto */
+    display: block;
+    opacity: 1;
+}
+
+.tab-content:not(.active) {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table th {
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.875rem;
+}
+
+.table tr:hover {
+    background-color: #f8fafc;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 1rem;
+    width: 95%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+    color: white;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background-color: #f8fafc;
+    border-radius: 0 0 1rem 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(12, 31, 54, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(12, 31, 54, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #8b939b 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea-field {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    min-height: 100px;
+    resize: vertical;
+    transition: all 0.2s;
+}
+
+.textarea-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translateX(400px);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-left: 4px solid;
+    background: white;
+    z-index: 9999;
+    max-width: 400px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left-color: #10b981;
+}
+
+.notification.success .notification-icon {
+    background-color: #10b981;
+    color: white;
+}
+
+.notification.error {
+    border-left-color: #ef4444;
+}
+
+.notification.error .notification-icon {
+    background-color: #ef4444;
+    color: white;
+}
+
+.notification-info {
+    border-left-color: #3b82f6;
+}
+
+.notification-info .notification-icon {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.notification-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.horas-restantes {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0C1F36;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: none;
+}
+
+.btn-edit {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.btn-edit:hover {
+    background-color: #bfdbfe;
+}
+
+.btn-delete {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #0C1F36 0%, #1a365d 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(12, 31, 54, 0.3);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.resumen-modulo {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 4px solid #0ea5e9;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0C1F36;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Nuevos estilos para mejor organización */
+.table-horas {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+.table-horas-am {
+    color: #1e40af;
+    background-color: #dbeafe;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.table-horas-pm {
+    color: #7c2d12;
+    background-color: #fed7aa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.fecha-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.fecha-numero {
+    background: #3b82f6;
+    color: white;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.asistencias-agrupadas {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.mes-header {
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mes-total {
+    background: #3b82f6;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dia-row {
+    display: grid;
+    grid-template-columns: 180px 120px auto 80px 100px;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dia-row:last-child {
+    border-bottom: none;
+}
+
+.dia-row:hover {
+    background-color: #f8fafc;
+}
+
+.dia-fecha {
+    font-weight: 500;
+    color: #374151;
+}
+
+.dia-dia {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.dia-horas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.hora-entrada, .hora-salida {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.hora-entrada .hora-badge, .hora-salida .hora-badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.hora-entrada .hora-badge {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.hora-salida .hora-badge {
+    background-color: #fed7aa;
+    color: #7c2d12;
+}
+
+.dia-actividad {
+    color: #4b5563;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.dia-total {
+    font-weight: 700;
+    color: #0C1F36;
+    text-align: center;
+    min-width: 3rem;
+}
+
+/* Estilos mejorados para horas formateadas */
+.horas-formateadas {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: #0C1F36;
+    text-align: center;
+    min-width: 4.5rem;
+}
+
+.hora-completa {
+    font-weight: 600;
+    color: #1f2937;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.minutos-badge {
+    font-size: 0.75rem;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    margin-left: 0.25rem;
+}
+
+/* Estilos para el nuevo formato de entrada de horas */
+.hora-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.hora-input-field {
+    padding-right: 2.5rem !important;
+}
+
+.toggle-format-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.toggle-format-btn:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.format-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Tabs container específico */
+.tabs-container {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Estilos para el área de bienvenida */
+.welcome-area {
+    margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dia-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+    
+    .tab-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Estilos para templates ocultos */
+template {
+    display: none !important;
+}
+
+/* Asegurar que el contenido se muestre */
+#contenedor-modulos {
+    min-height: 400px;
+}
+
+/* Estilos específicos para la plantilla de módulo */
+#template-modulo {
+    display: none;
+}

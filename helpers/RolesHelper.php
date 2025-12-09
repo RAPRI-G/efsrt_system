@@ -46,8 +46,7 @@ class RolesHelper
         ],
         'estudiante' => [
             'DashboardEstudiante',
-            'Practica',
-            'Asistencia'
+            'AsistenciaEstudiante'
 
         ]
     ];
@@ -60,8 +59,9 @@ class RolesHelper
         'empresas' => ['administrador'],
         'estudiantes' => ['administrador', 'docente'],
         'modulos' => ['administrador'],
-        'practicas' => ['administrador', 'estudiante'],
-        'asistencias' => ['administrador', 'docente', 'estudiante'],
+        'practicas' => ['administrador',],
+        'asistencias' => ['administrador', 'docente'],
+        'asistencia_estudiante' => ['estudiante'],
         'reportes' => ['administrador', 'docente'],
         'informacion' => ['administrador', 'docente', 'estudiante']
     ];

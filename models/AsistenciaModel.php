@@ -176,22 +176,22 @@ class AsistenciaModel extends BaseModel
 
         foreach ($tipos_modulos as $tipo) {
             $sql = "SELECT 
-                p.id as practica_id,
-                p.tipo_efsrt,
-                p.modulo,
-                p.fecha_inicio,
-                p.fecha_fin,
-                p.total_horas,
-                p.estado,
-                p.area_ejecucion,
-                COALESCE(SUM(a.horas_acumuladas), 0) as horas_acumuladas
-            FROM practicas p
-            LEFT JOIN asistencias a ON p.id = a.practicas
-            WHERE p.estudiante = :estudiante_id 
-            AND p.tipo_efsrt = :tipo
-            GROUP BY p.id
-            ORDER BY p.fecha_inicio DESC
-            LIMIT 1";
+            p.id as practica_id,
+            p.tipo_efsrt,
+            p.modulo,
+            p.fecha_inicio,
+            p.fecha_fin,
+            p.total_horas,
+            p.estado,
+            p.area_ejecucion,
+            COALESCE(SUM(a.horas_acumuladas), 0) as horas_acumuladas
+        FROM practicas p
+        LEFT JOIN asistencias a ON p.id = a.practicas
+        WHERE p.estudiante = :estudiante_id 
+        AND p.tipo_efsrt = :tipo
+        GROUP BY p.id
+        ORDER BY p.fecha_inicio DESC
+        LIMIT 1";
 
             $stmt = $this->executeQuery($sql, [
                 ':estudiante_id' => $estudiante_id,
@@ -203,24 +203,34 @@ class AsistenciaModel extends BaseModel
                 $horas_acumuladas = $modulo_data['horas_acumuladas'];
                 $horas_requeridas_modulo = $horas_requeridas[$tipo];
 
-                // Determinar estado PRIMERO por horas_acumuladas de la tabla practicas
-                $estado_modulo = $modulo_data['estado'];
+                // NUEVA LÓGICA CORREGIDA PARA DETERMINAR ESTADO:
 
-                // Si en la BD dice que está finalizado, respetar eso
-                if ($estado_modulo === 'Finalizado') {
+                // 1. Si el estado en BD es 'Finalizado', respetarlo
+                if ($modulo_data['estado'] === 'Finalizado') {
                     $estado = 'completado';
                 }
-                // Si no está marcado como finalizado pero tiene 128+ horas, está completado
-                else if ($modulo_data['horas_acumuladas'] >= 128) {
+                // 2. Si tiene 128+ horas pero no está marcado como Finalizado
+                else if ($horas_acumuladas >= 128) {
                     $estado = 'completado';
+                    // Opcional: Actualizar estado en BD si no está como Finalizado
+                    $this->actualizarEstadoPractica($modulo_data['practica_id'], 'Finalizado');
                 }
-                // Si tiene horas pero menos de 128, está en curso
-                else if ($modulo_data['horas_acumuladas'] > 0) {
+                // 3. Si tiene al menos 1 hora registrada, está EN CURSO
+                else if ($horas_acumuladas > 0) {
                     $estado = 'en_curso';
+                    // Si el estado en BD es diferente, actualizarlo
+                    if ($modulo_data['estado'] !== 'En curso') {
+                        $this->actualizarEstadoPractica($modulo_data['practica_id'], 'En curso');
+                    }
                 }
-                // Si no tiene horas registradas
+                // 4. Si NO tiene horas pero la práctica existe, también está EN CURSO (no pendiente)
                 else {
-                    $estado = 'pendiente';
+                    // IMPORTANTE: Si la práctica existe pero no tiene horas, está EN CURSO
+                    $estado = 'en_curso';
+                    // Actualizar estado en BD si es necesario
+                    if ($modulo_data['estado'] !== 'En curso') {
+                        $this->actualizarEstadoPractica($modulo_data['practica_id'], 'En curso');
+                    }
                 }
 
                 $porcentaje = $horas_requeridas_modulo > 0 ?
@@ -239,6 +249,8 @@ class AsistenciaModel extends BaseModel
                     'estado_db' => $modulo_data['estado'],
                     'area_ejecucion' => $modulo_data['area_ejecucion']
                 ];
+
+                error_log("📊 Módulo $tipo - Estado determinado: $estado (BD: {$modulo_data['estado']}, Horas: $horas_acumuladas)");
             } else {
                 // Si no tiene práctica para este módulo
                 $modulos[] = [
@@ -250,14 +262,84 @@ class AsistenciaModel extends BaseModel
                     'horas_acumuladas' => 0,
                     'horas_requeridas' => $horas_requeridas[$tipo],
                     'porcentaje' => 0,
-                    'estado' => 'no_iniciado',
+                    'estado' => 'no_iniciado',  // ← Solo si NO existe la práctica
                     'estado_db' => null,
                     'area_ejecucion' => null
                 ];
+                error_log("📊 Módulo $tipo - No tiene práctica asignada (no_iniciado)");
             }
         }
 
         return $modulos;
+    }
+
+    // Método auxiliar para actualizar estado de práctica
+    private function actualizarEstadoPractica($practica_id, $estado)
+    {
+        try {
+            $sql = "UPDATE practicas SET estado = :estado WHERE id = :practica_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':estado' => $estado,
+                ':practica_id' => $practica_id
+            ]);
+            error_log("✅ Estado de práctica $practica_id actualizado a: $estado");
+            return true;
+        } catch (Exception $e) {
+            error_log("⚠️ Error actualizando estado de práctica $practica_id: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Método para inicializar estado de práctica nueva
+    public function inicializarEstadoPractica($practica_id)
+    {
+        try {
+            // Verificar si la práctica existe y su estado actual
+            $sql = "SELECT estado, horas_acumuladas FROM practicas WHERE id = :practica_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':practica_id' => $practica_id]);
+            $practica = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$practica) {
+                error_log("⚠️ Práctica $practica_id no encontrada para inicializar estado");
+                return false;
+            }
+
+            $estado_actual = $practica['estado'];
+            $horas_acumuladas = $practica['horas_acumuladas'] ?? 0;
+
+            // Determinar estado correcto
+            if ($estado_actual === 'Finalizado') {
+                // Ya está finalizado, no cambiar
+                return true;
+            } elseif ($horas_acumuladas >= 128) {
+                // Tiene suficientes horas pero no está marcado como finalizado
+                $nuevo_estado = 'Finalizado';
+            } elseif ($horas_acumuladas > 0) {
+                // Tiene horas registradas
+                $nuevo_estado = 'En curso';
+            } else {
+                // Nueva práctica sin horas
+                $nuevo_estado = 'En curso';
+            }
+
+            // Actualizar solo si es necesario
+            if ($estado_actual !== $nuevo_estado) {
+                $sqlUpdate = "UPDATE practicas SET estado = :estado WHERE id = :practica_id";
+                $stmtUpdate = $this->db->prepare($sqlUpdate);
+                $stmtUpdate->execute([
+                    ':estado' => $nuevo_estado,
+                    ':practica_id' => $practica_id
+                ]);
+                error_log("✅ Estado de práctica $practica_id inicializado a: $nuevo_estado");
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log("❌ Error inicializando estado de práctica $practica_id: " . $e->getMessage());
+            return false;
+        }
     }
 
     // Método específico para contar módulos completados
@@ -302,16 +384,43 @@ class AsistenciaModel extends BaseModel
     public function registrar($datos)
     {
         try {
-            // Iniciar transacción
+            error_log("🎯 ========= MODELO REGISTRAR - VERSIÓN CORREGIDA =========");
+            error_log("🎯 Datos recibidos en modelo:");
+            error_log(print_r($datos, true));
+
+            // 1. VALIDAR ESTRUCTURA DE DATOS
+            if (!isset($datos['practica_id'])) {
+                error_log("❌ ERROR: 'practica_id' no encontrado en datos");
+                error_log("❌ Claves disponibles: " . implode(', ', array_keys($datos)));
+                throw new Exception("Falta el ID de la práctica");
+            }
+
+            $practica_id = $datos['practica_id'];
+
+            // 2. VERIFICAR QUE LA PRÁCTICA EXISTA
+            $sqlCheck = "SELECT id, estudiante FROM practicas WHERE id = :practica_id";
+            $stmtCheck = $this->db->prepare($sqlCheck);
+            $stmtCheck->execute([':practica_id' => $practica_id]);
+
+            if (!$stmtCheck->fetch()) {
+                throw new Exception("La práctica no existe en la base de datos");
+            }
+
+            error_log("✅ Práctica ID $practica_id existe");
+
+            // 3. INICIAR TRANSACCIÓN
             $this->db->beginTransaction();
 
-            // 1. Insertar la asistencia
+            // 4. INSERTAR ASISTENCIA - VERSIÓN CORREGIDA
+            // IMPORTANTE: La columna en la tabla se llama 'practicas' (singular)
             $sql = "INSERT INTO {$this->table} 
                 (practicas, fecha, hora_entrada, hora_salida, horas_acumuladas, actividad) 
-                VALUES (:practicas, :fecha, :hora_entrada, :hora_salida, :horas_acumuladas, :actividad)";
+                VALUES (:practica_id, :fecha, :hora_entrada, :hora_salida, :horas_acumuladas, :actividad)";
 
+            // NOTA: Usamos :practica_id como parámetro (porque eso es lo que recibimos del Controller)
+            // pero se insertará en la columna 'practicas'
             $params = [
-                ':practicas' => $datos['practica_id'],
+                ':practica_id' => $practica_id,  // ← CORREGIDO: :practica_id no :practicas
                 ':fecha' => $datos['fecha'],
                 ':hora_entrada' => $datos['hora_entrada'],
                 ':hora_salida' => $datos['hora_salida'],
@@ -319,110 +428,188 @@ class AsistenciaModel extends BaseModel
                 ':actividad' => $datos['actividad']
             ];
 
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute($params);
+            error_log("📝 SQL a ejecutar: " . $sql);
+            error_log("📝 Parámetros:");
+            error_log(print_r($params, true));
 
-            // 2. Actualizar horas acumuladas en la tabla practicas
+            $stmt = $this->db->prepare($sql);
+            $resultado = $stmt->execute($params);
+
+            if (!$resultado) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception("Error SQL: " . ($errorInfo[2] ?? 'Error desconocido'));
+            }
+
+            $asistencia_id = $this->db->lastInsertId();
+            error_log("✅ Asistencia registrada con ID: $asistencia_id");
+
+            // 5. ACTUALIZAR HORAS EN PRÁCTICA (VERSIÓN SIMPLIFICADA)
             $sqlUpdate = "UPDATE practicas 
-                     SET horas_acumuladas = (
-                         SELECT COALESCE(SUM(horas_acumuladas), 0) 
-                         FROM asistencias 
-                         WHERE practicas = :practica_id
-                     )
+                     SET horas_acumuladas = horas_acumuladas + :horas 
                      WHERE id = :practica_id";
 
             $stmtUpdate = $this->db->prepare($sqlUpdate);
-            $stmtUpdate->execute([':practica_id' => $datos['practica_id']]);
+            $stmtUpdate->execute([
+                ':horas' => $datos['horas_acumuladas'],
+                ':practica_id' => $practica_id
+            ]);
 
-            // 3. Verificar si se completó el módulo (128 horas)
-            $sqlCheckComplete = "SELECT horas_acumuladas FROM practicas WHERE id = :practica_id";
-            $stmtCheck = $this->db->prepare($sqlCheckComplete);
-            $stmtCheck->execute([':practica_id' => $datos['practica_id']]);
-            $result = $stmtCheck->fetch();
+            error_log("✅ Horas actualizadas en práctica");
 
-            if ($result && $result['horas_acumuladas'] >= 128) {
-                // Actualizar estado a 'Finalizado' si alcanza o supera 128 horas
-                $sqlUpdateEstado = "UPDATE practicas SET estado = 'Finalizado' WHERE id = :practica_id AND estado != 'Finalizado'";
+            // 6. VERIFICAR SI SE COMPLETÓ EL MÓDULO
+            $sqlCheckHoras = "SELECT horas_acumuladas, estado FROM practicas WHERE id = :practica_id";
+            $stmtCheckHoras = $this->db->prepare($sqlCheckHoras);
+            $stmtCheckHoras->execute([':practica_id' => $practica_id]);
+            $practicaData = $stmtCheckHoras->fetch(PDO::FETCH_ASSOC);
+
+            if ($practicaData && $practicaData['horas_acumuladas'] >= 128 && $practicaData['estado'] != 'Finalizado') {
+                $sqlUpdateEstado = "UPDATE practicas SET estado = 'Finalizado' WHERE id = :practica_id";
                 $stmtEstado = $this->db->prepare($sqlUpdateEstado);
-                $stmtEstado->execute([':practica_id' => $datos['practica_id']]);
+                $stmtEstado->execute([':practica_id' => $practica_id]);
+                error_log("✅ Estado actualizado a 'Finalizado'");
             }
 
-            // Confirmar transacción
+            // 7. CONFIRMAR TRANSACCIÓN
             $this->db->commit();
+            error_log("✅ Transacción completada exitosamente");
 
-            return true;
-        } catch (Exception $e) {
-            // Revertir en caso de error
+            return $asistencia_id;
+        } catch (PDOException $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
-            error_log("Error al registrar asistencia: " . $e->getMessage());
-            return false;
+            error_log("🔥 ERROR PDO: " . $e->getMessage());
+            error_log("🔥 SQLSTATE: " . $e->getCode());
+            throw new Exception("Error en base de datos: " . $e->getMessage());
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("🔥 ERROR GENERAL: " . $e->getMessage());
+            throw new Exception("Error al registrar asistencia: " . $e->getMessage());
         }
     }
 
     // Eliminar asistencia
-    // En models/AsistenciaModel.php - MODIFICAR EL MÉTODO eliminar()
     public function eliminar($id)
     {
         try {
-            // 1. Primero obtener el ID de la práctica para actualizarla después
-            $sqlGetPractica = "SELECT practicas FROM {$this->table} WHERE id = :id";
-            $stmtGet = $this->db->prepare($sqlGetPractica);
-            $stmtGet->execute([':id' => $id]);
-            $result = $stmtGet->fetch();
+            error_log("🗑️ ======= ELIMINAR ASISTENCIA =======");
+            error_log("🗑️ ID de asistencia a eliminar: $id");
 
-            if (!$result) {
+            // 1. Primero obtener TODOS los datos de la asistencia
+            $sqlGet = "SELECT a.*, p.estudiante, p.horas_acumuladas as horas_practica 
+                  FROM {$this->table} a
+                  INNER JOIN practicas p ON a.practicas = p.id
+                  WHERE a.id = :id";
+
+            $stmtGet = $this->db->prepare($sqlGet);
+            $stmtGet->execute([':id' => $id]);
+            $asistencia = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
+            if (!$asistencia) {
+                error_log("❌ Asistencia no encontrada con ID: $id");
                 return false;
             }
 
-            $practica_id = $result['practicas'];
+            $practica_id = $asistencia['practicas'];
+            $horas_a_eliminar = $asistencia['horas_acumuladas'];
+            $horas_actuales_practica = $asistencia['horas_practica'] ?? 0;
+
+            error_log("📊 Datos de la asistencia:");
+            error_log("  - Práctica ID: $practica_id");
+            error_log("  - Horas a eliminar: $horas_a_eliminar");
+            error_log("  - Horas actuales en práctica: $horas_actuales_practica");
 
             // 2. Iniciar transacción
             $this->db->beginTransaction();
+            error_log("✅ Transacción iniciada");
 
             // 3. Eliminar la asistencia
-            $sql = "DELETE FROM {$this->table} WHERE id = :id";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            $deleted = $stmt->rowCount() > 0;
+            $sqlDelete = "DELETE FROM {$this->table} WHERE id = :id";
+            $stmtDelete = $this->db->prepare($sqlDelete);
+            $stmtDelete->execute([':id' => $id]);
 
-            if ($deleted) {
-                // 4. Actualizar horas acumuladas en practicas
-                $sqlUpdate = "UPDATE practicas 
-                         SET horas_acumuladas = (
-                             SELECT COALESCE(SUM(horas_acumuladas), 0) 
-                             FROM asistencias 
-                             WHERE practicas = :practica_id
-                         )
-                         WHERE id = :practica_id";
+            $filas_eliminadas = $stmtDelete->rowCount();
 
-                $stmtUpdate = $this->db->prepare($sqlUpdate);
-                $stmtUpdate->execute([':practica_id' => $practica_id]);
-
-                // 5. Verificar si hay que cambiar el estado (si baja de 128 horas)
-                $sqlCheckEstado = "SELECT horas_acumuladas FROM practicas WHERE id = :practica_id";
-                $stmtCheck = $this->db->prepare($sqlCheckEstado);
-                $stmtCheck->execute([':practica_id' => $practica_id]);
-                $horasResult = $stmtCheck->fetch();
-
-                if ($horasResult && $horasResult['horas_acumuladas'] < 128) {
-                    $sqlUpdateEstado = "UPDATE practicas SET estado = 'En curso' WHERE id = :practica_id AND estado = 'Finalizado'";
-                    $stmtEstado = $this->db->prepare($sqlUpdateEstado);
-                    $stmtEstado->execute([':practica_id' => $practica_id]);
-                }
-
-                $this->db->commit();
-                return true;
-            } else {
+            if ($filas_eliminadas === 0) {
+                error_log("❌ No se eliminó ninguna fila (posible error en WHERE)");
                 $this->db->rollBack();
                 return false;
             }
+
+            error_log("✅ Asistencia eliminada. Filas afectadas: $filas_eliminadas");
+
+            // 4. Actualizar horas en la práctica (RESTAR las horas eliminadas)
+            $nuevas_horas = max(0, $horas_actuales_practica - $horas_a_eliminar);
+
+            $sqlUpdateHoras = "UPDATE practicas 
+                          SET horas_acumuladas = :nuevas_horas 
+                          WHERE id = :practica_id";
+
+            $stmtUpdateHoras = $this->db->prepare($sqlUpdateHoras);
+            $stmtUpdateHoras->execute([
+                ':nuevas_horas' => $nuevas_horas,
+                ':practica_id' => $practica_id
+            ]);
+
+            error_log("✅ Horas actualizadas en práctica. Nuevo total: $nuevas_horas");
+
+            // 5. Verificar y actualizar estado de la práctica
+            $sqlGetEstado = "SELECT estado FROM practicas WHERE id = :practica_id";
+            $stmtGetEstado = $this->db->prepare($sqlGetEstado);
+            $stmtGetEstado->execute([':practica_id' => $practica_id]);
+            $estado_actual = $stmtGetEstado->fetch(PDO::FETCH_COLUMN);
+
+            error_log("📊 Estado actual de práctica: " . ($estado_actual ?: 'NULL'));
+
+            // Determinar nuevo estado basado en las horas
+            if ($nuevas_horas >= 128) {
+                $nuevo_estado = 'Finalizado';
+            } elseif ($nuevas_horas > 0) {
+                $nuevo_estado = 'En curso';
+            } else {
+                $nuevo_estado = 'En curso'; // Nueva práctica sin horas también está en curso
+            }
+
+            // Actualizar estado solo si cambió
+            if ($estado_actual !== $nuevo_estado) {
+                $sqlUpdateEstado = "UPDATE practicas SET estado = :estado WHERE id = :practica_id";
+                $stmtUpdateEstado = $this->db->prepare($sqlUpdateEstado);
+                $stmtUpdateEstado->execute([
+                    ':estado' => $nuevo_estado,
+                    ':practica_id' => $practica_id
+                ]);
+                error_log("✅ Estado de práctica actualizado de '$estado_actual' a '$nuevo_estado'");
+            } else {
+                error_log("ℹ️ Estado de práctica no cambia ($estado_actual)");
+            }
+
+            // 6. Confirmar transacción
+            $this->db->commit();
+            error_log("✅ Transacción completada exitosamente");
+            error_log("🗑️ ======= ELIMINACIÓN EXITOSA =======");
+
+            return true;
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+                error_log("🔙 Transacción revertida por error PDO");
+            }
+
+            error_log("🔥 ERROR PDO al eliminar asistencia:");
+            error_log("  - Mensaje: " . $e->getMessage());
+            error_log("  - Código: " . $e->getCode());
+            error_log("  - ErrorInfo: " . print_r($this->db->errorInfo(), true));
+
+            return false;
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
+                error_log("🔙 Transacción revertida por error general");
             }
-            error_log("Error al eliminar asistencia: " . $e->getMessage());
+
+            error_log("🔥 ERROR GENERAL al eliminar asistencia: " . $e->getMessage());
             return false;
         }
     }

@@ -218,6 +218,15 @@
                         </li>
                     <?php endif; ?>
 
+                    <?php if (SessionHelper::puedeVerMenu('asistencia_estudiante')): ?>
+                        <li>
+                            <a href="index.php?c=AsistenciaEstudiante&a=index" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'AsistenciaEstudiante' ? 'active-menu' : ''; ?>">
+                                <i class="fas fa-calendar-check text-lg w-6"></i>
+                                <span class="menu-text ml-3 font-medium">Mi Asistencia</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
                     <!-- Reportes -->
                     <?php if (SessionHelper::puedeVerMenu('reportes')): ?>
                         <li>
