@@ -42,11 +42,15 @@ class RolesHelper
             'Estudiante',
             'Asistencia',
             'Reportes',
+            'Practica',
+            'Empresa',
             'Buscar'
         ],
         'estudiante' => [
             'DashboardEstudiante',
-            'AsistenciaEstudiante'
+            'AsistenciaEstudiante',
+            'Documento',
+            'Informacion'
 
         ]
     ];
@@ -56,14 +60,16 @@ class RolesHelper
         'inicio' => ['administrador', 'docente'],
         'dashboard_estudiante' => ['estudiante'],
         'usuarios' => ['administrador'],
-        'empresas' => ['administrador'],
+        'empresas' => ['administrador', 'docente'],
         'estudiantes' => ['administrador', 'docente'],
         'modulos' => ['administrador'],
-        'practicas' => ['administrador',],
+        'practicas' => ['administrador','docente'],
         'asistencias' => ['administrador', 'docente'],
         'asistencia_estudiante' => ['estudiante'],
         'reportes' => ['administrador', 'docente'],
-        'informacion' => ['administrador', 'docente', 'estudiante']
+        'informacion' => ['estudiante'],
+        'documentos' => ['estudiante'],
+        'buscar' => ['administrador', 'docente']
     ];
 
     /**

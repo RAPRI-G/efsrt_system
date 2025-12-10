@@ -20,10 +20,10 @@ class PracticaModel extends BaseModel
     }
 
     // NUEVOS MÉTODOS PARA EL DASHBOARD
-   public function obtenerPracticasDashboard()
-{
-    try {
-        $sql = "SELECT 
+    public function obtenerPracticasDashboard()
+    {
+        try {
+            $sql = "SELECT 
                     p.id,
                     p.estudiante,
                     p.empresa,
@@ -54,22 +54,21 @@ class PracticaModel extends BaseModel
                 LEFT JOIN empleado em ON p.empleado = em.id  -- 🔥 UNIR CON TABLA EMPLEADO
                 WHERE p.estado IS NOT NULL
                 ORDER BY p.fecha_inicio DESC, p.id DESC";
-        
-        $stmt = $this->executeQuery($sql);
-        $resultados = $stmt->fetchAll();
-        
-        error_log("📊 Total prácticas obtenidas: " . count($resultados));
-        if (count($resultados) > 0) {
-            error_log("📋 Primer práctica - Docente: " . ($resultados[0]['nombre_docente'] ?? 'NO HAY DOCENTE'));
+
+            $stmt = $this->executeQuery($sql);
+            $resultados = $stmt->fetchAll();
+
+            error_log("📊 Total prácticas obtenidas: " . count($resultados));
+            if (count($resultados) > 0) {
+                error_log("📋 Primer práctica - Docente: " . ($resultados[0]['nombre_docente'] ?? 'NO HAY DOCENTE'));
+            }
+
+            return $resultados;
+        } catch (Exception $e) {
+            error_log("❌ Error en obtenerPracticasDashboard: " . $e->getMessage());
+            return [];
         }
-        
-        return $resultados;
-        
-    } catch (Exception $e) {
-        error_log("❌ Error en obtenerPracticasDashboard: " . $e->getMessage());
-        return [];
     }
-}
 
     public function contarPracticasPorEstado($estado)
     {
@@ -284,67 +283,68 @@ class PracticaModel extends BaseModel
         $this->executeQuery($sql, $params);
     }
 
-    private function getNombreModulo($tipo_efsrt) {
-    $modulos = [
-        'modulo1' => 'Módulo 1',
-        'modulo2' => 'Módulo 2',
-        'modulo3' => 'Módulo 3'
-    ];
-    
-    return $modulos[$tipo_efsrt] ?? 'Módulo 1';
-}
+    private function getNombreModulo($tipo_efsrt)
+    {
+        $modulos = [
+            'modulo1' => 'Módulo 1',
+            'modulo2' => 'Módulo 2',
+            'modulo3' => 'Módulo 3'
+        ];
+
+        return $modulos[$tipo_efsrt] ?? 'Módulo 1';
+    }
 
     // Métodos existentes...
-    public function registrarPractica($datos) {
-    try {
-        error_log("📝 Ejecutando registrarPractica con datos: " . print_r($datos, true));
-        
-        $sql = "INSERT INTO practicas 
+    public function registrarPractica($datos)
+    {
+        try {
+            error_log("📝 Ejecutando registrarPractica con datos: " . print_r($datos, true));
+
+            $sql = "INSERT INTO practicas 
                 (estudiante, empleado, empresa, modulo, tipo_efsrt, periodo_academico, 
                  fecha_inicio, total_horas, horas_acumuladas, area_ejecucion, 
                  supervisor_empresa, cargo_supervisor, estado, fecha_registro) 
                 VALUES (:estudiante, :empleado, :empresa, :modulo, :tipo_efsrt, :periodo_academico,
                         :fecha_inicio, :total_horas, :horas_acumuladas, :area_ejecucion, 
                         :supervisor_empresa, :cargo_supervisor, :estado, NOW())";
-        
-        $params = [
-            ':estudiante' => $datos['estudiante'] ?? $datos['estudiante_id'] ?? null,
-            ':empleado' => $datos['empleado'] ?? $datos['docente_supervisor'] ?? null,
-            ':empresa' => $datos['empresa'] ?? $datos['empresa_id'] ?? null,
-            ':modulo' => $datos['modulo'] ?? $this->getNombreModulo($datos['tipo_efsrt'] ?? ''),
-            ':tipo_efsrt' => $datos['tipo_efsrt'] ?? '',
-            ':periodo_academico' => $datos['periodo_academico'] ?? '2024-1',
-            ':fecha_inicio' => $datos['fecha_inicio'] ?? '',
-            ':total_horas' => $datos['total_horas'] ?? 128,
-            ':horas_acumuladas' => $datos['horas_acumuladas'] ?? 0,
-            ':area_ejecucion' => $datos['area_ejecucion'] ?? '',
-            ':supervisor_empresa' => $datos['supervisor_empresa'] ?? '',
-            ':cargo_supervisor' => $datos['cargo_supervisor'] ?? '',
-            ':estado' => $datos['estado'] ?? 'En curso'
-        ];
-        
-        // Limpiar parámetros nulos
-        foreach ($params as $key => $value) {
-            if ($value === null) {
-                unset($params[$key]);
-                $sql = str_replace($key, 'NULL', $sql);
+
+            $params = [
+                ':estudiante' => $datos['estudiante'] ?? $datos['estudiante_id'] ?? null,
+                ':empleado' => $datos['empleado'] ?? $datos['docente_supervisor'] ?? null,
+                ':empresa' => $datos['empresa'] ?? $datos['empresa_id'] ?? null,
+                ':modulo' => $datos['modulo'] ?? $this->getNombreModulo($datos['tipo_efsrt'] ?? ''),
+                ':tipo_efsrt' => $datos['tipo_efsrt'] ?? '',
+                ':periodo_academico' => $datos['periodo_academico'] ?? '2024-1',
+                ':fecha_inicio' => $datos['fecha_inicio'] ?? '',
+                ':total_horas' => $datos['total_horas'] ?? 128,
+                ':horas_acumuladas' => $datos['horas_acumuladas'] ?? 0,
+                ':area_ejecucion' => $datos['area_ejecucion'] ?? '',
+                ':supervisor_empresa' => $datos['supervisor_empresa'] ?? '',
+                ':cargo_supervisor' => $datos['cargo_supervisor'] ?? '',
+                ':estado' => $datos['estado'] ?? 'En curso'
+            ];
+
+            // Limpiar parámetros nulos
+            foreach ($params as $key => $value) {
+                if ($value === null) {
+                    unset($params[$key]);
+                    $sql = str_replace($key, 'NULL', $sql);
+                }
             }
+
+            error_log("🔧 SQL: $sql");
+            error_log("🔧 Parámetros: " . print_r($params, true));
+
+            $stmt = $this->executeQuery($sql, $params);
+            $result = $stmt->rowCount() > 0;
+
+            error_log("✅ registrarPractica resultado: " . ($result ? "éxito" : "fallo"));
+            return $result;
+        } catch (Exception $e) {
+            error_log("💥 Error en registrarPractica: " . $e->getMessage());
+            return false;
         }
-        
-        error_log("🔧 SQL: $sql");
-        error_log("🔧 Parámetros: " . print_r($params, true));
-        
-        $stmt = $this->executeQuery($sql, $params);
-        $result = $stmt->rowCount() > 0;
-        
-        error_log("✅ registrarPractica resultado: " . ($result ? "éxito" : "fallo"));
-        return $result;
-        
-    } catch (Exception $e) {
-        error_log("💥 Error en registrarPractica: " . $e->getMessage());
-        return false;
     }
-}
 
 
     public function obtenerPracticaPorId($id)
@@ -363,9 +363,10 @@ class PracticaModel extends BaseModel
 
     // Agregar este método al final de models/PracticaModel.php
     // Agrega este método a tu EstudianteModel.php
-public function obtenerEstudiantesConModulos() {
-    try {
-        $sql = "SELECT 
+    public function obtenerEstudiantesConModulos()
+    {
+        try {
+            $sql = "SELECT 
                 e.id, 
                 e.dni_est,
                 e.ap_est,
@@ -387,68 +388,68 @@ public function obtenerEstudiantesConModulos() {
             WHERE e.estado = 1 
             ORDER BY e.ap_est, e.am_est, e.nom_est";
 
-        $stmt = $this->executeQuery($sql);
-        $resultados = $stmt->fetchAll();
-        
-        return $resultados;
-        
-    } catch (Exception $e) {
-        error_log("Error en obtenerEstudiantesConModulos: " . $e->getMessage());
-        return [];
+            $stmt = $this->executeQuery($sql);
+            $resultados = $stmt->fetchAll();
+
+            return $resultados;
+        } catch (Exception $e) {
+            error_log("Error en obtenerEstudiantesConModulos: " . $e->getMessage());
+            return [];
+        }
     }
-}
 
     // Agregar al final del archivo PracticaModel.php
 
-// En tu PracticaModel.php
-public function crearPractica($datos) {
-    try {
-        error_log("🔍 Intentando crear práctica con datos: " . print_r($datos, true));
-        
-        $sql = "INSERT INTO practicas 
+    // En tu PracticaModel.php
+    public function crearPractica($datos)
+    {
+        try {
+            error_log("🔍 Intentando crear práctica con datos: " . print_r($datos, true));
+
+            $sql = "INSERT INTO practicas 
                 (estudiante, empleado, empresa, modulo, tipo_efsrt, periodo_academico, 
                  fecha_inicio, total_horas, horas_acumuladas, area_ejecucion, 
                  supervisor_empresa, cargo_supervisor, estado, fecha_registro) 
                 VALUES (:estudiante, :empleado, :empresa, :modulo, :tipo_efsrt, :periodo_academico,
                         :fecha_inicio, :total_horas, :horas_acumuladas, :area_ejecucion, 
                         :supervisor_empresa, :cargo_supervisor, :estado, NOW())";
-        
-        $params = [
-            ':estudiante' => $datos['estudiante'],
-            ':empleado' => $datos['empleado'] ?? null,
-            ':empresa' => $datos['empresa'],
-            ':modulo' => $datos['modulo'],
-            ':tipo_efsrt' => $datos['tipo_efsrt'],
-            ':periodo_academico' => $datos['periodo_academico'],
-            ':fecha_inicio' => $datos['fecha_inicio'],
-            ':total_horas' => $datos['total_horas'],
-            ':horas_acumuladas' => $datos['horas_acumuladas'] ?? 0,
-            ':area_ejecucion' => $datos['area_ejecucion'],
-            ':supervisor_empresa' => $datos['supervisor_empresa'],
-            ':cargo_supervisor' => $datos['cargo_supervisor'],
-            ':estado' => $datos['estado']
-        ];
-        
-        error_log("🔍 Parámetros SQL: " . print_r($params, true));
-        
-        $stmt = $this->executeQuery($sql, $params);
-        $lastInsertId = $this->db->lastInsertId();
-        
-        error_log("✅ Práctica creada exitosamente. ID: " . $lastInsertId);
-        
-        return $lastInsertId;
-        
-    } catch (Exception $e) {
-        error_log("❌ Error en crearPractica: " . $e->getMessage());
-        error_log("❌ SQL: " . $sql);
-        error_log("❌ Parámetros: " . print_r($params, true));
-        return false;
-    }
-}
 
-public function actualizarPractica($id, $datos) {
-    try {
-        $sql = "UPDATE practicas SET 
+            $params = [
+                ':estudiante' => $datos['estudiante'],
+                ':empleado' => $datos['empleado'] ?? null,
+                ':empresa' => $datos['empresa'],
+                ':modulo' => $datos['modulo'],
+                ':tipo_efsrt' => $datos['tipo_efsrt'],
+                ':periodo_academico' => $datos['periodo_academico'],
+                ':fecha_inicio' => $datos['fecha_inicio'],
+                ':total_horas' => $datos['total_horas'],
+                ':horas_acumuladas' => $datos['horas_acumuladas'] ?? 0,
+                ':area_ejecucion' => $datos['area_ejecucion'],
+                ':supervisor_empresa' => $datos['supervisor_empresa'],
+                ':cargo_supervisor' => $datos['cargo_supervisor'],
+                ':estado' => $datos['estado']
+            ];
+
+            error_log("🔍 Parámetros SQL: " . print_r($params, true));
+
+            $stmt = $this->executeQuery($sql, $params);
+            $lastInsertId = $this->db->lastInsertId();
+
+            error_log("✅ Práctica creada exitosamente. ID: " . $lastInsertId);
+
+            return $lastInsertId;
+        } catch (Exception $e) {
+            error_log("❌ Error en crearPractica: " . $e->getMessage());
+            error_log("❌ SQL: " . $sql);
+            error_log("❌ Parámetros: " . print_r($params, true));
+            return false;
+        }
+    }
+
+    public function actualizarPractica($id, $datos)
+    {
+        try {
+            $sql = "UPDATE practicas SET 
                 estudiante = :estudiante,
                 empleado = :empleado,
                 empresa = :empresa,
@@ -461,64 +462,67 @@ public function actualizarPractica($id, $datos) {
                 supervisor_empresa = :supervisor_empresa,
                 cargo_supervisor = :cargo_supervisor
                 WHERE id = :id";
-        
-        $params = [
-            ':estudiante' => $datos['estudiante'],
-            ':empleado' => $datos['empleado'] ?? null,
-            ':empresa' => $datos['empresa'],
-            ':modulo' => $datos['modulo'],
-            ':tipo_efsrt' => $datos['tipo_efsrt'],
-            ':periodo_academico' => $datos['periodo_academico'],
-            ':fecha_inicio' => $datos['fecha_inicio'],
-            ':total_horas' => $datos['total_horas'],
-            ':area_ejecucion' => $datos['area_ejecucion'],
-            ':supervisor_empresa' => $datos['supervisor_empresa'],
-            ':cargo_supervisor' => $datos['cargo_supervisor'],
-            ':id' => $id
-        ];
-        
-        $stmt = $this->executeQuery($sql, $params);
-        return $stmt->rowCount() > 0;
-    } catch (Exception $e) {
-        error_log("Error en actualizarPractica: " . $e->getMessage());
-        return false;
-    }
-}
 
-public function eliminarPractica($id) {
-    try {
-        // Primero eliminar asistencias relacionadas si existen
-        if ($this->tableExists('asistencias')) {
-            $sqlAsistencias = "DELETE FROM asistencias WHERE practicas = :id";
-            $this->executeQuery($sqlAsistencias, [':id' => $id]);
+            $params = [
+                ':estudiante' => $datos['estudiante'],
+                ':empleado' => $datos['empleado'] ?? null,
+                ':empresa' => $datos['empresa'],
+                ':modulo' => $datos['modulo'],
+                ':tipo_efsrt' => $datos['tipo_efsrt'],
+                ':periodo_academico' => $datos['periodo_academico'],
+                ':fecha_inicio' => $datos['fecha_inicio'],
+                ':total_horas' => $datos['total_horas'],
+                ':area_ejecucion' => $datos['area_ejecucion'],
+                ':supervisor_empresa' => $datos['supervisor_empresa'],
+                ':cargo_supervisor' => $datos['cargo_supervisor'],
+                ':id' => $id
+            ];
+
+            $stmt = $this->executeQuery($sql, $params);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log("Error en actualizarPractica: " . $e->getMessage());
+            return false;
         }
-        
-        // Luego eliminar la práctica
-        $sql = "DELETE FROM practicas WHERE id = :id";
-        $stmt = $this->executeQuery($sql, [':id' => $id]);
-        
-        return $stmt->rowCount() > 0;
-    } catch (Exception $e) {
-        error_log("Error en eliminarPractica: " . $e->getMessage());
-        return false;
     }
-}
 
-private function tableExists($tableName) {
-    try {
-        $sql = "SHOW TABLES LIKE :table";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':table' => $tableName]);
-        return $stmt->rowCount() > 0;
-    } catch (Exception $e) {
-        return false;
+    public function eliminarPractica($id)
+    {
+        try {
+            // Primero eliminar asistencias relacionadas si existen
+            if ($this->tableExists('asistencias')) {
+                $sqlAsistencias = "DELETE FROM asistencias WHERE practicas = :id";
+                $this->executeQuery($sqlAsistencias, [':id' => $id]);
+            }
+
+            // Luego eliminar la práctica
+            $sql = "DELETE FROM practicas WHERE id = :id";
+            $stmt = $this->executeQuery($sql, [':id' => $id]);
+
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log("Error en eliminarPractica: " . $e->getMessage());
+            return false;
+        }
     }
-}
 
-// Método para obtener estudiantes para prácticas
-public function obtenerEstudiantesParaPracticas() {
-    try {
-        $sql = "SELECT e.id, 
+    private function tableExists($tableName)
+    {
+        try {
+            $sql = "SHOW TABLES LIKE :table";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':table' => $tableName]);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    // Método para obtener estudiantes para prácticas
+    public function obtenerEstudiantesParaPracticas()
+    {
+        try {
+            $sql = "SELECT e.id, 
                        e.dni_est,
                        e.ap_est,
                        e.am_est,
@@ -530,12 +534,49 @@ public function obtenerEstudiantesParaPracticas() {
                 LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
                 WHERE e.estado = 1
                 ORDER BY e.ap_est, e.am_est, e.nom_est";
-        
-        $stmt = $this->executeQuery($sql);
-        return $stmt->fetchAll();
-    } catch (Exception $e) {
-        error_log("Error en obtenerEstudiantesParaPracticas: " . $e->getMessage());
-        return [];
+
+            $stmt = $this->executeQuery($sql);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Error en obtenerEstudiantesParaPracticas: " . $e->getMessage());
+            return [];
+        }
     }
-}
+
+    // En models/PracticaModel.php - Agregar estos métodos si no existen
+
+    public function obtenerPracticasPorEstudiante($estudiante_id)
+    {
+        $sql = "SELECT p.*, e.razon_social as empresa_nombre
+            FROM practicas p
+            LEFT JOIN empresa e ON p.empresa = e.id
+            WHERE p.estudiante = :estudiante_id
+            ORDER BY 
+                CASE p.tipo_efsrt 
+                    WHEN 'modulo1' THEN 1 
+                    WHEN 'modulo2' THEN 2 
+                    WHEN 'modulo3' THEN 3 
+                    ELSE 4 
+                END";
+
+        $stmt = $this->executeQuery($sql, [':estudiante_id' => $estudiante_id]);
+        return $stmt->fetchAll();
+    }
+
+    public function obtenerPracticaByModulo($estudiante_id, $modulo)
+    {
+        $sql = "SELECT p.*, e.razon_social as empresa_nombre
+            FROM practicas p
+            LEFT JOIN empresa e ON p.empresa = e.id
+            WHERE p.estudiante = :estudiante_id 
+            AND p.tipo_efsrt = :modulo
+            LIMIT 1";
+
+        $stmt = $this->executeQuery($sql, [
+            ':estudiante_id' => $estudiante_id,
+            ':modulo' => $modulo
+        ]);
+
+        return $stmt->fetch();
+    }
 }
