@@ -706,47 +706,64 @@ mostrarLoadingRuc(mostrar) {
 
     // 🔘 CONFIGURAR BOTONES DE ACCIÓN
     setupActionButtons() {
-
-        console.log('🔧 Configurando botones de acción...');
-        // Botones de editar
-        document.querySelectorAll('.editar-empresa').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
-                this.abrirModalEditar(id);
-            });
-        });
-        
-        // Botones de ver
-        document.querySelectorAll('.ver-empresa').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
-                this.verEmpresa(id);
-            });
-        });
-        
-        // Botones de eliminar
-    document.querySelectorAll('.eliminar-empresa').forEach(btn => {
-        // ✅ REMOVER EVENT LISTENERS EXISTENTES PRIMERO
-        btn.replaceWith(btn.cloneNode(true));
-    });
+    console.log('🔧 Configurando botones de acción...');
     
-    // ✅ VOLVER A AGREGAR EVENT LISTENERS
-    document.querySelectorAll('.eliminar-empresa').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+    // Usar event delegation para manejar eventos dinámicos
+    const tabla = document.getElementById('tabla-empresas');
+    const vistaTarjetas = document.getElementById('vistaTarjetas');
+    
+    // ✅ EVENT DELEGATION para la tabla
+    if (tabla) {
+        tabla.addEventListener('click', (e) => {
+            const btn = e.target.closest('.editar-empresa, .ver-empresa, .eliminar-empresa');
+            if (!btn) return;
+            
             e.preventDefault();
             e.stopPropagation();
             
-            const id = e.currentTarget.getAttribute('data-id');
-            console.log('🗑️ Click en eliminar empresa ID:', id);
+            const id = btn.getAttribute('data-id');
+            const accion = btn.classList.contains('editar-empresa') ? 'editar' :
+                          btn.classList.contains('ver-empresa') ? 'ver' : 'eliminar';
             
-            if (id) {
-                this.eliminarEmpresa(id);
-            } else {
-                console.error('❌ ID no encontrado en botón eliminar');
+            switch(accion) {
+                case 'editar':
+                    this.abrirModalEditar(id);
+                    break;
+                case 'ver':
+                    this.verEmpresa(id);
+                    break;
+                case 'eliminar':
+                    console.log('🗑️ Eliminar empresa ID:', id);
+                    this.eliminarEmpresa(id);
+                    break;
             }
         });
-    });
     }
+    
+    // ✅ EVENT DELEGATION para tarjetas
+    if (vistaTarjetas) {
+        vistaTarjetas.addEventListener('click', (e) => {
+            const btn = e.target.closest('.editar-empresa, .ver-empresa, .eliminar-empresa');
+            if (!btn) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const id = btn.getAttribute('data-id');
+            const accion = btn.classList.contains('editar-empresa') ? 'editar' :
+                          btn.classList.contains('ver-empresa') ? 'ver' : 'eliminar';
+            
+            switch(accion) {
+                case 'editar':
+                    this.abrirModalEditar(id);
+                    break;
+                case 'ver':
+                    this.verEmpresa(id);
+                    break;
+            }
+        });
+    }
+}
 
     // 📝 ABRIR MODAL PARA EDITAR/CREAR EMPRESA
     async abrirModalEditar(id = null) {
@@ -1061,55 +1078,85 @@ actualizarSelect(elementId, datos, textoDefault = 'Seleccionar') {
         if (element) element.textContent = text;
     }
 
-    // 🗑️ ELIMINAR EMPRESA
-  async eliminarEmpresa(id) {
+    // 🗑️ ELIMINAR EMPRESA - VERSIÓN DEFINITIVA
+async eliminarEmpresa(id) {
     try {
-        console.log('🗑️ Iniciando proceso de eliminación para empresa ID:', id);
+        console.log('🗑️ Iniciando eliminación para empresa ID:', id);
         
-        // ✅ OBTENER DATOS DE LA EMPRESA
+        // 1. Obtener datos de la empresa para mostrar en confirmación
         const empresaResponse = await this.fetchAPI('Empresa', 'api_empresa', { id });
-        console.log('📊 Datos de empresa obtenidos:', empresaResponse);
         
         if (!empresaResponse.success) {
-            throw new Error('No se pudieron obtener los datos de la empresa');
+            this.mostrarError('No se pudo obtener información de la empresa');
+            return;
         }
         
         const empresa = empresaResponse.data;
-        console.log('🏢 Empresa a eliminar:', empresa.razon_social, '- RUC:', empresa.ruc);
         
-        // ✅ MOSTRAR CONFIRMACIÓN
-        console.log('🔄 Mostrando confirmación...');
+        // 2. Mostrar confirmación personalizada
         const confirmado = await this.mostrarConfirmacionEliminacion(empresa);
-        console.log('✅ Usuario confirmó:', confirmado);
         
         if (!confirmado) {
-            this.mostrarNotificacion('info', 'Acción cancelada', 'La empresa no fue eliminada');
+            console.log('👎 Usuario canceló la eliminación');
             return;
         }
-
-        console.log('🚀 Procediendo con eliminación...');
         
-        // ✅ ELIMINAR DIRECTAMENTE
-        const response = await this.fetchAPI('Empresa', 'api_eliminar', { id });
-        console.log('📨 Respuesta de eliminación:', response);
+        // 3. Intentar eliminar (el backend ya valida las prácticas)
+        console.log('🚀 Enviando solicitud de eliminación...');
+        const deleteResponse = await this.fetchAPI('Empresa', 'api_eliminar', { id });
         
-        if (response.success) {
-            this.mostrarNotificacion('success', '¡Empresa eliminada!', 'La empresa ha sido eliminada permanentemente del sistema');
-            await this.cargarEmpresas(); // Recargar lista
-            await this.cargarEstadisticas(); // Actualizar dashboard
+        if (deleteResponse.success) {
+            // ✅ ÉXITO
+            this.mostrarNotificacion('success', '¡Éxito!', deleteResponse.message || 'Empresa eliminada correctamente');
+            
+            // Recargar datos
+            await Promise.all([
+                this.cargarEmpresas(),
+                this.cargarEstadisticas()
+            ]);
+            
         } else {
-            throw new Error(response.error);
+            // ❌ ERROR DEL BACKEND (prácticas asociadas u otro error)
+            throw new Error(deleteResponse.error || 'Error desconocido al eliminar');
         }
         
     } catch (error) {
-        console.error('❌ Error completo al eliminar empresa:', error);
+        console.error('💥 Error completo:', error);
         
-        // ✅ MENSAJES DE ERROR ESPECÍFICOS
+        // Mostrar mensaje de error apropiado
         if (error.message.includes('prácticas asociadas')) {
-            this.mostrarError('No se puede eliminar: ' + error.message + '. Primero elimine las prácticas asociadas.');
+            this.mostrarError(
+                `<strong>No se puede eliminar la empresa</strong><br><br>` +
+                `${error.message}<br><br>` +
+                `<small>Primero elimine las prácticas asociadas desde el módulo de prácticas.</small>`
+            );
         } else {
-            this.mostrarError('Error al eliminar empresa: ' + error.message);
+            this.mostrarError(`Error al eliminar empresa: ${error.message}`);
         }
+    }
+}
+
+// 🔍 VERIFICAR SI LA EMPRESA TIENE PRÁCTICAS ASOCIADAS
+async verificarPracticasAsociadas(empresaId) {
+    try {
+        // ✅ LLAMAR AL ENDPOINT CORRECTO
+        const response = await this.fetchAPI('Empresa', 'api_verificar_practicas', { 
+            empresa_id: empresaId 
+        });
+        
+        if (response.success && response.tiene_practicas) {
+            return {
+                tienePracticas: true,
+                cantidad: response.cantidad,
+                practicas: response.practicas
+            };
+        }
+        
+        return { tienePracticas: false, cantidad: 0 };
+        
+    } catch (error) {
+        console.error('Error verificando prácticas:', error);
+        return { tienePracticas: false, cantidad: 0 };
     }
 }
 
@@ -1662,30 +1709,56 @@ async exportarEstadisticas() {
     }
 }
 
-    async fetchAPI(controller, action, params = null, options = {}) {
+    // 🔄 MÉTODO PARA HACER PETICIONES - VERSIÓN CORREGIDA
+async fetchAPI(controller, action, params = null, options = {}) {
+    // ✅ CONSTRUIR URL CORRECTAMENTE
     let url = `index.php?c=${controller}&a=${action}`;
     
-    if (params) {
-        const searchParams = new URLSearchParams(params);
+    // ✅ SI HAY PARÁMETROS, AGREGARLOS A LA URL
+    if (params && typeof params === 'object') {
+        const searchParams = new URLSearchParams();
+        
+        for (const key in params) {
+            if (params[key] !== null && params[key] !== undefined) {
+                searchParams.append(key, params[key]);
+            }
+        }
+        
         url += `&${searchParams.toString()}`;
     }
-
+    
     console.log('🌐 Fetch URL:', url);
 
+    // ✅ CONFIGURAR OPCIONES POR DEFECTO
     const defaultOptions = {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         },
         ...options
     };
 
+    // ✅ SI ES POST/PUT, AGREGAR Content-Type
+    if (defaultOptions.method === 'POST' || defaultOptions.method === 'PUT') {
+        defaultOptions.headers['Content-Type'] = 'application/json';
+    }
+
     try {
-        console.log('🔄 Realizando fetch...');
+        console.log('🔄 Realizando fetch...', defaultOptions.method, 'a', url);
+        
         const response = await fetch(url, defaultOptions);
         console.log('📡 Status de respuesta:', response.status, response.statusText);
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // ✅ MEJOR MENSAJE DE ERROR
+            const errorText = await response.text();
+            console.error('❌ Error en respuesta:', errorText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La respuesta no es JSON');
         }
         
         const data = await response.json();
@@ -1694,8 +1767,27 @@ async exportarEstadisticas() {
         
     } catch (error) {
         console.error('❌ Error en fetchAPI:', error);
-        throw error;
+        
+        // ✅ ERRORES MÁS DESCRIPTIVOS
+        if (error.message.includes('Failed to fetch')) {
+            throw new Error('Error de conexión. Verifica tu internet.');
+        } else if (error.message.includes('HTTP')) {
+            throw new Error(`Error del servidor: ${error.message}`);
+        } else {
+            throw new Error(`Error: ${error.message}`);
+        }
     }
+}
+
+// 🎨 OBTENER COLOR DEL BORDE
+getBorderColor(tipo) {
+    const colores = {
+        success: 'border-green-500',
+        error: 'border-red-500',
+        warning: 'border-yellow-500',
+        info: 'border-blue-500'
+    };
+    return colores[tipo] || 'border-gray-500';
 }
 
     mostrarLoading(mostrar) {
@@ -1709,60 +1801,98 @@ async exportarEstadisticas() {
         }
     }
 
-    mostrarError(mensaje) {
-        console.error('Error:', mensaje);
-        this.mostrarNotificacion('error', 'Error', mensaje);
-    }
+    // ❌ MOSTRAR ERROR
+mostrarError(mensaje) {
+    console.error('❌ Error:', mensaje);
+    this.mostrarNotificacion('error', 'Error', mensaje);
+}
 
     // ==============================
     // SISTEMA DE NOTIFICACIONES
     // ==============================
     
-    mostrarNotificacion(tipo, titulo, mensaje, duracion = 5000) {
-        const container = document.getElementById('notificationContainer');
-        const notification = document.createElement('div');
-        notification.className = `notification ${tipo}`;
+    // 🔔 SISTEMA DE NOTIFICACIONES - VERSIÓN FUNCIONAL
+mostrarNotificacion(tipo, titulo, mensaje, duracion = 5000) {
+    console.log('🔔 Mostrando notificación:', { tipo, titulo, mensaje });
+    
+    const container = document.getElementById('notificationContainer');
+    if (!container) {
+        console.error('❌ Contenedor de notificaciones no encontrado');
         
-        const iconos = {
-            success: 'fa-check-circle',
-            error: 'fa-exclamation-circle',
-            warning: 'fa-exclamation-triangle',
-            info: 'fa-info-circle'
-        };
+        // ✅ CREAR CONTENEDOR SI NO EXISTE
+        const newContainer = document.createElement('div');
+        newContainer.id = 'notificationContainer';
+        newContainer.className = 'fixed top-4 right-4 z-50 space-y-4 w-96 max-w-full';
+        document.body.appendChild(newContainer);
         
-        notification.innerHTML = `
-            <i class="notification-icon fas ${iconos[tipo]}"></i>
-            <div class="notification-content">
-                <div class="notification-title">${titulo}</div>
-                <div class="notification-message">${mensaje}</div>
-            </div>
-            <button class="notification-close">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        container.appendChild(notification);
-        
-        // Animación de entrada
-        setTimeout(() => notification.classList.add('show'), 100);
-        
-        // Cerrar notificación
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 500);
-        });
-        
-        // Auto-remover después de la duración
-        if (duracion > 0) {
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 500);
-                }
-            }, duracion);
-        }
+        this.mostrarNotificacion(tipo, titulo, mensaje, duracion);
+        return;
     }
+    
+    // ✅ CREAR ELEMENTO DE NOTIFICACIÓN
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo} transform -translate-x-full opacity-0 transition-all duration-300`;
+    
+    // ✅ ICONOS POR TIPO
+    const iconos = {
+        success: { icon: 'fa-check-circle', color: 'text-green-500' },
+        error: { icon: 'fa-exclamation-circle', color: 'text-red-500' },
+        warning: { icon: 'fa-exclamation-triangle', color: 'text-yellow-500' },
+        info: { icon: 'fa-info-circle', color: 'text-blue-500' }
+    };
+    
+    const iconoConfig = iconos[tipo] || iconos.info;
+    
+    notification.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl border-l-4 ${this.getBorderColor(tipo)} p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas ${iconoConfig.icon} ${iconoConfig.color} text-xl"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900">${titulo}</p>
+                    <p class="mt-1 text-sm text-gray-600">${mensaje}</p>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex">
+                    <button class="notification-close bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // ✅ ANIMACIÓN DE ENTRADA
+    setTimeout(() => {
+        notification.classList.remove('-translate-x-full', 'opacity-0');
+        notification.classList.add('translate-x-0', 'opacity-100');
+    }, 10);
+    
+    // ✅ FUNCIÓN PARA CERRAR
+    const cerrarNotificacion = () => {
+        notification.classList.remove('translate-x-0', 'opacity-100');
+        notification.classList.add('-translate-x-full', 'opacity-0');
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    };
+    
+    // ✅ BOTÓN DE CERRAR
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', cerrarNotificacion);
+    
+    // ✅ AUTO-CERRAR
+    if (duracion > 0) {
+        setTimeout(cerrarNotificacion, duracion);
+    }
+    
+    return notification;
+}
     
     // ==============================
     // SISTEMA DE CONFIRMACIÓN

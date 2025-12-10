@@ -2,6 +2,8 @@
 // views/empresa/empresa.php
 require_once 'views/layouts/header.php';
 ?>
+<link rel="stylesheet" href="assets/css/empresas.css">
+<div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-4 w-96 max-w-full"></div>
 <div class="p-6">
     <div class="mb-8 flex justify-between items-center">
         <div>
@@ -555,13 +557,79 @@ require_once 'views/layouts/header.php';
         </div>
     </div>
 
-    <!-- Sistema de Notificaciones -->
-    <div id="notificationContainer"></div>
+    <style>
+        /* Notificaciones */
+.notification {
+    transition: all 0.3s ease-in-out;
+    animation: slideIn 0.3s ease-out;
+}
 
-    <!-- Overlay de Carga -->
-    <div id="loadingOverlay" class="loading-overlay">
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+</style>
+
+
+
+
+    <!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
         <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando...</p>
     </div>
+</div>
 
     <!-- JavaScript específico de empresas -->
     <script src="assets/js/empresas.js"></script>

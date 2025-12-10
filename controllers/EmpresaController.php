@@ -292,33 +292,74 @@ class EmpresaController
 
     // API MEJORADA: Eliminar empresa
     public function api_eliminar()
-    {
-        header('Content-Type: application/json');
+{
+    header('Content-Type: application/json');
 
-        try {
-            $id = $_GET['id'] ?? null;
+    try {
+        $id = $_GET['id'] ?? null;
 
-            if (!$id) {
-                throw new Exception('ID de empresa no proporcionado');
-            }
-
-            $result = $this->empresaModel->eliminarEmpresa($id);
-
-            if ($result) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Empresa eliminada permanentemente del sistema'
-                ]);
-            } else {
-                throw new Exception('No se pudo eliminar la empresa');
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
+        if (!$id) {
+            throw new Exception('ID de empresa no proporcionado');
         }
+
+        // 1. Verificar si tiene prácticas asociadas
+        $practicaModel = new PracticaModel();
+        $practicas = $practicaModel->obtenerPracticasPorEmpresa($id);
+        
+        if (!empty($practicas)) {
+            throw new Exception('No se puede eliminar la empresa porque tiene ' . count($practicas) . ' prácticas asociadas. Primero elimine las prácticas.');
+        }
+
+        // 2. Eliminar empresa
+        $result = $this->empresaModel->eliminarEmpresa($id);
+
+        if ($result) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Empresa eliminada permanentemente del sistema'
+            ]);
+        } else {
+            throw new Exception('No se pudo eliminar la empresa. Puede que no exista o haya un error en la base de datos.');
+        }
+        
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
     }
+}
+
+    // 📋 VERIFICAR PRÁCTICAS ASOCIADAS (EN EmpresaController.php)
+public function api_verificar_practicas()
+{
+    header('Content-Type: application/json');
+    
+    try {
+        $empresaId = $_GET['empresa_id'] ?? $_GET['id'] ?? null;
+        
+        if (!$empresaId) {
+            throw new Exception('ID de empresa no proporcionado');
+        }
+        
+        // Verificar en el modelo de prácticas
+        $practicaModel = new PracticaModel();
+        $practicas = $practicaModel->obtenerPracticasPorEmpresa($empresaId);
+        
+        echo json_encode([
+            'success' => true,
+            'tiene_practicas' => !empty($practicas),
+            'cantidad' => count($practicas),
+            'practicas' => $practicas
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
+}
 
     // API MEJORADA: Estadísticas - CORREGIDO
     public function api_estadisticas()
