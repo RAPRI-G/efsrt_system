@@ -1,111 +1,128 @@
 <?php
-class SessionHelper {
-    
-    public static function init() {
+class SessionHelper
+{
+
+    public static function init()
+    {
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-        
+
         // Generar token CSRF si no existe
         if (!isset($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
     }
-    
-    public static function set($key, $value) {
+
+    public static function set($key, $value)
+    {
         self::init();
         $_SESSION[$key] = $value;
     }
-    
-    public static function get($key) {
+
+    public static function get($key)
+    {
         self::init();
         return $_SESSION[$key] ?? null;
     }
-    
-    public static function destroy() {
+
+    public static function destroy()
+    {
         self::init();
         session_destroy();
     }
-    
-    public static function isLoggedIn() {
+
+    public static function isLoggedIn()
+    {
         self::init();
         return isset($_SESSION['usuario']);
     }
-    
-    public static function getUser() {
+
+    public static function getUser()
+    {
         self::init();
         return $_SESSION['usuario'] ?? null;
     }
-    
+
     // 🔐 MÉTODOS PARA TOKENS CSRF
-    public static function getCSRFToken() {
+    public static function getCSRFToken()
+    {
         self::init();
         return $_SESSION['csrf_token'] ?? '';
     }
-    
-    public static function validateCSRF($token) {
+
+    public static function validateCSRF($token)
+    {
         self::init();
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
-    
-    public static function regenerateCSRF() {
+
+    public static function regenerateCSRF()
+    {
         self::init();
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         return $_SESSION['csrf_token'];
     }
-    
+
     // 🔐 MÉTODOS PARA TOKENS DE USUARIO (BD)
-    public static function generateUserToken() {
+    public static function generateUserToken()
+    {
         return bin2hex(random_bytes(32));
     }
-    
-    public static function validateUserToken($token) {
+
+    public static function validateUserToken($token)
+    {
         return preg_match('/^[a-f0-9]{64}$/', $token);
     }
 
-    public static function getRole() {
+    public static function getRole()
+    {
         self::init();
         if (isset($_SESSION['usuario'])) {
             return $_SESSION['usuario']['rol'] ?? null;
         }
         return null;
     }
-    
-    public static function getTipo() {
+
+    public static function getTipo()
+    {
         self::init();
         if (isset($_SESSION['usuario'])) {
             return $_SESSION['usuario']['tipo'] ?? null;
         }
         return null;
     }
-    
-    public static function puedeAcceder($controlador) {
+
+    public static function puedeAcceder($controlador)
+    {
         $rol = self::getRole();
         if (!$rol) return false;
-        
+
         require_once 'helpers/RolesHelper.php';
         return RolesHelper::puedeAccederControlador($rol, $controlador);
     }
-    
-    public static function puedeVerMenu($moduloMenu) {
+
+    public static function puedeVerMenu($moduloMenu)
+    {
         $rol = self::getRole();
         if (!$rol) return false;
-        
+
         require_once 'helpers/RolesHelper.php';
         return RolesHelper::puedeVerMenu($rol, $moduloMenu);
     }
-    
-    public static function esAdministrador() {
+
+    public static function esAdministrador()
+    {
         return self::getRole() === 'administrador';
     }
-    
-    public static function esDocente() {
+
+    public static function esDocente()
+    {
         return self::getRole() === 'docente';
     }
-    
-    public static function esEstudiante() {
+
+    public static function esEstudiante()
+    {
         return self::getRole() === 'estudiante';
     }
-    
 }
-?>

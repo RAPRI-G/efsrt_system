@@ -263,9 +263,10 @@
                     <!-- Información -->
                     <?php if (SessionHelper::puedeVerMenu('informacion')): ?>
                         <li>
-                            <a href="#" class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300">
+                            <a href="index.php?c=Informacion&a=index"
+                                class="menu-item flex items-center px-4 py-3 text-blue-200 rounded-lg transition-all duration-300 <?php echo ($_GET['c'] ?? '') == 'Informacion' ? 'active-menu' : ''; ?>">
                                 <i class="fas fa-info-circle text-lg w-6"></i>
-                                <span class="menu-text ml-3 font-medium">Información</span>
+                                <span class="menu-text ml-3 font-medium">Mi Información</span>
                             </a>
                         </li>
                     <?php endif; ?>

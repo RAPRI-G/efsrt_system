@@ -111,9 +111,9 @@ class Dashboard {
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${practica.programa_nombre || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${practica.programa || 'N/A'}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${this.getNombreModulo(practica.tipo_efsrt)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${practica.razon_social || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${practica.nombre_empresa || 'N/A'}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-3">

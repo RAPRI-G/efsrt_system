@@ -326,43 +326,6 @@ class DocumentoModel extends BaseModel
         return $stmt->fetchAll();
     }
 
-    // En models/PracticaModel.php - Agregar estos métodos si no existen
-
-    public function obtenerPracticasPorEstudiante($estudiante_id)
-    {
-        $sql = "SELECT p.*, e.razon_social as empresa_nombre
-            FROM practicas p
-            LEFT JOIN empresa e ON p.empresa = e.id
-            WHERE p.estudiante = :estudiante_id
-            ORDER BY 
-                CASE p.tipo_efsrt 
-                    WHEN 'modulo1' THEN 1 
-                    WHEN 'modulo2' THEN 2 
-                    WHEN 'modulo3' THEN 3 
-                    ELSE 4 
-                END";
-
-        $stmt = $this->executeQuery($sql, [':estudiante_id' => $estudiante_id]);
-        return $stmt->fetchAll();
-    }
-
-    public function obtenerPracticaByModulo($estudiante_id, $modulo)
-    {
-        $sql = "SELECT p.*, e.razon_social as empresa_nombre
-            FROM practicas p
-            LEFT JOIN empresa e ON p.empresa = e.id
-            WHERE p.estudiante = :estudiante_id 
-            AND p.tipo_efsrt = :modulo
-            LIMIT 1";
-
-        $stmt = $this->executeQuery($sql, [
-            ':estudiante_id' => $estudiante_id,
-            ':modulo' => $modulo
-        ]);
-
-        return $stmt->fetch();
-    }
-
     /**
      * Sanitizar input
      */

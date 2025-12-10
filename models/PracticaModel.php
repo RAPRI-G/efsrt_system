@@ -44,12 +44,20 @@ class PracticaModel extends BaseModel
                     e.ap_est,
                     e.am_est,
                     e.nom_est,
+                     -- Datos del programa de estudios (CORREGIDO: nom_progest)
+                m.prog_estudios,
+                pe.nom_progest as programa,  -- 🔥 CAMBIADO: 'programa' en lugar de 'nombre_programa'
                     -- Datos de la empresa
                     emp.razon_social as nombre_empresa,
                     -- Datos del docente supervisor (empleado)
                     em.apnom_emp as nombre_docente  -- 🔥 ESTA ES LA COLUMNA CORRECTA
                 FROM practicas p
                 LEFT JOIN estudiante e ON p.estudiante = e.id
+
+                -- JOINS para obtener el programa
+            LEFT JOIN matricula m ON e.id = m.estudiante
+            LEFT JOIN prog_estudios pe ON m.prog_estudios = pe.id
+
                 LEFT JOIN empresa emp ON p.empresa = emp.id
                 LEFT JOIN empleado em ON p.empleado = em.id  -- 🔥 UNIR CON TABLA EMPLEADO
                 WHERE p.estado IS NOT NULL

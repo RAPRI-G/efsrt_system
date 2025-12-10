@@ -63,7 +63,7 @@ class RolesHelper
         'empresas' => ['administrador', 'docente'],
         'estudiantes' => ['administrador', 'docente'],
         'modulos' => ['administrador'],
-        'practicas' => ['administrador','docente'],
+        'practicas' => ['administrador', 'docente'],
         'asistencias' => ['administrador', 'docente'],
         'asistencia_estudiante' => ['estudiante'],
         'reportes' => ['administrador', 'docente'],
