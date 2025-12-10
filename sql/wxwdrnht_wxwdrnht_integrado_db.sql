@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-12-2025 a las 03:31:55
+-- Tiempo de generación: 10-12-2025 a las 08:08:04
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -1456,7 +1456,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (716, NULL, '72773077', 'CERRON', 'GUEVARA', 'LUIS ENRIQUE', 'M', '971367187', '', '', '', '', '72773077@institutocajas.edu.pe', '0000-00-00', '', 1),
 (717, NULL, '72800916', 'PAITAN', 'TAYPE', 'HILARIO WILLIAM', 'M', '921961545', '', '', '', '', '72800916@institutocajas.edu.pe', '0000-00-00', '', 1),
 (718, NULL, '72807839', 'AMARU', 'QUISPE', 'JHON', 'M', '928294934', '', '', '', '', '72807839@institutocajas.edu.pe', '0000-00-00', '', 1),
-(719, NULL, '72813144', '?A?A', 'DIAZ', 'SAUL ALVARO', 'M', '968680255', '', '', '', '', '72813144@institutocajas.edu.pe', '0000-00-00', '', 1),
+(719, NULL, '72813144', '?A?A', 'DIAZ', 'SAUL ALVARO', 'M', '968680255', '', '', '', '', '72813144@institutocajas.edu.pe', '2000-12-12', '', 1),
 (720, NULL, '72814300', 'RIVERA', 'MALLMA', 'MAYELI', 'F', '917041125', '', '', '', '', '72814300@institutocajas.edu.pe', '0000-00-00', '', 1),
 (721, NULL, '72850415', 'RODRIGUEZ', 'ROQUE', 'YURI JHOMAR', 'M', '978498791', '', '', '', '', '72850415@institutocajas.edu.pe', '0000-00-00', '', 1),
 (722, NULL, '72859646', 'VELIZ', 'ROMANI', 'JUAN PABLO', 'M', '941500114', '', '', '', '', '72859646@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -6003,16 +6003,16 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `fecha_creacion`, `ultimo_acceso`, `nivel`) VALUES
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, NULL, 1, '2025-12-04 03:47:13', '2025-12-10 02:15:44', 1),
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, '97119963284a74fe803ac3a2010eef6ea32435bdd0da9e214d376ecea88ec717', 1, '2025-12-04 03:47:13', '2025-12-10 07:05:35', 1),
 (3, '72571243', '$2y$10$q4AL2.KYyAj.LFMi/jWssuFQ2mKyLTPzvCHksFHQ1NP6n0Bcr8jjy', 3, 702, NULL, 1, '2025-12-04 03:48:18', '2025-12-10 02:02:29', NULL),
-(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', '2025-12-10 01:52:32', NULL),
+(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', '2025-12-10 07:03:40', NULL),
 (5, '73027729', '$2y$10$jr4tjz7TdMI6lDLYA.jzs.59DGjr8c6zBaJR6n73Motd3v3lmry3i', 3, 731, NULL, 1, '2025-12-04 04:09:16', NULL, NULL),
 (6, 'admin', '$2y$10$Q8LLFSKOwNGc3pU7gCDXhOFQ.L/5wkrN54HZYGwV4RosdW3/AWiv.', 2, NULL, NULL, 0, '2025-12-04 06:14:36', NULL, NULL),
-(7, '09986759', '$2y$10$bTxbAOp4lXBtfiII.3aC0.pg/uEne0jK1PHFen2wZRZ9uYNvyKHEy', 3, 1, NULL, 1, '2025-12-09 00:58:51', '2025-12-10 00:05:35', NULL),
+(7, '09986759', '$2y$10$bTxbAOp4lXBtfiII.3aC0.pg/uEne0jK1PHFen2wZRZ9uYNvyKHEy', 3, 1, NULL, 1, '2025-12-09 00:58:51', '2025-12-10 07:04:40', NULL),
 (8, '72309767', '$2y$10$OVNlg3eBMFuyjhvQJTfyteqSxTUSsHb7SOHh2R4cMmY2HlqOmL21e', 3, 676, NULL, 1, '2025-12-09 21:55:02', '2025-12-10 00:05:56', NULL),
 (9, '72438097', '$2y$10$HNN6MDDsf53LjSuoP1NqjeD35EDMzxkJr2maY6kL1BmCNfLdX0WUK', 3, 695, NULL, 1, '2025-12-10 01:44:27', '2025-12-10 01:47:29', NULL),
-(10, '20096529', '$2y$10$UME9K4yZrGLUV/LIoB9yzO9pjHGIF0WJ.rPfEL7L1FccJc9dTRn.q', 1, 74, NULL, 1, '2025-12-10 01:55:29', '2025-12-10 01:58:46', NULL),
-(11, '70308211', '$2y$10$sFfhRe/G9R1UXmubKMz5uu4fq7wi51egzLiYh5TZO8HQ1ADGK1mOi', 3, 467, '4b62a83a380e3f7d470d684397312a8166a781eb412c4ed1738b685b5d5ca70c', 1, '2025-12-10 02:10:34', '2025-12-10 02:16:32', NULL);
+(10, '20096529', '$2y$10$UME9K4yZrGLUV/LIoB9yzO9pjHGIF0WJ.rPfEL7L1FccJc9dTRn.q', 1, 74, NULL, 1, '2025-12-10 01:55:29', '2025-12-10 04:55:10', NULL),
+(11, '70308211', '$2y$10$sFfhRe/G9R1UXmubKMz5uu4fq7wi51egzLiYh5TZO8HQ1ADGK1mOi', 3, 467, NULL, 1, '2025-12-10 02:10:34', '2025-12-10 02:16:32', NULL);
 
 -- --------------------------------------------------------
 
