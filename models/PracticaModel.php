@@ -79,14 +79,34 @@ class PracticaModel extends BaseModel
     }
 
     public function obtenerPracticasPorEmpresa($empresaId)
-{
-    $sql = "SELECT id, estudiante, tipo_efsrt, estado 
-            FROM practicas 
-            WHERE empresa = :empresa_id";
-    
-    $stmt = $this->executeQuery($sql, [':empresa_id' => $empresaId]);
-    return $stmt->fetchAll();
-}
+    {
+        try {
+            $sql = "SELECT 
+                    p.id,
+                    p.estudiante,
+                    p.modulo,
+                    p.estado,
+                    p.tipo_efsrt,
+                    p.fecha_inicio,
+                    p.fecha_fin,
+                    p.total_horas,
+                    CONCAT(e.ap_est, ' ', e.am_est, ', ', e.nom_est) as estudiante_nombre,
+                    e.dni_est,
+                    pe.nom_progest as programa_estudios
+                FROM practicas p
+                LEFT JOIN estudiante e ON p.estudiante = e.id
+                LEFT JOIN matricula m ON e.id = m.estudiante
+                LEFT JOIN prog_estudios pe ON m.prog_estudios = pe.id
+                WHERE p.empresa = :empresa_id 
+                AND p.estado != 'Eliminada'
+                ORDER BY p.estado, p.fecha_inicio DESC";
+
+            $stmt = $this->executeQuery($sql, [':empresa_id' => $empresaId]);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            return [];
+        }
+    }
 
     public function contarPracticasPorEstado($estado)
     {

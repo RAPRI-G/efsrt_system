@@ -1,4 +1,9 @@
 <?php
+// 🔧 CONFIGURACIÓN DE ERRORES
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(0); // Desactivar errores en producción
+
 require_once 'models/EmpresaModel.php';
 require_once 'models/PracticaModel.php';
 require_once 'models/UbigeoModel.php';
@@ -18,8 +23,24 @@ class EmpresaController
 
     public function index()
     {
+        // Usar SessionHelper en lugar de session_start()
+        require_once 'helpers/SessionHelper.php';
+
+        // Verificar permisos usando SessionHelper
+        if (!SessionHelper::puedeAcceder('Empresa')) {
+            // Redirigir si no tiene acceso
+            header("Location: index.php?c=Inicio&a=index");
+            exit;
+        }
+
+        // Obtener el rol usando SessionHelper
+        $rolUsuario = SessionHelper::getRole();
+        $esDocente = SessionHelper::esDocente();
+
         // Cargar departamentos para el filtro
         $departamentos = $this->ubigeoModel->obtenerDepartamentos();
+
+        // Pasar variables a la vista
         require_once 'views/empresa/empresa.php';
     }
 
@@ -101,6 +122,7 @@ class EmpresaController
             $elementosPorPagina = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
             $offset = ($pagina - 1) * $elementosPorPagina;
 
+            // ✅ CORREGIDO: Usar el modelo correctamente
             $empresas = $this->empresaModel->obtenerEmpresasConFiltros($filtros, $elementosPorPagina, $offset);
             $total = $this->empresaModel->contarEmpresasConFiltros($filtros);
 
@@ -292,74 +314,105 @@ class EmpresaController
 
     // API MEJORADA: Eliminar empresa
     public function api_eliminar()
-{
-    header('Content-Type: application/json');
+    {
+        // ✅ PONER esto AL INICIO, antes de cualquier salida
+        header('Content-Type: application/json');
 
-    try {
-        $id = $_GET['id'] ?? null;
+        // ✅ Activar captura de errores
+        ob_start(); // Iniciar buffer de salida
 
-        if (!$id) {
-            throw new Exception('ID de empresa no proporcionado');
-        }
+        try {
+            session_start();
 
-        // 1. Verificar si tiene prácticas asociadas
-        $practicaModel = new PracticaModel();
-        $practicas = $practicaModel->obtenerPracticasPorEmpresa($id);
-        
-        if (!empty($practicas)) {
-            throw new Exception('No se puede eliminar la empresa porque tiene ' . count($practicas) . ' prácticas asociadas. Primero elimine las prácticas.');
-        }
+            // ✅ VERIFICAR ROL DEL USUARIO
+            $rolUsuario = $_SESSION['rol'] ?? 'invitado';
 
-        // 2. Eliminar empresa
-        $result = $this->empresaModel->eliminarEmpresa($id);
+            if ($rolUsuario === 'docente') {
+                throw new Exception('Los docentes no tienen permiso para eliminar empresas');
+            }
 
-        if ($result) {
+            $id = $_GET['id'] ?? null;
+
+            if (!$id) {
+                throw new Exception('ID de empresa no proporcionado');
+            }
+
+            // 1. Verificar si tiene prácticas asociadas
+            $practicaModel = new PracticaModel();
+            $practicas = $practicaModel->obtenerPracticasPorEmpresa($id);
+
+            if (!empty($practicas)) {
+                throw new Exception('No se puede eliminar la empresa porque tiene ' . count($practicas) . ' prácticas asociadas. Primero elimine las prácticas.');
+            }
+
+            // 2. Eliminar empresa
+            $result = $this->empresaModel->eliminarEmpresa($id);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Empresa eliminada correctamente'
+                ]);
+            } else {
+                throw new Exception('No se pudo eliminar la empresa. Puede que no exista o haya un error en la base de datos.');
+            }
+        } catch (Exception $e) {
+            // ✅ LIMPIAR BUFFER POR SI HAY SALIDA PREVIA
+            ob_clean();
+
             echo json_encode([
-                'success' => true,
-                'message' => 'Empresa eliminada permanentemente del sistema'
+                'success' => false,
+                'error' => $e->getMessage()
             ]);
-        } else {
-            throw new Exception('No se pudo eliminar la empresa. Puede que no exista o haya un error en la base de datos.');
         }
-        
-    } catch (Exception $e) {
-        echo json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ]);
+
+        // ✅ LIMPIAR Y ENVIAR
+        ob_end_flush();
     }
-}
 
     // 📋 VERIFICAR PRÁCTICAS ASOCIADAS (EN EmpresaController.php)
-public function api_verificar_practicas()
-{
-    header('Content-Type: application/json');
-    
-    try {
-        $empresaId = $_GET['empresa_id'] ?? $_GET['id'] ?? null;
-        
-        if (!$empresaId) {
-            throw new Exception('ID de empresa no proporcionado');
+    public function api_verificar_practicas()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $empresaId = $_GET['empresa_id'] ?? $_GET['id'] ?? null;
+
+            if (!$empresaId) {
+                throw new Exception('ID de empresa no proporcionado');
+            }
+
+            $practicas = $this->practicaModel->obtenerPracticasPorEmpresa($empresaId);
+
+            // Formatear respuesta SOLO con lo que necesitas
+            $practicasFormateadas = [];
+            foreach ($practicas as $practica) {
+                $practicasFormateadas[] = [
+                    'id' => $practica['id'],
+                    'estudiante' => $practica['estudiante_nombre'] ?? 'Estudiante ID: ' . $practica['estudiante'],
+                    'estado' => $practica['estado'] ?? 'Sin estado',
+                    'modulo' => $practica['modulo'] ?? 'No especificado',
+                    'tipo' => $practica['tipo_efsrt'] ?? 'No especificado',
+                    'dni' => $practica['dni_est'] ?? 'N/A',
+                    'programa' => $practica['programa_estudios'] ?? 'No especificado',
+                    'fecha_inicio' => $practica['fecha_inicio'] ? date('d/m/Y', strtotime($practica['fecha_inicio'])) : 'No definida'
+                ];
+            }
+
+            echo json_encode([
+                'success' => true,
+                'tiene_practicas' => !empty($practicas),
+                'cantidad' => count($practicas),
+                'practicas' => $practicasFormateadas
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'practicas' => []
+            ]);
         }
-        
-        // Verificar en el modelo de prácticas
-        $practicaModel = new PracticaModel();
-        $practicas = $practicaModel->obtenerPracticasPorEmpresa($empresaId);
-        
-        echo json_encode([
-            'success' => true,
-            'tiene_practicas' => !empty($practicas),
-            'cantidad' => count($practicas),
-            'practicas' => $practicas
-        ]);
-        
-    } catch (Exception $e) {
-        echo json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ]);
     }
-}
 
     // API MEJORADA: Estadísticas - CORREGIDO
     public function api_estadisticas()
@@ -377,13 +430,6 @@ public function api_verificar_practicas()
             // ✅ CALCULAR INACTIVAS CORRECTAMENTE
             $empresas_inactivas = $total_empresas - $empresas_activas;
 
-            // ✅ DEBUG: Log para verificar datos
-            error_log("📊 ESTADÍSTICAS CALCULADAS:");
-            error_log("Total empresas: " . $total_empresas);
-            error_log("Empresas activas: " . $empresas_activas);
-            error_log("Empresas inactivas: " . $empresas_inactivas);
-            error_log("Con prácticas: " . $empresas_con_practicas);
-
             echo json_encode([
                 'success' => true,
                 'data' => [
@@ -396,7 +442,6 @@ public function api_verificar_practicas()
                 ]
             ]);
         } catch (Exception $e) {
-            error_log("❌ ERROR EN API_ESTADÍSTICAS: " . $e->getMessage());
             echo json_encode([
                 'success' => false,
                 'error' => $e->getMessage()

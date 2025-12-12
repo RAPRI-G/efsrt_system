@@ -1,6 +1,12 @@
 <?php
 // views/empresa/empresa.php
 require_once 'views/layouts/header.php';
+// Al inicio del archivo empresa.php
+require_once 'helpers/SessionHelper.php';
+
+// Obtener el rol usando SessionHelper
+$rolUsuario = SessionHelper::getRole();
+$esDocente = SessionHelper::esDocente();
 ?>
 <link rel="stylesheet" href="assets/css/empresas.css">
 <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-4 w-96 max-w-full"></div>
@@ -559,80 +565,106 @@ require_once 'views/layouts/header.php';
 
     <style>
         /* Notificaciones */
-.notification {
-    transition: all 0.3s ease-in-out;
-    animation: slideIn 0.3s ease-out;
-}
+        .notification {
+            transition: all 0.3s ease-in-out;
+            animation: slideIn 0.3s ease-out;
+        }
 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
 
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
 
-/* Loading Overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
 
-.loading-overlay.show {
-    display: flex;
-}
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
 
-.loading-spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-}
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        .loading-overlay.show {
+            display: flex;
+        }
 
-</style>
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 
 
 
 
     <!-- Loading Overlay -->
-<div id="loadingOverlay" class="loading-overlay">
-    <div class="loading-content">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Cargando...</p>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Cargando...</p>
+        </div>
     </div>
-</div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- JavaScript específico de empresas -->
     <script src="assets/js/empresas.js"></script>
+    <script>
+        // ✅ PASAR VARIABLES CORRECTAMENTE
+        window.userRole = '<?php echo addslashes($rolUsuario); ?>';
+        window.esDocente = <?php echo $esDocente ? 'true' : 'false'; ?>;
+    </script>
+
+    <?php if ($rolUsuario === 'docente'): ?>
+        <style>
+            /* Oculta botones de eliminar para docentes en tabla */
+            .btn-eliminar {
+                display: none !important;
+            }
+
+            /* También oculta en tarjetas si es necesario */
+            .card-empresa .btn-eliminar {
+                display: none !important;
+            }
+        </style>
+    <?php endif; ?>
 
     <?php
     require_once 'views/layouts/footer.php';
