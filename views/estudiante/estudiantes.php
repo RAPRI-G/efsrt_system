@@ -39,7 +39,8 @@ require_once 'views/layouts/header.php';
             <h1 class="text-3xl font-bold text-primary-blue mb-2">Gestión de Estudiantes</h1>
             <p class="text-gray-600">Administra la información de los estudiantes registrados en el sistema</p>
         </div>
-        <button id="btnNuevoEstudiante" class="bg-primary-blue text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+        <button id="btnNuevoEstudiante"
+            class="bg-primary-blue text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i> Nuevo Estudiante
         </button>
     </div>
@@ -123,7 +124,8 @@ require_once 'views/layouts/header.php';
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <select id="filtroPrograma" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="filtroPrograma"
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">Todos los programas</option>
                         <?php foreach ($programas as $programa): ?>
                             <option value="<?php echo $programa['id']; ?>" <?php echo ($filtros['programa'] ?? '') == $programa['id'] ? 'selected' : ''; ?>>
@@ -132,25 +134,33 @@ require_once 'views/layouts/header.php';
                         <?php endforeach; ?>
                     </select>
 
-                    <select id="filtroEstado" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="filtroEstado"
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">Todos los estados</option>
-                        <option value="1" <?php echo ($filtros['estado'] ?? '') == '1' ? 'selected' : ''; ?>>Activo</option>
-                        <option value="0" <?php echo ($filtros['estado'] ?? '') == '0' ? 'selected' : ''; ?>>Inactivo</option>
+                        <option value="1" <?php echo ($filtros['estado'] ?? '') == '1' ? 'selected' : ''; ?>>Activo
+                        </option>
+                        <option value="0" <?php echo ($filtros['estado'] ?? '') == '0' ? 'selected' : ''; ?>>Inactivo
+                        </option>
                     </select>
 
-                    <select id="filtroGenero" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="filtroGenero"
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">Todos los géneros</option>
-                        <option value="M" <?php echo ($filtros['genero'] ?? '') == 'M' ? 'selected' : ''; ?>>Masculino</option>
-                        <option value="F" <?php echo ($filtros['genero'] ?? '') == 'F' ? 'selected' : ''; ?>>Femenino</option>
+                        <option value="M" <?php echo ($filtros['genero'] ?? '') == 'M' ? 'selected' : ''; ?>>Masculino
+                        </option>
+                        <option value="F" <?php echo ($filtros['genero'] ?? '') == 'F' ? 'selected' : ''; ?>>Femenino
+                        </option>
                     </select>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="btnExportar" class="btn-exportar text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+                <button id="btnExportar"
+                    class="btn-exportar text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
                     <i class="fas fa-file-csv mr-2"></i> Exportar CSV
                 </button>
-                <button id="btnRefrescar" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center">
+                <button id="btnRefrescar"
+                    class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center">
                     <i class="fas fa-sync-alt mr-2"></i> Actualizar
                 </button>
             </div>
@@ -198,20 +208,35 @@ require_once 'views/layouts/header.php';
                 Lista de Estudiantes
             </h3>
             <div class="text-sm text-gray-500" id="contador-estudiantes">
-                Mostrando <span id="estudiantes-mostrados">0</span> de <span id="estudiantes-totales">0</span> estudiantes
+                Mostrando <span id="estudiantes-mostrados">0</span> de <span id="estudiantes-totales">0</span>
+                estudiantes
             </div>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 tabla-estudiantes">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Estudiante</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">DNI</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Programa</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Matrícula</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Contacto</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">Acciones</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Estudiante</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            DNI</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Programa</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Matrícula</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Contacto</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Estado</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-semibold text-primary-blue uppercase tracking-wider">
+                            Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="tabla-estudiantes-body">
@@ -247,7 +272,8 @@ require_once 'views/layouts/header.php';
             <div class="p-6">
                 <form id="formEstudiante">
                     <input type="hidden" id="estudianteId">
-                    <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo SessionHelper::getCSRFToken(); ?>">
+                    <input type="hidden" id="csrf_token" name="csrf_token"
+                        value="<?php echo SessionHelper::getCSRFToken(); ?>">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -257,7 +283,8 @@ require_once 'views/layouts/header.php';
                         </div>
 
                         <div>
-                            <label for="prog_estudios" class="block text-sm font-medium text-gray-700 mb-1">Programa de Estudios</label>
+                            <label for="prog_estudios" class="block text-sm font-medium text-gray-700 mb-1">Programa de
+                                Estudios</label>
                             <select id="prog_estudios" name="prog_estudios"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="">Seleccionar programa</option>
@@ -272,13 +299,15 @@ require_once 'views/layouts/header.php';
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div>
-                            <label for="ap_est" class="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno *</label>
+                            <label for="ap_est" class="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno
+                                *</label>
                             <input type="text" id="ap_est" name="ap_est" maxlength="40" required
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
 
                         <div>
-                            <label for="am_est" class="block text-sm font-medium text-gray-700 mb-1">Apellido Materno</label>
+                            <label for="am_est" class="block text-sm font-medium text-gray-700 mb-1">Apellido
+                                Materno</label>
                             <input type="text" id="am_est" name="am_est" maxlength="40"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
@@ -298,7 +327,8 @@ require_once 'views/layouts/header.php';
                         </div>
 
                         <div>
-                            <label for="fecnac_est" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento *</label>
+                            <label for="fecnac_est" class="block text-sm font-medium text-gray-700 mb-1">Fecha de
+                                Nacimiento *</label>
                             <input type="date" id="fecnac_est" name="fecnac_est" required
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
@@ -306,7 +336,8 @@ require_once 'views/layouts/header.php';
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label for="mailp_est" class="block text-sm font-medium text-gray-700 mb-1">Email Personal</label>
+                            <label for="mailp_est" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                Personal</label>
                             <input type="email" id="mailp_est" name="mailp_est" maxlength="40"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
@@ -351,7 +382,8 @@ require_once 'views/layouts/header.php';
 
                         <!-- Lugar Actual (Donde Radica) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Lugar Actual (Donde Radica) *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Lugar Actual (Donde Radica)
+                                *</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <select id="departamento_dir" name="departamento_dir"
                                     class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
@@ -376,7 +408,8 @@ require_once 'views/layouts/header.php';
                     </div>
 
                     <div class="mb-6">
-                        <label for="dir_est" class="block text-sm font-medium text-gray-700 mb-1">Dirección Completa</label>
+                        <label for="dir_est" class="block text-sm font-medium text-gray-700 mb-1">Dirección
+                            Completa</label>
                         <input type="text" id="dir_est" name="dir_est" maxlength="40"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
@@ -386,13 +419,15 @@ require_once 'views/layouts/header.php';
                         <h4 class="text-lg font-semibold text-primary-blue mb-4">Información de Matrícula</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label for="id_matricula" class="block text-sm font-medium text-gray-700 mb-1">ID Matrícula</label>
+                                <label for="id_matricula" class="block text-sm font-medium text-gray-700 mb-1">ID
+                                    Matrícula</label>
                                 <input type="text" id="id_matricula" name="id_matricula" maxlength="9"
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
 
                             <div>
-                                <label for="per_acad" class="block text-sm font-medium text-gray-700 mb-1">Periodo Académico</label>
+                                <label for="per_acad" class="block text-sm font-medium text-gray-700 mb-1">Periodo
+                                    Académico</label>
                                 <input type="text" id="per_acad" name="per_acad" maxlength="3"
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
@@ -410,15 +445,18 @@ require_once 'views/layouts/header.php';
                     </div>
 
                     <div class="flex items-center mb-6">
-                        <input type="checkbox" id="estado" name="estado" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" id="estado" name="estado"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="estado" class="ml-2 block text-sm text-gray-700">Estudiante Activo</label>
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                        <button type="button" id="cancelarForm" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300">
+                        <button type="button" id="cancelarForm"
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300">
                             Cancelar
                         </button>
-                        <button type="submit" class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-300">
+                        <button type="submit"
+                            class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-300">
                             Guardar Estudiante
                         </button>
                     </div>
@@ -428,9 +466,11 @@ require_once 'views/layouts/header.php';
     </div>
 
     <!-- Modal para Ver Detalles del Estudiante -->
-    <div id="detalleEstudianteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div id="detalleEstudianteModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl w-full max-w-3xl mx-4 modal-content">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-primary-blue to-blue-800 text-white rounded-t-2xl">
+            <div
+                class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-primary-blue to-blue-800 text-white rounded-t-2xl">
                 <div class="flex items-center">
                     <i class="fas fa-user-graduate text-xl mr-3"></i>
                     <h3 class="text-xl font-bold" id="detalleModalTitulo">Detalles del Estudiante</h3>
@@ -442,12 +482,14 @@ require_once 'views/layouts/header.php';
             <div class="p-6 max-h-[70vh] overflow-y-auto">
                 <!-- Encabezado con avatar y datos principales -->
                 <div class="flex flex-col md:flex-row items-start md:items-center mb-8 pb-6 border-b border-gray-200">
-                    <div id="detalleAvatar" class="h-20 w-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-0 md:mr-6 mb-4 md:mb-0 shadow-lg avatar-estudiante">
+                    <div id="detalleAvatar"
+                        class="h-20 w-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-0 md:mr-6 mb-4 md:mb-0 shadow-lg avatar-estudiante">
                     </div>
                     <div class="flex-1">
                         <h2 id="detalleNombre" class="text-2xl font-bold text-primary-blue mb-1"></h2>
                         <div class="flex flex-wrap gap-2 mb-2">
-                            <span id="detallePrograma" class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"></span>
+                            <span id="detallePrograma"
+                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"></span>
                             <span id="detalleEstado" class="text-sm font-medium px-3 py-1 rounded-full"></span>
                         </div>
                         <div class="flex flex-wrap gap-4 text-sm text-gray-600">
@@ -488,7 +530,8 @@ require_once 'views/layouts/header.php';
                                     <i class="fas fa-envelope mr-2 text-blue-500"></i>
                                     Email Personal:
                                 </span>
-                                <span id="detalleEmailPersonal" class="text-sm text-gray-600 text-right break-all"></span>
+                                <span id="detalleEmailPersonal"
+                                    class="text-sm text-gray-600 text-right break-all"></span>
                             </div>
                         </div>
                     </div>
@@ -562,11 +605,13 @@ require_once 'views/layouts/header.php';
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-between items-center">
-                <button id="cerrarDetalleBtn" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300 flex items-center">
+                <button id="cerrarDetalleBtn"
+                    class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-300 flex items-center">
                     <i class="fas fa-times mr-2"></i> Cerrar
                 </button>
                 <div class="flex space-x-3">
-                    <button id="editarDesdeDetalle" class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-300 flex items-center">
+                    <button id="editarDesdeDetalle"
+                        class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-300 flex items-center">
                         <i class="fas fa-edit mr-2"></i> Editar Estudiante
                     </button>
                 </div>
@@ -576,5 +621,18 @@ require_once 'views/layouts/header.php';
 
     <!-- Incluir JavaScript específico -->
     <script src="assets/js/estudiantes.js"></script>
+    <!-- Pasar información del usuario a JavaScript -->
+    <script>
+        // 🔥 PASAR INFORMACIÓN DEL USUARIO ACTUAL
+        window.usuarioActual = {
+            rol: '<?php echo htmlspecialchars(SessionHelper::getRole() ?? ""); ?>',
+            esAdministrador: <?php echo SessionHelper::esAdministrador() ? 'true' : 'false'; ?>,
+            esDocente: <?php echo SessionHelper::esDocente() ? 'true' : 'false'; ?>,
+            esEstudiante: <?php echo SessionHelper::esEstudiante() ? 'true' : 'false'; ?>,
+            nombre: '<?php echo htmlspecialchars(SessionHelper::getUser()['nombre_completo'] ?? ""); ?>'
+        };
+
+        console.log('Usuario actual cargado:', window.usuarioActual);
+    </script>
 
     <?php require_once 'views/layouts/footer.php'; ?>

@@ -224,7 +224,7 @@ class EstudianteModel extends BaseModel
     public function actualizarEstudiante($id, $datos)
     {
         try {
-            // Validar que el DNI no exista en otros estudiantes
+            // 🔥 CORRECCIÓN: Validar que el DNI no exista en otros estudiantes
             if (isset($datos['dni_est'])) {
                 $dniExistente = $this->verificarDniExistente($datos['dni_est'], $id);
                 if ($dniExistente) {
@@ -232,42 +232,58 @@ class EstudianteModel extends BaseModel
                 }
             }
 
-            // 🔥 CORRECCIÓN: Incluir campos de ubigeo
-            $sql = "UPDATE estudiante SET 
-                dni_est = :dni_est,
-                ap_est = :ap_est,
-                am_est = :am_est,
-                nom_est = :nom_est,
-                sex_est = :sex_est,
-                cel_est = :cel_est,
-                dir_est = :dir_est,
-                mailp_est = :mailp_est,
-                fecnac_est = :fecnac_est,
-                estado = :estado,
-                ubigeodir_est = :ubigeodir_est,
-                ubigeonac_est = :ubigeonac_est
-            WHERE id = :id";
+            // 🔥 CORRECCIÓN: Construir SQL dinámicamente solo para campos con valores
+            $sql = "UPDATE estudiante SET ";
+            $params = [];
+            $updates = [];
 
-            $params = [
-                ':dni_est' => $datos['dni_est'],
-                ':ap_est' => $datos['ap_est'],
-                ':am_est' => $datos['am_est'] ?? null,
-                ':nom_est' => $datos['nom_est'],
-                ':sex_est' => $datos['sex_est'],
-                ':cel_est' => $datos['cel_est'] ?? null,
-                ':dir_est' => $datos['dir_est'] ?? null,
-                ':mailp_est' => $datos['mailp_est'] ?? null,
-                ':fecnac_est' => $datos['fecnac_est'] ?? null,
-                ':estado' => $datos['estado'] ?? 1,
-                ':ubigeodir_est' => $datos['ubigeodir_est'] ?? null, // 🔥 NUEVO
-                ':ubigeonac_est' => $datos['ubigeonac_est'] ?? null, // 🔥 NUEVO
-                ':id' => $id
+            // Lista de campos permitidos para actualizar
+            $camposPermitidos = [
+                'dni_est',
+                'ap_est',
+                'am_est',
+                'nom_est',
+                'sex_est',
+                'cel_est',
+                'dir_est',
+                'mailp_est',
+                'fecnac_est',
+                'estado',
+                'ubigeodir_est',
+                'ubigeonac_est'
             ];
 
+            foreach ($camposPermitidos as $campo) {
+                if (array_key_exists($campo, $datos)) {
+                    $updates[] = "{$campo} = :{$campo}";
+                    $params[":{$campo}"] = $datos[$campo];
+                }
+            }
+
+            // Si no hay nada que actualizar, retornar true
+            if (empty($updates)) {
+                error_log("ℹ️ No hay cambios para actualizar en estudiante ID {$id}");
+                return true;
+            }
+
+            $sql .= implode(', ', $updates);
+            $sql .= " WHERE id = :id";
+            $params[':id'] = $id;
+
+            // 🔥 DEBUG: Ver SQL generado
+            error_log("SQL de actualización: " . $sql);
+            error_log("Parámetros: " . print_r($params, true));
+
             $stmt = $this->executeQuery($sql, $params);
-            return $stmt->rowCount() > 0;
+            $rowCount = $stmt->rowCount();
+
+            error_log("📊 Filas afectadas en actualización: " . $rowCount);
+
+            // 🔥 CORRECCIÓN: Retornar true incluso si no hubo cambios
+            return true;
+
         } catch (Exception $e) {
-            error_log("Error al actualizar estudiante: " . $e->getMessage());
+            error_log("Error al actualizar estudiante ID {$id}: " . $e->getMessage());
             throw $e;
         }
     }

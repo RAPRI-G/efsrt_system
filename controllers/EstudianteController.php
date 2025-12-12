@@ -267,59 +267,78 @@ class EstudianteController
                     throw new Exception('ID de estudiante no proporcionado');
                 }
 
-                error_log("🎯 EDITANDO estudiante ID: {$id} - SIN VERIFICACIÓN DE DNI");
+                error_log("🎯 EDITANDO estudiante ID: {$id}");
 
-                // 🔥 SOLO validaciones básicas - SIN NINGUNA verificación de DNI duplicado
+                // 🔥 CORRECCIÓN: Validar CSRF
                 if (!SessionHelper::validateCSRF($_POST['csrf_token'] ?? '')) {
                     throw new Exception('Token de seguridad inválido');
                 }
 
-                // Validar que el estudiante exista
+                // Obtener estudiante existente
                 $estudianteExistente = $this->estudianteModel->obtenerEstudianteCompleto($id);
                 if (!$estudianteExistente) {
                     throw new Exception('Estudiante no encontrado');
                 }
 
-                // Validar campos requeridos
-                $camposRequeridos = ['dni_est', 'ap_est', 'nom_est', 'sex_est'];
-                foreach ($camposRequeridos as $campo) {
-                    if (empty($_POST[$campo])) {
-                        throw new Exception("El campo " . str_replace('_', ' ', $campo) . " es requerido");
+                // 🔥 CORRECCIÓN: Validar DNI solo si se proporciona y es diferente
+                if (isset($_POST['dni_est'])) {
+                    $dniNuevo = trim($_POST['dni_est']);
+                    $dniActual = trim($estudianteExistente['dni_est'] ?? '');
+
+                    if (!empty($dniNuevo) && $dniNuevo !== $dniActual) {
+                        // Validar formato
+                        if (!preg_match('/^\d{8}$/', $dniNuevo)) {
+                            throw new Exception('El DNI debe tener 8 dígitos numéricos');
+                        }
+
+                        // Verificar si el DNI ya existe en otro estudiante
+                        $dniExistente = $this->estudianteModel->verificarDniExistente($dniNuevo, $id);
+                        if ($dniExistente) {
+                            throw new Exception('El DNI ya está registrado en otro estudiante');
+                        }
                     }
                 }
 
-                // 🔥 SOLO validar FORMATO del DNI - NADA MÁS
-                if (!preg_match('/^\d{8}$/', $_POST['dni_est'])) {
-                    throw new Exception('El DNI debe tener 8 dígitos numéricos');
+                // 🔥 CORRECCIÓN: Validar solo campos requeridos
+                $camposRequeridos = ['dni_est', 'ap_est', 'nom_est', 'sex_est'];
+                foreach ($camposRequeridos as $campo) {
+                    if (empty(trim($_POST[$campo] ?? ''))) {
+                        $nombreCampo = str_replace('_', ' ', $campo);
+                        throw new Exception("El campo {$nombreCampo} es requerido");
+                    }
                 }
 
-                // Preparar datos del estudiante
+                // 🔥 CORRECCIÓN: Preparar datos con valores por defecto
                 $datosEstudiante = [
-                    'dni_est' => $_POST['dni_est'],
-                    'ap_est' => $_POST['ap_est'],
-                    'am_est' => $_POST['am_est'] ?? null,
-                    'nom_est' => $_POST['nom_est'],
-                    'sex_est' => $_POST['sex_est'],
-                    'cel_est' => $_POST['cel_est'] ?? null,
-                    'dir_est' => $_POST['dir_est'] ?? null,
-                    'mailp_est' => $_POST['mailp_est'] ?? null,
-                    'fecnac_est' => $_POST['fecnac_est'] ?? null,
-                    'estado' => isset($_POST['estado']) ? 1 : 0,
-                    'ubigeodir_est' => $_POST['ubigeodir_est'] ?? null,
-                    'ubigeonac_est' => $_POST['ubigeonac_est'] ?? null
+                    'dni_est' => $_POST['dni_est'] ?? $estudianteExistente['dni_est'],
+                    'ap_est' => $_POST['ap_est'] ?? $estudianteExistente['ap_est'],
+                    'am_est' => $_POST['am_est'] ?? $estudianteExistente['am_est'],
+                    'nom_est' => $_POST['nom_est'] ?? $estudianteExistente['nom_est'],
+                    'sex_est' => $_POST['sex_est'] ?? $estudianteExistente['sex_est'],
+                    'cel_est' => $_POST['cel_est'] ?? $estudianteExistente['cel_est'],
+                    'dir_est' => $_POST['dir_est'] ?? $estudianteExistente['dir_est'],
+                    'mailp_est' => $_POST['mailp_est'] ?? $estudianteExistente['mailp_est'],
+                    'fecnac_est' => $_POST['fecnac_est'] ?? $estudianteExistente['fecnac_est'],
+                    'estado' => isset($_POST['estado']) ? 1 : ($estudianteExistente['estado'] ?? 0),
+                    'ubigeodir_est' => $_POST['ubigeodir_est'] ?? $estudianteExistente['ubigeodir_est'],
+                    'ubigeonac_est' => $_POST['ubigeonac_est'] ?? $estudianteExistente['ubigeonac_est']
                 ];
 
                 $datosMatricula = [
-                    'prog_estudios' => $_POST['prog_estudios'] ?? null,
-                    'id_matricula' => $_POST['id_matricula'] ?? null,
-                    'per_acad' => $_POST['per_acad'] ?? null,
-                    'turno' => $_POST['turno'] ?? null
+                    'prog_estudios' => $_POST['prog_estudios'] ?? $estudianteExistente['prog_estudios'],
+                    'id_matricula' => $_POST['id_matricula'] ?? $estudianteExistente['id_matricula'],
+                    'per_acad' => $_POST['per_acad'] ?? $estudianteExistente['per_acad'],
+                    'turno' => $_POST['turno'] ?? $estudianteExistente['turno']
                 ];
 
-                // Validar email si se proporciona
+                // 🔥 CORRECCIÓN: Validar email solo si se proporciona
                 if (!empty($datosEstudiante['mailp_est']) && !filter_var($datosEstudiante['mailp_est'], FILTER_VALIDATE_EMAIL)) {
                     throw new Exception('El email personal no tiene un formato válido');
                 }
+
+                // 🔥 DEBUG: Ver qué datos se están enviando
+                error_log("📤 Datos a actualizar - Estudiante: " . print_r($datosEstudiante, true));
+                error_log("📤 Datos a actualizar - Matrícula: " . print_r($datosMatricula, true));
 
                 // Actualizar estudiante
                 $resultado = $this->estudianteModel->actualizarEstudiante($id, $datosEstudiante);
@@ -328,17 +347,25 @@ class EstudianteController
                 $this->estudianteModel->actualizarMatricula($id, $datosMatricula);
 
                 if ($resultado) {
-                    error_log("✅ Estudiante ID {$id} editado CORRECTAMENTE");
+                    error_log("✅ Estudiante ID {$id} actualizado correctamente");
                     echo json_encode([
                         'success' => true,
                         'message' => 'Estudiante actualizado correctamente'
                     ]);
                 } else {
-                    throw new Exception('Error al actualizar estudiante en la base de datos');
+                    // 🔥 CORRECCIÓN: No lanzar error si no hubo cambios
+                    error_log("ℹ️ Estudiante ID {$id} - No hubo cambios para actualizar");
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'No se detectaron cambios para actualizar'
+                    ]);
                 }
             } catch (Exception $e) {
-                error_log("💥 ERROR en edición: " . $e->getMessage());
-                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                error_log("💥 ERROR en actualización estudiante ID {$id}: " . $e->getMessage());
+                echo json_encode([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
         } else {
             echo json_encode(['success' => false, 'error' => 'Método no permitido']);
@@ -354,6 +381,13 @@ class EstudianteController
         error_reporting(0);
 
         try {
+
+            // 🔥 CORRECCIÓN: Verificar que sea administrador
+            if (!SessionHelper::esAdministrador()) {
+                error_log('❌ Intento de eliminación por usuario no administrador: ' .
+                    SessionHelper::getRole());
+                throw new Exception('Acceso denegado. Solo administradores pueden eliminar estudiantes.');
+            }
             // Obtener el ID desde GET
             $id = $_GET['id'] ?? null;
 
