@@ -13,12 +13,16 @@ class PracticaController {
     private $db;
     
     public function __construct() {
-        $this->model = new PracticaModel();
-        $this->estudianteModel = new EstudianteModel();
-        $this->empresaModel = new EmpresaModel();
-        $this->empleadoModel = new EmpleadoModel();
-        $this->db = Database::getInstance()->getConnection();
-    }
+    require_once __DIR__ . '/../config/Database.php'; // Añadir esto
+    $this->model = new PracticaModel();
+    $this->estudianteModel = new EstudianteModel();
+    $this->empresaModel = new EmpresaModel();
+    $this->empleadoModel = new EmpleadoModel();
+    
+    // Obtener conexión a la base de datos
+    $database = Database::getInstance();
+    $this->db = $database->getConnection();
+}
     
     public function index() {
         // Verificar si hay datos, si no, insertar datos de prueba
@@ -226,10 +230,22 @@ class PracticaController {
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
-            // Obtener datos directamente del POST o del JSON
             $input = $_POST;
             
-            // Si no hay datos en POST, intentar leer del JSON
+            // 🔥 Validar permisos para CREAR
+            $id = $input['id'] ?? null;
+            if (!$id) {
+                // Creación de nueva práctica - permitir a administradores y docentes
+                if (!SessionHelper::esAdministrador() && !SessionHelper::esDocente()) {
+                    throw new Exception('No tiene permisos para crear nuevas prácticas. Solo administradores y docentes pueden realizar esta acción.');
+                }
+            } else {
+                // 🔥 Validar permisos para EDITAR - solo administradores
+                if (!SessionHelper::esAdministrador()) {
+                    throw new Exception('No tiene permisos para editar prácticas. Solo administradores pueden realizar esta acción.');
+                }
+            } 
+            
             if (empty($input)) {
                 $jsonInput = file_get_contents('php://input');
                 if (!empty($jsonInput)) {
@@ -244,41 +260,65 @@ class PracticaController {
             error_log("🔍 Datos recibidos en api_guardar: " . print_r($input, true));
             
             $id = $input['id'] ?? null;
+            $estudiante_id = $input['estudiante'] ?? '';
+            $tipo_efsrt = $input['tipo_efsrt'] ?? '';
             
-            // 🔥 OBTENER EL PERIODO ACADÉMICO DEL ESTUDIANTE DESDE MATRÍCULA
-            $periodo_academico = '2024-1'; // Valor por defecto
-            if (!empty($input['estudiante'])) {
-                $periodo_academico = $this->obtenerPeriodoAcademicoEstudiante($input['estudiante']);
+            // 🔥 VALIDACIÓN DE MÓDULO - SOLO PARA NUEVAS PRÁCTICAS
+            if (!$id && $estudiante_id && $tipo_efsrt) {
+                // Verificar si el estudiante ya tiene este módulo registrado
+                if ($this->model->validarModuloEstudiante($estudiante_id, $tipo_efsrt)) {
+                    // Obtener nombre del módulo
+                    $nombreModulo = $this->getNombreModulo($tipo_efsrt);
+                    
+                    // Obtener información del estudiante para mensaje más descriptivo
+                    $estudianteInfo = $this->obtenerInfoEstudiante($estudiante_id);
+                    $nombreEstudiante = $estudianteInfo['nombre'] ?? 'el estudiante';
+                    
+                    throw new Exception("{$nombreEstudiante} ya tiene una práctica registrada para {$nombreModulo}. 
+                    Solo se permite una práctica por módulo. Si necesita modificar, edite la práctica existente.");
+                }
+                
+                // 🔥 VALIDACIÓN DE ORDEN DE MÓDULOS (OPCIONAL)
+                // Si quieres forzar que se completen en orden: Módulo 1 -> Módulo 2 -> Módulo 3
+                $modulosEstudiante = $this->model->obtenerModulosEstudiante($estudiante_id);
+                
+                // Validar si el estudiante ha completado módulos anteriores
+                $this->validarOrdenModulos($tipo_efsrt, $modulosEstudiante);
+            }
+            
+            // Obtener periodo académico
+            $periodo_academico = '2024-1';
+            if ($estudiante_id) {
+                $periodo_academico = $this->obtenerPeriodoAcademicoEstudiante($estudiante_id);
             }
             
             $datos = [
-                'estudiante' => $input['estudiante'] ?? '',
+                'estudiante' => $estudiante_id,
                 'empresa' => $input['empresa'] ?? '',
-                'empleado' => $input['empleado'] ?? '', // Docente supervisor
-                'tipo_efsrt' => $input['tipo_efsrt'] ?? '',
-                'periodo_academico' => $periodo_academico, // 🔥 Usar el periodo obtenido
+                'empleado' => $input['empleado'] ?? '',
+                'tipo_efsrt' => $tipo_efsrt,
+                'periodo_academico' => $periodo_academico,
                 'fecha_inicio' => $input['fecha_inicio'] ?? '',
-                'total_horas' => 128, // TODOS los módulos son 128 horas
-                'horas_acumuladas' => 0, // Inicia en 0
+                'total_horas' => 128,
+                'horas_acumuladas' => 0,
                 'area_ejecucion' => $input['area_ejecucion'] ?? '',
                 'supervisor_empresa' => $input['supervisor_empresa'] ?? '',
                 'cargo_supervisor' => $input['cargo_supervisor'] ?? '',
                 'estado' => 'En curso',
-                'modulo' => $this->getNombreModulo($input['tipo_efsrt'] ?? '')
+                'modulo' => $this->getNombreModulo($tipo_efsrt)
             ];
             
             error_log("🔍 Datos para guardar: " . print_r($datos, true));
             
             if ($id) {
-                // Verificar si existe método para actualizar
+                // Actualizar práctica existente
                 if (method_exists($this->model, 'actualizarPractica')) {
                     $result = $this->model->actualizarPractica($id, $datos);
                     $mensaje = 'Práctica actualizada correctamente';
                 } else {
-                    // Si no existe, usar el método registrarPractica
                     $datos['id'] = $id;
                     $result = $this->model->registrarPractica($datos);
-                    $mensaje = 'Práctica creada correctamente';
+                    $mensaje = 'Práctica actualizada correctamente';
                 }
             } else {
                 // Crear nueva práctica
@@ -312,8 +352,98 @@ class PracticaController {
     }
 }
 
+private function validarOrdenModulos($moduloNuevo, $modulosExistentes) {
+    $ordenModulos = ['modulo1', 'modulo2', 'modulo3'];
+    $indiceNuevo = array_search($moduloNuevo, $ordenModulos);
+    
+    // Verificar módulos previos necesarios
+    for ($i = 0; $i < $indiceNuevo; $i++) {
+        $moduloRequerido = $ordenModulos[$i];
+        $moduloEncontrado = false;
+        
+        foreach ($modulosExistentes as $modulo) {
+            if ($modulo['tipo_efsrt'] == $moduloRequerido) {
+                $moduloEncontrado = true;
+                
+                // Verificar si el módulo requerido está finalizado
+                if ($modulo['estado'] != 'Finalizado') {
+                    $nombreModuloRequerido = $this->getNombreModulo($moduloRequerido);
+                    throw new Exception("Debe finalizar {$nombreModuloRequerido} antes de registrar " . 
+                                       $this->getNombreModulo($moduloNuevo));
+                }
+                break;
+            }
+        }
+        
+        if (!$moduloEncontrado && $i > 0) {
+            $nombreModuloRequerido = $this->getNombreModulo($moduloRequerido);
+            throw new Exception("Debe completar {$nombreModuloRequerido} antes de registrar " . 
+                               $this->getNombreModulo($moduloNuevo));
+        }
+    }
+}
+
+private function obtenerInfoEstudiante($estudiante_id) {
+    try {
+        $sql = "SELECT CONCAT(nom_est, ' ', ap_est) as nombre 
+                FROM estudiante 
+                WHERE id = :estudiante_id";
+        
+        if (!$this->db) {
+            $database = Database::getInstance();
+            $this->db = $database->getConnection();
+        }
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':estudiante_id' => $estudiante_id]);
+        $result = $stmt->fetch();
+        
+        return $result ?: ['nombre' => 'El estudiante'];
+        
+    } catch (Exception $e) {
+        error_log("Error en obtenerInfoEstudiante: " . $e->getMessage());
+        return ['nombre' => 'El estudiante'];
+    }
+}
+
+public function api_modulos_estudiante() {
+    header('Content-Type: application/json');
+    
+    try {
+        $estudiante_id = $_GET['estudiante_id'] ?? null;
+        
+        if (!$estudiante_id) {
+            throw new Exception('ID de estudiante no proporcionado');
+        }
+        
+        // Usar el nuevo método del modelo
+        $modulos = method_exists($this->model, 'obtenerModulosEstudiante') 
+            ? $this->model->obtenerModulosEstudiante($estudiante_id) 
+            : [];
+        
+        echo json_encode([
+            'success' => true,
+            'modulos' => $modulos
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("Error en api_modulos_estudiante: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'modulos' => []
+        ]);
+    }
+}
+
 private function obtenerPeriodoAcademicoEstudiante($estudiante_id) {
     try {
+        // Verificar que la conexión existe
+        if (!$this->db) {
+            $database = Database::getInstance();
+            $this->db = $database->getConnection();
+        }
+        
         $sql = "SELECT per_acad FROM matricula WHERE estudiante = :estudiante_id ORDER BY fec_matricula DESC LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':estudiante_id' => $estudiante_id]);
@@ -323,7 +453,6 @@ private function obtenerPeriodoAcademicoEstudiante($estudiante_id) {
             return $result['per_acad'];
         }
         
-        // Si no encuentra, usar valor por defecto
         return '2024-1';
         
     } catch (Exception $e) {
@@ -333,42 +462,47 @@ private function obtenerPeriodoAcademicoEstudiante($estudiante_id) {
 }
     
     public function api_eliminar() {
-        header('Content-Type: application/json');
-        
-        try {
-            $id = $_GET['id'] ?? null;
-            
-            if (!$id) {
-                throw new Exception('ID de práctica no proporcionado');
-            }
-            
-            // Verificar si existe método para eliminar
-            if (method_exists($this->model, 'eliminarPractica')) {
-                $result = $this->model->eliminarPractica($id);
-            } else {
-                // Si no existe método específico, hacer una eliminación directa usando la conexión de base de datos
-                $sql = "DELETE FROM practicas WHERE id = :id";
-                $stmt = $this->db->prepare($sql);
-                $stmt->execute([':id' => $id]);
-                $result = $stmt->rowCount() > 0;
-            }
-            
-            if ($result) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Práctica eliminada correctamente'
-                ]);
-            } else {
-                throw new Exception('No se pudo eliminar la práctica');
-            }
-        } catch (Exception $e) {
-            error_log("Error en api_eliminar: " . $e->getMessage());
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
+    header('Content-Type: application/json');
+    
+    try {
+        // 🔥 Validar que sea SOLO administrador
+        if (!SessionHelper::esAdministrador()) {
+            throw new Exception('No tiene permisos para eliminar prácticas. Solo administradores pueden realizar esta acción.');
         }
+        
+        $id = $_GET['id'] ?? null;
+        
+        if (!$id) {
+            throw new Exception('ID de práctica no proporcionado');
+        }
+        
+        // Verificar si existe método para eliminar
+        if (method_exists($this->model, 'eliminarPractica')) {
+            $result = $this->model->eliminarPractica($id);
+        } else {
+            // Si no existe método específico, hacer una eliminación directa usando la conexión de base de datos
+            $sql = "DELETE FROM practicas WHERE id = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $result = $stmt->rowCount() > 0;
+        }
+        
+        if ($result) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Práctica eliminada correctamente'
+            ]);
+        } else {
+            throw new Exception('No se pudo eliminar la práctica');
+        }
+    } catch (Exception $e) {
+        error_log("Error en api_eliminar: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
     }
+}
     
     private function getNombreModulo($tipoModulo) {
         $modulos = [

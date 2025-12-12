@@ -1,4 +1,3 @@
-
 <link rel="stylesheet" href="assets/css/practica.css">
 <!-- Contenido Principal -->
 
@@ -6,16 +5,19 @@
     <!-- 🔔 Contenedor de Notificaciones SOLO para prácticas -->
     <div class="notification-container" id="notificationContainerPracticas"></div>
 
-    <!-- Área de Bienvenida -->
+    <!-- En practica.php, en el área de bienvenida -->
     <div class="mb-8 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-primary-blue mb-2">Gestión de Prácticas EFSRT</h1>
             <p class="text-gray-600">Administra y supervisa las prácticas de los estudiantes en empresas</p>
         </div>
         <div class="flex space-x-3">
-            <button id="btnNuevaPractica" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center">
-                <i class="fas fa-plus mr-2"></i> Nueva Práctica
-            </button>
+            <?php if (SessionHelper::esAdministrador() || SessionHelper::esDocente()): ?>
+                <!-- Administradores y docentes pueden crear nuevas prácticas -->
+                <button id="btnNuevaPractica" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Nueva Práctica
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -215,4 +217,13 @@
                 window.practicasApp = new PracticasApp();
             }
         });
+    </script>
+    <!-- En practica.php, después del título y antes del script -->
+    <script>
+        // Pasar información del usuario al JavaScript
+        window.userInfo = {
+            rol: '<?php echo SessionHelper::getRole() ?? ""; ?>',
+            esDocente: <?php echo SessionHelper::esDocente() ? 'true' : 'false'; ?>,
+            esAdministrador: <?php echo SessionHelper::esAdministrador() ? 'true' : 'false'; ?>
+        };
     </script>

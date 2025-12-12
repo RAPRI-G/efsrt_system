@@ -21,62 +21,106 @@ class PracticaModel extends BaseModel
 
     // NUEVOS MÉTODOS PARA EL DASHBOARD
     public function obtenerPracticasDashboard()
-    {
-        try {
-            $sql = "SELECT 
-                    p.id,
-                    p.estudiante,
-                    p.empresa,
-                    p.tipo_efsrt,
-                    p.periodo_academico,
-                    p.fecha_inicio,
-                    p.fecha_fin,
-                    p.total_horas,
-                    p.horas_acumuladas,
-                    p.area_ejecucion,
-                    p.supervisor_empresa,
-                    p.cargo_supervisor,
-                    p.estado,
-                    p.empleado,  -- 🔥 ID del docente supervisor
-                    COALESCE(p.horas_acumuladas, 0) as horas_acumuladas,
-                    -- Datos del estudiante
-                    e.dni_est,
-                    e.ap_est,
-                    e.am_est,
-                    e.nom_est,
-                     -- Datos del programa de estudios (CORREGIDO: nom_progest)
-                m.prog_estudios,
-                pe.nom_progest as programa,  -- 🔥 CAMBIADO: 'programa' en lugar de 'nombre_programa'
-                    -- Datos de la empresa
-                    emp.razon_social as nombre_empresa,
-                    -- Datos del docente supervisor (empleado)
-                    em.apnom_emp as nombre_docente  -- 🔥 ESTA ES LA COLUMNA CORRECTA
-                FROM practicas p
-                LEFT JOIN estudiante e ON p.estudiante = e.id
-
-                -- JOINS para obtener el programa
+{
+    try {
+        $sql = "SELECT 
+                p.id,
+                p.estudiante,
+                p.empresa,
+                p.tipo_efsrt,
+                p.periodo_academico,
+                p.fecha_inicio,
+                p.fecha_fin,
+                p.total_horas,
+                p.horas_acumuladas,
+                p.area_ejecucion,
+                p.supervisor_empresa,
+                p.cargo_supervisor,
+                p.estado,
+                p.empleado,
+                COALESCE(p.horas_acumuladas, 0) as horas_acumuladas,
+                -- Datos del estudiante
+                e.dni_est,
+                e.ap_est,
+                e.am_est,
+                e.nom_est,
+                -- Datos del programa de estudios
+                m.prog_estudios as id_programa, 
+                pe.nom_progest as programa,
+                -- Datos de la empresa
+                emp.razon_social as nombre_empresa,
+                -- Datos del docente supervisor
+                em.apnom_emp as nombre_docente
+            FROM practicas p
+            LEFT JOIN estudiante e ON p.estudiante = e.id
+            -- JOINS para obtener el programa
             LEFT JOIN matricula m ON e.id = m.estudiante
             LEFT JOIN prog_estudios pe ON m.prog_estudios = pe.id
+            LEFT JOIN empresa emp ON p.empresa = emp.id
+            LEFT JOIN empleado em ON p.empleado = em.id
+            WHERE p.estado IS NOT NULL
+            ORDER BY p.fecha_inicio DESC, p.id DESC";
 
-                LEFT JOIN empresa emp ON p.empresa = emp.id
-                LEFT JOIN empleado em ON p.empleado = em.id  -- 🔥 UNIR CON TABLA EMPLEADO
-                WHERE p.estado IS NOT NULL
-                ORDER BY p.fecha_inicio DESC, p.id DESC";
+        $stmt = $this->executeQuery($sql);
+        $resultados = $stmt->fetchAll();
 
-            $stmt = $this->executeQuery($sql);
-            $resultados = $stmt->fetchAll();
-
-            error_log("📊 Total prácticas obtenidas: " . count($resultados));
-            if (count($resultados) > 0) {
-                error_log("📋 Primer práctica - Docente: " . ($resultados[0]['nombre_docente'] ?? 'NO HAY DOCENTE'));
-            }
-
-            return $resultados;
-        } catch (Exception $e) {
-            error_log("❌ Error en obtenerPracticasDashboard: " . $e->getMessage());
-            return [];
+        error_log("📊 Total prácticas obtenidas: " . count($resultados));
+        if (count($resultados) > 0) {
+            error_log("📋 Primer práctica - Docente: " . ($resultados[0]['nombre_docente'] ?? 'NO HAY DOCENTE'));
         }
+
+        return $resultados;
+    } catch (Exception $e) {
+        error_log("❌ Error en obtenerPracticasDashboard: " . $e->getMessage());
+        return [];
     }
+}
+
+public function validarModuloEstudiante($estudiante_id, $tipo_efsrt)
+{
+    try {
+        $sql = "SELECT COUNT(*) as total 
+                FROM practicas 
+                WHERE estudiante = :estudiante_id 
+                AND tipo_efsrt = :tipo_efsrt 
+                AND estado != 'Finalizado'"; // Solo validar si no está finalizada
+        
+        $stmt = $this->executeQuery($sql, [
+            ':estudiante_id' => $estudiante_id,
+            ':tipo_efsrt' => $tipo_efsrt
+        ]);
+        
+        $result = $stmt->fetch();
+        return $result['total'] > 0; // Retorna true si ya tiene este módulo
+        
+    } catch (Exception $e) {
+        error_log("Error en validarModuloEstudiante: " . $e->getMessage());
+        return true; // Por seguridad, si hay error, no permitir creación
+    }
+}
+
+public function obtenerModulosEstudiante($estudiante_id)
+{
+    try {
+        $sql = "SELECT tipo_efsrt, estado 
+                FROM practicas 
+                WHERE estudiante = :estudiante_id 
+                ORDER BY 
+                    CASE tipo_efsrt 
+                        WHEN 'modulo1' THEN 1 
+                        WHEN 'modulo2' THEN 2 
+                        WHEN 'modulo3' THEN 3 
+                        ELSE 4 
+                    END";
+        
+        $stmt = $this->executeQuery($sql, [':estudiante_id' => $estudiante_id]);
+        return $stmt->fetchAll();
+        
+    } catch (Exception $e) {
+        error_log("Error en obtenerModulosEstudiante: " . $e->getMessage());
+        return [];
+    }
+}
 
     public function obtenerPracticasPorEmpresa($empresaId)
     {

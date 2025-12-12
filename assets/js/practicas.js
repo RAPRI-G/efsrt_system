@@ -22,25 +22,38 @@ class PracticasApp {
     }
     
     setupEventListeners() {
-        // Botón Nueva Práctica
-        document.getElementById('btnNuevaPractica')?.addEventListener('click', () => this.abrirModalNuevaPractica());
-        
-        // Botón Refrescar
-        document.getElementById('btnRefrescar')?.addEventListener('click', () => this.cargarDatosPracticas());
-        
-        // Filtros
-        document.getElementById('filtroEstado')?.addEventListener('change', () => this.filtrarPracticas());
-        document.getElementById('filtroModulo')?.addEventListener('change', () => this.filtrarPracticas());
-        document.getElementById('buscarPractica')?.addEventListener('input', () => this.filtrarPracticas());
-        
-        // Botones de guardar
-        document.getElementById('guardarNuevaPractica')?.addEventListener('click', (e) => this.guardarNuevaPractica(e));
+    const userInfo = window.userInfo || {};
+    const esDocente = userInfo.esDocente || false;
+    
+    // Botón Nueva Práctica - visible para admin y docente
+    document.getElementById('btnNuevaPractica')?.addEventListener('click', () => this.abrirModalNuevaPractica());
+    
+    // Botón Refrescar
+    document.getElementById('btnRefrescar')?.addEventListener('click', () => this.cargarDatosPracticas());
+    
+    // Filtros
+    document.getElementById('filtroEstado')?.addEventListener('change', () => this.filtrarPracticas());
+    document.getElementById('filtroModulo')?.addEventListener('change', () => this.filtrarPracticas());
+    document.getElementById('buscarPractica')?.addEventListener('input', () => this.filtrarPracticas());
+    
+    // Botones de guardar
+    document.getElementById('guardarNuevaPractica')?.addEventListener('click', (e) => this.guardarNuevaPractica(e));
+    
+    // 🔥 Botón de editar SOLO si es administrador
+    if (!esDocente) {
         document.getElementById('guardarEditarPractica')?.addEventListener('click', (e) => this.guardarEditarPractica(e));
-        
-        // Botones de eliminar
-        document.getElementById('cancelarEliminar')?.addEventListener('click', () => this.cerrarModal('modalConfirmarEliminar'));
-        document.getElementById('confirmarEliminar')?.addEventListener('click', () => this.eliminarPractica());
+    } else {
+        // Ocultar botón de editar si existe
+        const btnEditar = document.getElementById('guardarEditarPractica');
+        if (btnEditar) {
+            btnEditar.style.display = 'none';
+        }
     }
+    
+    // Botones de eliminar
+    document.getElementById('cancelarEliminar')?.addEventListener('click', () => this.cerrarModal('modalConfirmarEliminar'));
+    document.getElementById('confirmarEliminar')?.addEventListener('click', () => this.eliminarPractica());
+}
     
     setupModalListeners() {
         // Cerrar modales al hacer clic en el botón cerrar
@@ -215,127 +228,158 @@ class PracticasApp {
     }
     
     renderizarTablaPracticas() {
-        const tbody = document.getElementById('tablaPracticasBody');
-        if (!tbody) return;
+    const tbody = document.getElementById('tablaPracticasBody');
+    if (!tbody) return;
+    
+    // Obtener información del usuario
+    const userInfo = window.userInfo || {};
+    const esDocente = userInfo.esDocente || false;
+    const esAdministrador = userInfo.esAdministrador || false;
+    
+    console.log("👤 Permisos - Es docente:", esDocente, "Es admin:", esAdministrador);
+    
+    // Aplicar filtros
+    let practicasFiltradas = this.filtrarPracticasLista(this.practicas);
+    
+    const inicio = (this.configPaginacion.paginaActual - 1) * this.configPaginacion.elementosPorPagina;
+    const fin = inicio + this.configPaginacion.elementosPorPagina;
+    const practicasPagina = practicasFiltradas.slice(inicio, fin);
+    
+    if (practicasPagina.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-8 text-gray-500">
+                    <i class="fas fa-briefcase text-2xl mb-2"></i>
+                    <p>No se encontraron prácticas</p>
+                </td>
+            </tr>
+        `;
+        this.actualizarContadoresPracticas(practicasFiltradas.length);
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    practicasPagina.forEach(practica => {
+        const estudiante = this.estudiantes.find(e => e.id == practica.estudiante);
+        const empresa = this.empresas.find(e => e.id == practica.empresa);
+        const empleado = this.empleados.find(e => e.id == practica.empleado);
         
-        // Aplicar filtros
-        let practicasFiltradas = this.filtrarPracticasLista(this.practicas);
+        let estadoClase = '';
+        let estadoTexto = practica.estado || 'Pendiente';
         
-        // Calcular índices para paginación
-        const inicio = (this.configPaginacion.paginaActual - 1) * this.configPaginacion.elementosPorPagina;
-        const fin = inicio + this.configPaginacion.elementosPorPagina;
-        const practicasPagina = practicasFiltradas.slice(inicio, fin);
-        
-        if (practicasPagina.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center py-8 text-gray-500">
-                        <i class="fas fa-briefcase text-2xl mb-2"></i>
-                        <p>No se encontraron prácticas</p>
-                    </td>
-                </tr>
-            `;
-            this.actualizarContadoresPracticas(practicasFiltradas.length);
-            return;
+        if (estadoTexto === 'Finalizado') {
+            estadoClase = 'badge-finalizado';
+        } else if (estadoTexto === 'En curso') {
+            estadoClase = 'badge-en-curso';
+        } else {
+            estadoClase = 'badge-pendiente';
         }
         
-        tbody.innerHTML = '';
+        let moduloClase = '';
+        let moduloTexto = practica.tipo_efsrt === 'modulo1' ? 'Módulo 1' : 
+                        practica.tipo_efsrt === 'modulo2' ? 'Módulo 2' : 'Módulo 3';
         
-        practicasPagina.forEach(practica => {
-            const estudiante = this.estudiantes.find(e => e.id == practica.estudiante);
-            const empresa = this.empresas.find(e => e.id == practica.empresa);
-            const empleado = this.empleados.find(e => e.id == practica.empleado);
-            
-            let estadoClase = '';
-            let estadoTexto = practica.estado || 'Pendiente';
-            
-            if (estadoTexto === 'Finalizado') {
-                estadoClase = 'badge-finalizado';
-            } else if (estadoTexto === 'En curso') {
-                estadoClase = 'badge-en-curso';
-            } else {
-                estadoClase = 'badge-pendiente';
-            }
-            
-            let moduloClase = '';
-            let moduloTexto = practica.tipo_efsrt === 'modulo1' ? 'Módulo 1' : 
-                            practica.tipo_efsrt === 'modulo2' ? 'Módulo 2' : 'Módulo 3';
-            
-            if (practica.tipo_efsrt === 'modulo1') {
-                moduloClase = 'badge-modulo1';
-            } else if (practica.tipo_efsrt === 'modulo2') {
-                moduloClase = 'badge-modulo2';
-            } else {
-                moduloClase = 'badge-modulo3';
-            }
-            
-            const fechaInicio = practica.fecha_inicio ? new Date(practica.fecha_inicio).toLocaleDateString('es-ES') : 'No definida';
-            const horasAcumuladas = practica.horas_acumuladas || 0;
-            const totalHoras = practica.total_horas || 0;
-            const porcentajeCompletado = totalHoras > 0 ? Math.round((horasAcumuladas / totalHoras) * 100) : 0;
-            
-            const fila = document.createElement('tr');
-            fila.className = 'fade-in';
-            fila.innerHTML = `
-                <td>
-                    <div class="flex items-center">
-                        <div class="avatar-estudiante mr-3">
-                            ${estudiante ? (estudiante.iniciales || 
-                              (estudiante.ap_est ? estudiante.ap_est.charAt(0) : '') + 
-                              (estudiante.am_est ? estudiante.am_est.charAt(0) : '')) : 'ND'}
-                        </div>
-                        <div>
-                            <div class="font-medium text-gray-900">
-                                ${estudiante ? (estudiante.nombre_completo || 
-                                  `${estudiante.nom_est || ''} ${estudiante.ap_est || ''}`) : 'No encontrado'}
-                            </div>
-                            <div class="text-xs text-gray-500">${estudiante ? estudiante.dni_est : ''}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="font-medium">${empresa ? empresa.razon_social : 'No encontrada'}</td>
-                <td>
-                    <span class="badge-estado ${moduloClase}">
-                        ${moduloTexto}
-                    </span>
-                </td>
-                <td>
-                    <span class="badge-estado ${estadoClase}">${estadoTexto}</span>
-                </td>
-                <td>${fechaInicio}</td>
-                <td>
-                    <div class="flex items-center">
-                        <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: ${porcentajeCompletado}%"></div>
-                        </div>
-                        <span class="text-sm">${horasAcumuladas}/${totalHoras}</span>
-                    </div>
-                </td>
-                <td class="text-sm">${empleado ? empleado.apnom_emp : 'No asignado'}</td>
-                <td>
-                    <div class="acciones">
-                        <button class="btn-accion btn-ver" data-id="${practica.id}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn-accion btn-editar" data-id="${practica.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-accion btn-eliminar" data-id="${practica.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
+        if (practica.tipo_efsrt === 'modulo1') {
+            moduloClase = 'badge-modulo1';
+        } else if (practica.tipo_efsrt === 'modulo2') {
+            moduloClase = 'badge-modulo2';
+        } else {
+            moduloClase = 'badge-modulo3';
+        }
+        
+        const fechaInicio = practica.fecha_inicio ? new Date(practica.fecha_inicio).toLocaleDateString('es-ES') : 'No definida';
+        const horasAcumuladas = practica.horas_acumuladas || 0;
+        const totalHoras = practica.total_horas || 0;
+        const porcentajeCompletado = totalHoras > 0 ? Math.round((horasAcumuladas / totalHoras) * 100) : 0;
+        
+        // 🔥 Determinar qué botones mostrar según el rol
+        let botonesAccion = '';
+        
+        if (esAdministrador) {
+            // Administrador ve todos los botones
+            botonesAccion = `
+                <button class="btn-accion btn-ver" data-id="${practica.id}" title="Ver detalles">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-accion btn-editar" data-id="${practica.id}" title="Editar práctica">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-accion btn-eliminar" data-id="${practica.id}" title="Eliminar práctica">
+                    <i class="fas fa-trash"></i>
+                </button>
             `;
-            
-            tbody.appendChild(fila);
-        });
+        } else if (esDocente) {
+            // 🔥 Docente solo ve el botón VER
+            botonesAccion = `
+                <button class="btn-accion btn-ver" data-id="${practica.id}" title="Ver detalles">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <!-- Botones editar y eliminar OCULTOS para docente -->
+            `;
+        } else {
+            // Para otros roles o sin sesión, solo ver
+            botonesAccion = `
+                <button class="btn-accion btn-ver" data-id="${practica.id}" title="Ver detalles">
+                    <i class="fas fa-eye"></i>
+                </button>
+            `;
+        }
         
-        // Agregar event listeners a los botones de acción
-        this.setupAccionesButtons();
+        const fila = document.createElement('tr');
+        fila.className = 'fade-in';
+        fila.innerHTML = `
+            <td>
+                <div class="flex items-center">
+                    <div class="avatar-estudiante mr-3">
+                        ${estudiante ? (estudiante.iniciales || 
+                          (estudiante.ap_est ? estudiante.ap_est.charAt(0) : '') + 
+                          (estudiante.am_est ? estudiante.am_est.charAt(0) : '')) : 'ND'}
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900">
+                            ${estudiante ? (estudiante.nombre_completo || 
+                              `${estudiante.nom_est || ''} ${estudiante.ap_est || ''}`) : 'No encontrado'}
+                        </div>
+                        <div class="text-xs text-gray-500">${estudiante ? estudiante.dni_est : ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="font-medium">${empresa ? empresa.razon_social : 'No encontrada'}</td>
+            <td>
+                <span class="badge-estado ${moduloClase}">
+                    ${moduloTexto}
+                </span>
+            </td>
+            <td>
+                <span class="badge-estado ${estadoClase}">${estadoTexto}</span>
+            </td>
+            <td>${fechaInicio}</td>
+            <td>
+                <div class="flex items-center">
+                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: ${porcentajeCompletado}%"></div>
+                    </div>
+                    <span class="text-sm">${horasAcumuladas}/${totalHoras}</span>
+                </div>
+            </td>
+            <td class="text-sm">${empleado ? empleado.apnom_emp : 'No asignado'}</td>
+            <td>
+                <div class="acciones">
+                    ${botonesAccion}
+                </div>
+            </td>
+        `;
         
-        this.actualizarContadoresPracticas(practicasFiltradas.length);
-        this.actualizarPaginacionPracticas(practicasFiltradas.length);
-    }
+        tbody.appendChild(fila);
+    });
+    
+    // Agregar event listeners SOLO a los botones visibles
+    this.setupAccionesButtons();
+    
+    this.actualizarContadoresPracticas(practicasFiltradas.length);
+    this.actualizarPaginacionPracticas(practicasFiltradas.length);
+}
     
     setupAccionesButtons() {
         // Ver
@@ -362,6 +406,79 @@ class PracticasApp {
             });
         });
     }
+
+    async cargarModulosEstudiante(estudianteId, selectId) {
+    try {
+        if (!estudianteId) return;
+        
+        const response = await fetch(`index.php?c=Practica&a=api_modulos_estudiante&estudiante_id=${estudianteId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            this.actualizarSelectModulos(data.modulos, selectId);
+        }
+    } catch (error) {
+        console.error('Error al cargar módulos del estudiante:', error);
+    }
+}
+
+actualizarSelectModulos(modulosEstudiante, selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    // Guardar valor seleccionado actual
+    const currentValue = select.value;
+    
+    // Crear opciones de módulo
+    const modulosDisponibles = [
+        { value: 'modulo1', text: 'Módulo 1', disponible: true },
+        { value: 'modulo2', text: 'Módulo 2', disponible: true },
+        { value: 'modulo3', text: 'Módulo 3', disponible: true }
+    ];
+    
+    // Marcar módulos ya registrados como no disponibles
+    modulosEstudiante.forEach(modulo => {
+        const index = modulosDisponibles.findIndex(m => m.value === modulo.tipo_efsrt);
+        if (index !== -1) {
+            modulosDisponibles[index].disponible = false;
+            modulosDisponibles[index].estado = modulo.estado;
+        }
+    });
+    
+    // Actualizar select
+    select.innerHTML = '<option value="">Seleccionar módulo</option>';
+    
+    modulosDisponibles.forEach(modulo => {
+        const option = document.createElement('option');
+        option.value = modulo.value;
+        
+        if (!modulo.disponible) {
+            option.textContent = `${modulo.text} (${modulo.estado})`;
+            option.disabled = true;
+            option.style.color = '#999';
+            option.style.fontStyle = 'italic';
+        } else {
+            option.textContent = modulo.text;
+        }
+        
+        option.selected = (modulo.value === currentValue);
+        select.appendChild(option);
+    });
+    
+    // Si hay módulos no disponibles, mostrar tooltip o mensaje
+    const modulosNoDisponibles = modulosDisponibles.filter(m => !m.disponible);
+    if (modulosNoDisponibles.length > 0) {
+        this.mostrarInfoModulos(modulosNoDisponibles);
+    }
+}
+
+mostrarInfoModulos(modulosNoDisponibles) {
+    // Puedes mostrar un mensaje informativo
+    const mensaje = `Módulos ya registrados: ${modulosNoDisponibles.map(m => m.text).join(', ')}`;
+    console.log(mensaje);
+    // O mostrar un toast/notificación
+    // this.mostrarNotificacion('Información', mensaje, 'info', 3000);
+}
     
     filtrarPracticasLista(practicas) {
         const filtroEstado = document.getElementById('filtroEstado')?.value || 'all';
@@ -489,27 +606,51 @@ class PracticasApp {
     }
     
     async editarPractica(id) {
-        try {
-            const response = await fetch(`index.php?c=Practica&a=api_practica&id=${id}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.abrirModalEditarPractica(data.data);
-            } else {
-                this.mostrarNotificacion('Error', data.error || 'No se pudo cargar la práctica', 'error');
-            }
-        } catch (error) {
-            console.error('Error al editar práctica:', error);
-            this.mostrarNotificacion('Error', 'Error al cargar los datos para editar', 'error');
-        }
+    const userInfo = window.userInfo || {};
+    
+    // 🔥 Si es docente, mostrar mensaje de no permitido
+    if (userInfo.esDocente) {
+        this.mostrarNotificacion(
+            'Permiso denegado', 
+            'No tiene permisos para editar prácticas. Solo administradores pueden realizar esta acción.', 
+            'warning'
+        );
+        return;
     }
     
-    confirmarEliminarPractica(id) {
-        this.practicaAEliminar = this.practicas.find(p => p.id == id);
-        if (this.practicaAEliminar) {
-            this.abrirModal('modalConfirmarEliminar');
+    try {
+        const response = await fetch(`index.php?c=Practica&a=api_practica&id=${id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            this.abrirModalEditarPractica(data.data);
+        } else {
+            this.mostrarNotificacion('Error', data.error || 'No se pudo cargar la práctica', 'error');
         }
+    } catch (error) {
+        console.error('Error al editar práctica:', error);
+        this.mostrarNotificacion('Error', 'Error al cargar los datos para editar', 'error');
     }
+}
+    
+    confirmarEliminarPractica(id) {
+    const userInfo = window.userInfo || {};
+    
+    // 🔥 Si es docente, mostrar mensaje de no permitido
+    if (userInfo.esDocente) {
+        this.mostrarNotificacion(
+            'Permiso denegado', 
+            'No tiene permisos para eliminar prácticas. Solo administradores pueden realizar esta acción.', 
+            'warning'
+        );
+        return;
+    }
+    
+    this.practicaAEliminar = this.practicas.find(p => p.id == id);
+    if (this.practicaAEliminar) {
+        this.abrirModal('modalConfirmarEliminar');
+    }
+}
     
     async eliminarPractica() {
         if (!this.practicaAEliminar) return;
@@ -534,27 +675,49 @@ class PracticasApp {
     }
     
     abrirModalNuevaPractica() {
-        // Limpiar formulario
-        const form = document.getElementById('formNuevaPractica');
-        if (form) form.reset();
-        
-        // Cargar estudiantes
-        this.cargarSelectEstudiantes('nuevoEstudiante');
-        
-        // Cargar empresas
-        this.cargarSelectEmpresas('nuevaEmpresa');
-        
-        // Cargar empleados
-        this.cargarSelectEmpleados('nuevoEmpleado');
-        
-        // Fecha por defecto
-        const fechaInput = document.getElementById('nuevaFechaInicio');
-        if (fechaInput) {
-            fechaInput.valueAsDate = new Date();
-        }
-        
-        this.abrirModal('modalNuevaPractica');
+    // Limpiar formulario
+    const form = document.getElementById('formNuevaPractica');
+    if (form) form.reset();
+    
+    // Cargar estudiantes
+    this.cargarSelectEstudiantes('nuevoEstudiante');
+    
+    // Cargar empresas
+    this.cargarSelectEmpresas('nuevaEmpresa');
+    
+    // Cargar empleados
+    this.cargarSelectEmpleados('nuevoEmpleado');
+    
+    // Fecha por defecto
+    const fechaInput = document.getElementById('nuevaFechaInicio');
+    if (fechaInput) {
+        fechaInput.valueAsDate = new Date();
     }
+    
+    // 🔥 Agregar evento para cargar módulos cuando cambie el estudiante
+    const selectEstudiante = document.getElementById('nuevoEstudiante');
+    if (selectEstudiante) {
+        selectEstudiante.addEventListener('change', (e) => {
+            const estudianteId = e.target.value;
+            if (estudianteId) {
+                this.cargarModulosEstudiante(estudianteId, 'nuevoTipoModulo');
+            } else {
+                // Resetear select de módulos
+                const selectModulo = document.getElementById('nuevoTipoModulo');
+                if (selectModulo) {
+                    selectModulo.innerHTML = `
+                        <option value="">Seleccionar tipo</option>
+                        <option value="modulo1">Módulo 1</option>
+                        <option value="modulo2">Módulo 2</option>
+                        <option value="modulo3">Módulo 3</option>
+                    `;
+                }
+            }
+        });
+    }
+    
+    this.abrirModal('modalNuevaPractica');
+}
     
     async guardarNuevaPractica(e) {
     e.preventDefault();
@@ -608,24 +771,34 @@ class PracticasApp {
 }
     
     abrirModalEditarPractica(practica) {
-        // Llenar formulario con datos
-        document.getElementById('editarId').value = practica.id;
-        document.getElementById('editarEstudiante').value = practica.estudiante;
-        document.getElementById('editarEmpresa').value = practica.empresa;
-        document.getElementById('editarEmpleado').value = practica.empleado;
-        document.getElementById('editarTipoModulo').value = practica.tipo_efsrt;
-        document.getElementById('editarFechaInicio').value = practica.fecha_inicio;
-        document.getElementById('editarArea').value = practica.area_ejecucion || '';
-        document.getElementById('editarSupervisor').value = practica.supervisor_empresa || '';
-        document.getElementById('editarCargo').value = practica.cargo_supervisor || '';
-        
-        // Cargar opciones en los selects
-        this.cargarSelectEstudiantes('editarEstudiante');
-        this.cargarSelectEmpresas('editarEmpresa');
-        this.cargarSelectEmpleados('editarEmpleado');
-        
-        this.abrirModal('modalEditarPractica');
+    // Llenar formulario con datos
+    document.getElementById('editarId').value = practica.id;
+    document.getElementById('editarEstudiante').value = practica.estudiante;
+    document.getElementById('editarEmpresa').value = practica.empresa;
+    document.getElementById('editarEmpleado').value = practica.empleado;
+    document.getElementById('editarTipoModulo').value = practica.tipo_efsrt;
+    document.getElementById('editarFechaInicio').value = practica.fecha_inicio;
+    document.getElementById('editarArea').value = practica.area_ejecucion || '';
+    document.getElementById('editarSupervisor').value = practica.supervisor_empresa || '';
+    document.getElementById('editarCargo').value = practica.cargo_supervisor || '';
+    
+    // Cargar opciones en los selects
+    this.cargarSelectEstudiantes('editarEstudiante');
+    this.cargarSelectEmpresas('editarEmpresa');
+    this.cargarSelectEmpleados('editarEmpleado');
+    
+    // 🔥 Si es docente, deshabilitar algunos campos (opcional)
+    const userInfo = window.userInfo || {};
+    if (userInfo.esDocente) {
+        // Los docentes solo pueden editar información específica
+        document.getElementById('editarEstudiante').disabled = true;
+        document.getElementById('editarEmpresa').disabled = true;
+        document.getElementById('editarTipoModulo').disabled = true;
+        // Pueden editar supervisor, área, cargo, etc.
     }
+    
+    this.abrirModal('modalEditarPractica');
+}
     
     async guardarEditarPractica(e) {
     e.preventDefault();

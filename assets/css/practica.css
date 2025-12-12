@@ -266,3 +266,23 @@
         gap: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
+
+    /* Estilos para botones deshabilitados */
+.btn-deshabilitado {
+    background-color: #d1d5db !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn-deshabilitado:hover {
+    background-color: #d1d5db !important;
+    transform: none !important;
+}
+
+/* Para botones de acción deshabilitados */
+.btn-accion.deshabilitado {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
