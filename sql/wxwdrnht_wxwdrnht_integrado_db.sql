@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-12-2025 a las 08:08:04
+-- Tiempo de generación: 15-12-2025 a las 16:33:35
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -159,7 +159,12 @@ INSERT INTO `asistencias` (`id`, `practicas`, `fecha`, `hora_entrada`, `hora_sal
 (200, 13, '2025-12-09', '08:00:00', '16:00:00', 8, 'aSDASDSAD ASDASDASDAS', NULL, NULL),
 (203, 13, '2025-12-09', '08:00:00', '16:00:00', 8, 'ASDASDASDASDASD', NULL, NULL),
 (204, 14, '2025-12-10', '08:00:00', '16:00:00', 8, 'uvyuvuvuvudtyfu uyhfgvuhvuhv', NULL, NULL),
-(205, 15, '2025-12-10', '08:00:00', '16:00:00', 8, 'sdasdaseqwewq', NULL, NULL);
+(205, 15, '2025-12-10', '08:00:00', '16:00:00', 8, 'sdasdaseqwewq', NULL, NULL),
+(206, 13, '2025-12-10', '08:00:00', '16:00:00', 8, 'dsadsfdsasrerwa', NULL, NULL),
+(207, 13, '2025-12-10', '08:00:00', '16:00:00', 8, 'wadsad', NULL, NULL),
+(208, 13, '2025-12-10', '08:00:00', '16:00:00', 8, 'asdsadasdasdas', NULL, NULL),
+(209, 13, '2025-12-10', '08:00:00', '16:00:00', 8, 'asdsadsadasd', NULL, NULL),
+(210, 8, '2025-12-10', '14:00:00', '19:00:00', 5, 'limpie mi zona de trabajo', NULL, NULL);
 
 --
 -- Disparadores `asistencias`
@@ -674,7 +679,6 @@ INSERT INTO `empresa` (`id`, `ruc`, `razon_social`, `representante_legal`, `nomb
 (1, '20568733259', 'MYO LIBRA CONTRATISTAS EIRL', NULL, 'LIBRA CONTRATISTAS', 'AV. TAHUANTINSUYO N° 821 - EL TAMBO - HUANCAYO', '956260077', 'extraccionescachito@hotmail.com', 'CONSTRUCCIÓN', 1, 0, 'ACTIVO', 'HABIDO', '120125', 'JUNÍN', 'HUANCAYO', 'EL TAMBO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
 (2, '20100123456', 'TECNOLOGÍA AVANZADA SAC', NULL, 'TECNOAVANZADA', 'AV. REAL 123 - HUANCAYO', '964123456', 'info@tecnoavanzada.com', 'TECNOLOGÍA', 1, 0, 'ACTIVO', 'HABIDO', '120101', 'JUNÍN', 'HUANCAYO', 'HUANCAYO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
 (3, '20100234567', 'SOLUCIONES WEB EIRL', NULL, 'SOLWEB', 'JR. LIMA 456 - EL TAMBO', '965234567', 'contacto@solweb.com', 'DESARROLLO SOFTWARE', 1, 0, 'ACTIVO', 'HABIDO', '120125', 'JUNÍN', 'HUANCAYO', 'EL TAMBO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
-(4, '20100345678', 'INNOVACIÓN DIGITAL SAC', '', 'INNODIGITAL', 'AV. HUÁNCANO 789 - HUANCAYO', '966345678', 'innovacion@innodigital.com', 'TECNOLOGÍA', 1, 0, 'INACTIVO', 'HABIDO', '120101', 'JUNIN', 'HUANCAYO', 'HUANCAYO', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
 (5, '20100456789', 'SISTEMAS INTEGRALES EIRL', NULL, 'SISINTEGRAL', 'CALLE LOS ANDES 321 - CHILCA', '967456789', 'sistemas@sisintegral.com', 'INFORMÁTICA', 1, 0, 'ACTIVO', 'HABIDO', '120112', 'JUNÍN', 'HUANCAYO', 'CHILCA', '2025-11-23 21:52:39', '2025-11-23 21:52:39'),
 (6, '12312312312', 'CONSTRUCTORA  RAPRI SAC', 'RAPRI CAPCHA, Gabriel Francis', NULL, 'asdaewqe gr', '987654321', 'gabrielrapri144@gmail.com', NULL, NULL, NULL, 'ACTIVO', NULL, NULL, 'MADRE DE DIOS', 'MANU', 'FITZCARRALD', NULL, NULL),
 (7, '45242243232', 'SamyGlow', 'Samira', NULL, 'Av. huancayo', '987654321', 'sami@gmail.com', NULL, NULL, NULL, 'ACTIVO', NULL, NULL, 'LORETO', 'UCAYALI', 'CONTAMANA', NULL, NULL),
@@ -1094,7 +1098,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (355, NULL, '61065616', 'VILCHEZ', 'OCHOA', 'YOEL BERNABE', 'M', '997301494', '', '', '', '', '61065616@institutocajas.edu.pe', '0000-00-00', '', 1),
 (356, NULL, '61065827', 'QUISPE', 'LAVADO', 'SAUL YERSON', 'M', '975405472', '', '', '', '', '61065827@institutocajas.edu.pe', '0000-00-00', '', 1),
 (357, NULL, '61075460', 'VALENTIN', 'MARTINEZ', 'JESUS ANDREY', 'M', '912060092', '', '', '', '', '61075460@institutocajas.edu.pe', '0000-00-00', '', 1),
-(358, NULL, '61075516', 'AG?ERO', 'RICRA', 'YOSSELIN PATTY', 'F', '927925026', '', '', '', '', '61075516@institutocajas.edu.pe', '0000-00-00', '', 1),
+(358, NULL, '61075516', 'AG?ERO', 'RICRA', 'YOSSELIN PATTY', 'F', '927925026', '', '', '', '', '61075516@institutocajas.edu.pe', '1999-05-14', '', 1),
 (359, NULL, '61083518', 'POCOMUCHA', 'VASQUEZ', 'PIERO ALEJANDRO', 'M', '957044128', '', '', '', '', '61083518@institutocajas.edu.pe', '0000-00-00', '', 1),
 (360, NULL, '61090843', 'CUTIPA', 'CONDOR', 'ALEXANDRE PIERO', 'M', '961271688', '', '', '', '', '61090843@institutocajas.edu.pe', '0000-00-00', '', 1),
 (361, NULL, '61090901', 'DIAZ', 'OSCANOA', 'KAMELY KAIT', 'F', '927215200', '', '', '', '', '61090901@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1308,7 +1312,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (569, NULL, '71742658', 'VENTURA', 'CHAMORRO', 'DELIA', 'F', '980682752', '', '', '', '', '71742658@institutocajas.edu.pe', '0000-00-00', '', 1),
 (570, NULL, '71745340', 'ZU?IGA', 'HUAMAN', 'SLIM LIZZY', 'F', '925737868', '', '', '', '', '71745340@institutocajas.edu.pe', '0000-00-00', '', 1),
 (571, NULL, '71764351', 'LAZO', 'GOMEZ', 'JUAN CARLOS', 'M', '983427232', '', '', '', '', '71764351@institutocajas.edu.pe', '0000-00-00', '', 1),
-(572, NULL, '71772053', '?AHUI', 'HUACHACA', 'YOLA ELSA', 'F', '964074511', '', '', '', '', '71772053@institutocajas.edu.pe', '0000-00-00', '', 1),
+(572, NULL, '71772053', '?AHUI', 'HUACHACA', 'YOLA ELSA', 'F', '964074511', 'RAMON CASTILLA, MARISCAL RAMON CASTILLA, LORETO', 'HUEPETUHE, MANU, MADRE DE DIOS', 'Av. Milpo I SN', 'yola@gmail.com', '71772053@institutocajas.edu.pe', '1999-04-14', '', 1),
 (573, NULL, '71798663', 'OSORIO', 'HINOJOSA', 'YEFERSON MARLON', 'M', '948541953', '', '', '', '', '71798663@institutocajas.edu.pe', '0000-00-00', '', 1),
 (574, NULL, '71803764', 'VELARDE', 'GAMBOA', 'ROYER', 'M', '975424439', '', '', '', '', '71803764@institutocajas.edu.pe', '0000-00-00', '', 1),
 (575, NULL, '71805199', 'GAMBOA', 'SANTANA', 'DENYLSON ISACC', 'M', '924668014', '', '', '', '', '71805199@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1402,9 +1406,9 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (663, NULL, '72261678', 'ROJAS', 'DE LA CRUZ', 'FRANK ALEXIS', 'M', '964616789', '', '', '', '', '72261678@institutocajas.edu.pe', '0000-00-00', '', 1),
 (664, NULL, '72263594', 'SEDANO', 'HUAIRA', 'WILLIAM JAVIER', 'M', '902106778', '', '', '', '', '72263594@institutocajas.edu.pe', '0000-00-00', '', 1),
 (665, NULL, '72268127', 'CLEMENTE', 'OCHOA', 'JOSE MANUEL', 'M', '934348010', '', '', '', '', '72268127@institutocajas.edu.pe', '0000-00-00', '', 1),
-(666, NULL, '72272835', 'QUISPE', 'SANCHEZ', 'DENIS', 'M', '997701909', '', '', '', '', '72272835@institutocajas.edu.pe', '0000-00-00', '', 1),
-(667, NULL, '72278359', 'PEREZ', 'BERAUN', 'EDISON ALDO', 'M', '924986944', '', '', '', '', '72278359@institutocajas.edu.pe', '0000-00-00', '', 1);
+(666, NULL, '72272835', 'QUISPE', 'SANCHEZ', 'DENIS', 'M', '997701909', '', '', '', '', '72272835@institutocajas.edu.pe', '0000-00-00', '', 1);
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
+(667, NULL, '72278359', 'PEREZ', 'BERAUN', 'EDISON ALDO', 'M', '924986944', '', '', '', '', '72278359@institutocajas.edu.pe', '0000-00-00', '', 1),
 (668, NULL, '72285256', 'TITO', 'CRISPIN', 'CIPRIAN', 'M', '941901034', '', '', '', '', '72285256@institutocajas.edu.pe', '0000-00-00', '', 1),
 (669, NULL, '72288346', 'PEREZ', 'POMA', 'EDISON', 'M', '904080201', '', '', '', '', '72288346@institutocajas.edu.pe', '0000-00-00', '', 1),
 (670, NULL, '72288455', 'MARTINEZ', 'GALARZA', 'WILSON DANIEL', 'M', '939641506', '', '', '', '', '72288455@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1439,8 +1443,8 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (699, NULL, '72541102', 'HUAYNATE', 'ACHACHAU', 'JOSE LUIS', 'M', '975818374', '', '', '', '', '72541102@institutocajas.edu.pe', '0000-00-00', '', 1),
 (700, NULL, '72549332', 'ESPIRITU', 'ALAYO', 'ANGEL EFRAIN', 'M', '910601456', '', '', '', '', '72549332@institutocajas.edu.pe', '0000-00-00', '', 1),
 (701, NULL, '72551943', 'PEREZ', 'TAYPE', 'LILIANA PAMELA', 'F', '964517277', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72551943@institutocajas.edu.pe', '2000-12-12', '', 1),
-(702, NULL, '72571243', 'RAPRI', 'CAPCHA', 'GABRIEL FRANCIS', 'M', '958684615', 'SAN AGUSTIN, HUANCAYO, JUNIN', 'HUANCAYO, HUANCAYO, JUNIN', 'Av. Milpo 1', 'gabrielrapri14@gmail.com', '72571243@institutocajas.edu.pe', '1999-04-14', '', 1),
-(703, NULL, '72571245', 'RAPRI', 'CAPCHA', 'ANGHEL FRAN LEE', 'M', '937422626', '', '', '', '', '72571245@institutocajas.edu.pe', '0000-00-00', '', 1),
+(702, NULL, '72571243', 'RAPRI', 'CAPCHA', 'GABRIEL FRANCIS', 'M', '958684615', '', '', 'Av. Milpo 1', 'gabrielrapri14@gmail.com', '72571243@institutocajas.edu.pe', '1999-04-14', '', 1),
+(703, NULL, '72571245', 'RAPRI', 'CAPCHA', 'ANGHEL FRAN LEE', 'M', '937422626', '', '', '', '', '72571245@institutocajas.edu.pe', '1999-04-14', '', 1),
 (704, NULL, '72614777', 'PANIAGUA', 'VASQUEZ', 'XIOMARA', 'F', '916217856', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72614777@institutocajas.edu.pe', '2000-12-12', '', 1),
 (705, NULL, '72628543', 'AVILA', 'HUATUCO', 'ALEXIS KEVIN', 'M', '998166159', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', '', '', '72628543@institutocajas.edu.pe', '2000-12-12', '', 1),
 (706, NULL, '72637201', 'DE LA CRUZ', 'MEZA', 'DIANA YESENIA', 'F', '934612747', '', '', '', '', '72637201@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1456,7 +1460,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (716, NULL, '72773077', 'CERRON', 'GUEVARA', 'LUIS ENRIQUE', 'M', '971367187', '', '', '', '', '72773077@institutocajas.edu.pe', '0000-00-00', '', 1),
 (717, NULL, '72800916', 'PAITAN', 'TAYPE', 'HILARIO WILLIAM', 'M', '921961545', '', '', '', '', '72800916@institutocajas.edu.pe', '0000-00-00', '', 1),
 (718, NULL, '72807839', 'AMARU', 'QUISPE', 'JHON', 'M', '928294934', '', '', '', '', '72807839@institutocajas.edu.pe', '0000-00-00', '', 1),
-(719, NULL, '72813144', '?A?A', 'DIAZ', 'SAUL ALVARO', 'M', '968680255', '', '', '', '', '72813144@institutocajas.edu.pe', '2000-12-12', '', 1),
+(719, NULL, '72813144', '?A?A', 'DIAZ', 'SAUL ALVARO', 'M', '968680255', '', '', 'Av. Milpo I SN sd dadas', 'saul@gmail.com', '72813144@institutocajas.edu.pe', '2000-12-12', '', 1),
 (720, NULL, '72814300', 'RIVERA', 'MALLMA', 'MAYELI', 'F', '917041125', '', '', '', '', '72814300@institutocajas.edu.pe', '0000-00-00', '', 1),
 (721, NULL, '72850415', 'RODRIGUEZ', 'ROQUE', 'YURI JHOMAR', 'M', '978498791', '', '', '', '', '72850415@institutocajas.edu.pe', '0000-00-00', '', 1),
 (722, NULL, '72859646', 'VELIZ', 'ROMANI', 'JUAN PABLO', 'M', '941500114', '', '', '', '', '72859646@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1547,7 +1551,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (807, NULL, '74028059', 'RAYMUNDO', 'ILIZARBE', 'ELMER JESUS', 'M', '912290222', '', '', '', '', '74028059@institutocajas.edu.pe', '0000-00-00', '', 1),
 (808, NULL, '74044076', 'QUISPE', 'MANTARI', 'EDUARDO STEVE', 'M', '983308592', '', '', '', '', '74044076@institutocajas.edu.pe', '0000-00-00', '', 1),
 (809, NULL, '74090864', 'LAURA', 'SANABRIA', 'SAMUEL KEVIN', 'M', '999999999', '', '', '', '', '74090864@institutocajas.edu.pe', '0000-00-00', '', 1),
-(810, NULL, '74092055', 'ACU?A', 'SUAZO', 'KENNY BORIS', 'M', '901080725', '', '', '', '', '74092055@institutocajas.edu.pe', '0000-00-00', '', 1),
+(810, NULL, '74092055', 'ACU?A', 'SUAZO', 'KENNY BORIS', 'M', '901080725', '', '', '', '', '74092055@institutocajas.edu.pe', '2000-04-14', '', 1),
 (811, NULL, '74093836', 'TORRES', 'QUINTO', 'JEAN PIER', 'M', '977120683', '', '', '', '', '74093836@institutocajas.edu.pe', '0000-00-00', '', 1),
 (812, NULL, '74133977', 'CARRASCO', 'AVELLANEDA', 'EDWIN', 'M', '976967813', '', '', '', '', '74133977@institutocajas.edu.pe', '0000-00-00', '', 1),
 (813, NULL, '74134463', 'COTERA', 'QUISPE', 'MARK ANTHONY', 'M', '998659406', '', '', '', '', '74134463@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1735,9 +1739,9 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (995, NULL, '75365884', 'BRAVO', 'UCHARIMA', 'DIEGO JESUS', 'M', '999999999', '', '', '', '', '75365884@institutocajas.edu.pe', '0000-00-00', '', 1),
 (996, NULL, '75372532', 'USCAMAYTA', 'PALACIOS', 'JENRRY', 'M', '954872747', '', '', '', '', '75372532@institutocajas.edu.pe', '0000-00-00', '', 1),
 (997, NULL, '75377167', 'BALVIN', 'CARBAJAL', 'ANYELI JOSEFINA', 'F', '934770727', '', '', '', '', '75377167@institutocajas.edu.pe', '0000-00-00', '', 1),
-(998, NULL, '75383814', 'HUANCAYO', 'CUCHO', 'DAVID ELIAS', 'M', '971744466', '', '', '', '', '75383814@institutocajas.edu.pe', '0000-00-00', '', 1),
-(999, NULL, '75394957', 'SEDANO', 'VILCAPOMA', 'YERSSON YONY', 'M', '964249414', '', '', '', '', '75394957@institutocajas.edu.pe', '0000-00-00', '', 1);
+(998, NULL, '75383814', 'HUANCAYO', 'CUCHO', 'DAVID ELIAS', 'M', '971744466', '', '', '', '', '75383814@institutocajas.edu.pe', '0000-00-00', '', 1);
 INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `nom_est`, `sex_est`, `cel_est`, `ubigeodir_est`, `ubigeonac_est`, `dir_est`, `mailp_est`, `maili_est`, `fecnac_est`, `foto_est`, `estado`) VALUES
+(999, NULL, '75394957', 'SEDANO', 'VILCAPOMA', 'YERSSON YONY', 'M', '964249414', '', '', '', '', '75394957@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1000, NULL, '75435152', 'PE?A', 'PONCE', 'CARLOS JOSE', 'M', '929996163', '', '', '', '', '75435152@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1001, NULL, '75445019', 'TORPOCO', 'CUBA', 'YOSELY MAYRA', 'F', '952786908', '', '', '', '', '75445019@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1002, NULL, '75457670', 'ZAMUDIO', 'HUAYTA', 'JEAN POOL', 'M', '999999999', '', '', '', '', '75457670@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1830,7 +1834,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (1089, NULL, '75980625', 'PAUCAR', 'CALDERON', 'WENDI YAMIRA', 'F', '956186213', '', '', '', '', '75980625@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1090, NULL, '75982084', 'APOLINARIO', 'JAUREGUI', 'DIANA', 'F', '920183339', '', '', '', '', '75982084@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1091, NULL, '75985985', 'CLEMENTE', 'JURADO', 'CARMEN BRISA', 'F', '903250732', '', '', '', '', '75985985@institutocajas.edu.pe', '0000-00-00', '', 1),
-(1092, NULL, '75990566', 'ADARMES', 'ZENTENO', 'JUAN ARTURO', 'M', '978901387', '', '', '', '', '75990566@institutocajas.edu.pe', '0000-00-00', '', 1),
+(1092, NULL, '75990566', 'ADARMES', 'ZENTENO', 'JUAN ARTURO', 'M', '978901387', '', '', '', '', '75990566@institutocajas.edu.pe', '2000-02-14', '', 1),
 (1093, NULL, '75991660', 'HUERTA', 'YLANZO', 'CYNTHIA ABIGAIL', 'F', '991213838', '', '', '', '', '75991660@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1094, NULL, '75995021', 'LAZO', 'HUAMAN', 'MORELIA FATIMA', 'F', '912661254', '', '', '', '', '75995021@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1095, NULL, '75998829', 'CAMPOS', 'CALLUPE', 'RONALDO JESUS', 'M', '968393666', '', '', '', '', '75998829@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1910,7 +1914,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (1169, NULL, '76875294', 'VILCAHUAMAN', 'ASTAHUAMAN', 'DIEGO ANDRE', 'M', '990878383', '', '', '', '', '76875294@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1170, NULL, '76916016', 'MUNIVE', 'MEZA', 'FRANCO ERIC', 'M', '979331347', '', '', '', '', '76916016@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1171, NULL, '76916592', 'CHANCASANAMPA', 'ANGUIS', 'ALEXANDER JESUS', 'M', '985478879', '', '', '', '', '76916592@institutocajas.edu.pe', '0000-00-00', '', 1),
-(1172, NULL, '76933726', '?AHUI', 'SOTO', 'WILLIAMS FREDY', 'M', '957755615', '', '', '', '', '76933726@institutocajas.edu.pe', '0000-00-00', '', 1),
+(1172, NULL, '76933726', '?AHUI', 'SOTO', 'WILLIAMS FREDY', 'M', '957755615', '', '', '', '', '76933726@institutocajas.edu.pe', '2000-12-14', '', 1),
 (1173, NULL, '76938656', 'ATAYPOMA', 'REYMUNDO', 'ELISEO', 'M', '926077168', '', '', '', '', '76938656@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1174, NULL, '76969230', 'PARIONA', 'SANCHEZ', 'ROYER', 'M', '966439061', '', '', '', '', '76969230@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1175, NULL, '76972081', 'MU?OZ', 'ALIAGA', 'ADRIAN SERAPIO', 'M', '975621041', '', '', '', '', '76972081@institutocajas.edu.pe', '0000-00-00', '', 1),
@@ -1990,8 +1994,7 @@ INSERT INTO `estudiante` (`id`, `ubdistrito`, `dni_est`, `ap_est`, `am_est`, `no
 (1249, NULL, '80715618', 'LLANCO', 'APOLINARIO', 'HELEN HARUMI', 'F', '968259182', '', '', '', '', '80715618@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1250, NULL, '80835602', 'YUPANQUI', 'HUARINGA', 'JHORDYN', 'M', '928446964', '', '', '', '', '80835602@institutocajas.edu.pe', '0000-00-00', '', 1),
 (1251, NULL, '80842547', 'POMA', 'TIZA', 'JORGE LUIS', 'M', '977661408', '', '', '', '', '80842547@institutocajas.edu.pe', '0000-00-00', '', 1),
-(1252, NULL, '80848836', 'TORRES', 'MUCHA', 'YERALDIN YHADIRA', 'F', '988814184', '', '', '', '', '80848836@institutocajas.edu.pe', '0000-00-00', '', 1),
-(1262, NULL, '71111111', 'reeeee', 'eereeee', 'rererer', 'M', '933333333', 'MADRE DE DIOS, MANU, MADRE DE DIOS', 'CHONGOS BAJO, CHUPACA, JUNIN', 'Av. Milpo I SN', 'gabrielrapri14@gmail.com', NULL, '1999-04-14', NULL, 1);
+(1252, NULL, '80848836', 'TORRES', 'MUCHA', 'YERALDIN YHADIRA', 'F', '988814184', '', '', '', '', '80848836@institutocajas.edu.pe', '0000-00-00', '', 1);
 
 -- --------------------------------------------------------
 
@@ -2177,8 +2180,8 @@ CREATE TABLE `matricula` (
 INSERT INTO `matricula` (`id`, `estudiante`, `prog_estudios`, `id_matricula`, `per_lectivo`, `per_acad`, `per_acad2`, `seccion`, `turno`, `fec_matricula`, `cond_matricula`, `est_matricula`, `est_perlec`, `obs_matricula`) VALUES
 (1, 976, 4, '202520001', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (2, 810, 10, '202520002', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(3, 1092, 6, '202520003', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(4, 358, 8, '202520004', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
+(3, 1092, 6, '202520003', '2025-II', 'VI', 6, 'A', 'D', '0000-00-00', '', 'A', 'S', ''),
+(4, 358, 8, '202520004', '2025-II', 'II', 2, 'A', 'D', '0000-00-00', '', 'A', 'S', ''),
 (5, 186, 3, '202520005', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (6, 827, 9, '202520006', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (7, 799, 4, '202520007', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
@@ -2931,10 +2934,10 @@ INSERT INTO `matricula` (`id`, `estudiante`, `prog_estudios`, `id_matricula`, `p
 (753, 131, 1, '202520753', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (754, 1247, 5, '202520754', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (755, 690, 2, '202520755', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(756, 572, 4, '202520756', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(757, 1172, 3, '202520757', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
+(756, 572, 4, '202520756', '2025-II', 'VI', 6, 'A', 'D', '0000-00-00', '', 'A', 'S', ''),
+(757, 1172, 3, '202520757', '2025-II', 'VI', 6, 'A', 'D', '0000-00-00', '', 'A', 'S', ''),
 (758, 454, 4, '202520758', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(759, 719, 1, '202520759', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
+(759, 719, 1, '202520759', '2025-II', 'IV', 4, 'A', 'D', '0000-00-00', '', 'A', 'S', ''),
 (760, 321, 3, '202520760', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (761, 224, 3, '202520761', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (762, 378, 2, '202520762', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
@@ -3428,8 +3431,7 @@ INSERT INTO `matricula` (`id`, `estudiante`, `prog_estudios`, `id_matricula`, `p
 (1249, 139, 7, '202521249', '2025-II', 'IV', 4, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (1250, 251, 6, '202521250', '2025-II', 'II', 2, 'A', '', '0000-00-00', '', 'A', 'S', ''),
 (1251, 570, 7, '202521251', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(1252, 661, 6, '202521252', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', ''),
-(1258, 1262, 1, '4341421', NULL, 'VI', NULL, NULL, 'D', '2025-11-30', NULL, NULL, NULL, NULL);
+(1252, 661, 6, '202521252', '2025-II', 'VI', 6, 'A', '', '0000-00-00', '', 'A', 'S', '');
 
 -- --------------------------------------------------------
 
@@ -3566,9 +3568,9 @@ INSERT INTO `practicas` (`id`, `estudiante`, `empleado`, `docente_supervisor`, `
 (5, 5, 3, NULL, 1, 'Módulo 1', 'modulo1', 'II', '2024-09-22', '2024-12-09', 128, 149, 'tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'Finalizado', '2025-12-02 06:55:15'),
 (6, 1, 74, NULL, 1, 'Módulo 1', 'modulo1', 'VI', '2025-12-02', NULL, 128, 44, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 06:56:08'),
 (7, 703, 85, NULL, 2, 'Módulo 2', 'modulo2', 'VI', '2025-12-02', NULL, 128, 25, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:06:58'),
-(8, 702, 94, NULL, 3, 'Módulo 2', 'modulo2', 'VI', '2025-12-02', NULL, 128, 28, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:18:58'),
+(8, 702, 94, NULL, 3, 'Módulo 2', 'modulo2', 'VI', '2025-12-02', NULL, 128, 33, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:18:58'),
 (9, 731, 80, NULL, 2, 'Módulo 3', 'modulo3', 'VI', '2025-12-02', NULL, 128, 26, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:33:03'),
-(13, 676, 42, NULL, 6, 'Módulo 1', 'modulo1', 'VI', '2025-12-09', NULL, 128, 40, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-09 22:16:07'),
+(13, 676, 42, NULL, 6, 'Módulo 1', 'modulo1', 'VI', '2025-12-09', NULL, 128, 72, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-09 22:16:07'),
 (14, 695, 123, NULL, 7, 'Módulo 1', 'modulo1', 'VI', '2025-12-10', NULL, 128, 8, 'en su cuarto de la sam', 'samira', 'gerente general', NULL, NULL, 'En curso', '2025-12-10 01:38:15'),
 (15, 467, 105, NULL, 8, 'Módulo 1', 'modulo1', 'VI', '2025-12-10', NULL, 128, 16, 'por ahi', 'melo', 'gerente', NULL, NULL, 'En curso', '2025-12-10 02:14:09');
 
@@ -6003,16 +6005,14 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `fecha_creacion`, `ultimo_acceso`, `nivel`) VALUES
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, '97119963284a74fe803ac3a2010eef6ea32435bdd0da9e214d376ecea88ec717', 1, '2025-12-04 03:47:13', '2025-12-10 07:05:35', 1),
-(3, '72571243', '$2y$10$q4AL2.KYyAj.LFMi/jWssuFQ2mKyLTPzvCHksFHQ1NP6n0Bcr8jjy', 3, 702, NULL, 1, '2025-12-04 03:48:18', '2025-12-10 02:02:29', NULL),
-(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', '2025-12-10 07:03:40', NULL),
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, 'df33fe59ea2b589b5285488bbb12cd57bf6e8c630f90b76ab582d08a20bc2a82', 1, '2025-12-04 03:47:13', '2025-12-15 14:00:16', 1),
+(3, '72571243', '$2y$10$q4AL2.KYyAj.LFMi/jWssuFQ2mKyLTPzvCHksFHQ1NP6n0Bcr8jjy', 3, 702, NULL, 1, '2025-12-04 03:48:18', '2025-12-10 14:13:37', NULL),
+(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', '2025-12-10 15:28:14', NULL),
 (5, '73027729', '$2y$10$jr4tjz7TdMI6lDLYA.jzs.59DGjr8c6zBaJR6n73Motd3v3lmry3i', 3, 731, NULL, 1, '2025-12-04 04:09:16', NULL, NULL),
-(6, 'admin', '$2y$10$Q8LLFSKOwNGc3pU7gCDXhOFQ.L/5wkrN54HZYGwV4RosdW3/AWiv.', 2, NULL, NULL, 0, '2025-12-04 06:14:36', NULL, NULL),
-(7, '09986759', '$2y$10$bTxbAOp4lXBtfiII.3aC0.pg/uEne0jK1PHFen2wZRZ9uYNvyKHEy', 3, 1, NULL, 1, '2025-12-09 00:58:51', '2025-12-10 07:04:40', NULL),
-(8, '72309767', '$2y$10$OVNlg3eBMFuyjhvQJTfyteqSxTUSsHb7SOHh2R4cMmY2HlqOmL21e', 3, 676, NULL, 1, '2025-12-09 21:55:02', '2025-12-10 00:05:56', NULL),
-(9, '72438097', '$2y$10$HNN6MDDsf53LjSuoP1NqjeD35EDMzxkJr2maY6kL1BmCNfLdX0WUK', 3, 695, NULL, 1, '2025-12-10 01:44:27', '2025-12-10 01:47:29', NULL),
-(10, '20096529', '$2y$10$UME9K4yZrGLUV/LIoB9yzO9pjHGIF0WJ.rPfEL7L1FccJc9dTRn.q', 1, 74, NULL, 1, '2025-12-10 01:55:29', '2025-12-10 04:55:10', NULL),
-(11, '70308211', '$2y$10$sFfhRe/G9R1UXmubKMz5uu4fq7wi51egzLiYh5TZO8HQ1ADGK1mOi', 3, 467, NULL, 1, '2025-12-10 02:10:34', '2025-12-10 02:16:32', NULL);
+(7, '09986759', '$2y$10$bTxbAOp4lXBtfiII.3aC0.pg/uEne0jK1PHFen2wZRZ9uYNvyKHEy', 3, 1, NULL, 1, '2025-12-09 00:58:51', '2025-12-12 19:06:12', NULL),
+(8, '72309767', '$2y$10$OVNlg3eBMFuyjhvQJTfyteqSxTUSsHb7SOHh2R4cMmY2HlqOmL21e', 3, 676, NULL, 1, '2025-12-09 21:55:02', '2025-12-10 13:36:43', NULL),
+(10, '20096529', '$2y$10$UME9K4yZrGLUV/LIoB9yzO9pjHGIF0WJ.rPfEL7L1FccJc9dTRn.q', 1, 74, '449a7106d0baf0c6d927bead926ccc55e87a79bb6ad748f25cf10d29782a0d0f', 0, '2025-12-10 01:55:29', '2025-12-12 20:44:30', NULL),
+(11, '70308211', '$2y$10$sFfhRe/G9R1UXmubKMz5uu4fq7wi51egzLiYh5TZO8HQ1ADGK1mOi', 3, 467, NULL, 1, '2025-12-10 02:10:34', '2025-12-10 13:33:37', NULL);
 
 -- --------------------------------------------------------
 
@@ -6500,7 +6500,7 @@ ALTER TABLE `alerta_ia`
 -- AUTO_INCREMENT de la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=211;
 
 --
 -- AUTO_INCREMENT de la tabla `asistencia_cap`
@@ -6590,7 +6590,7 @@ ALTER TABLE `empleado`
 -- AUTO_INCREMENT de la tabla `empresa`
 --
 ALTER TABLE `empresa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `estado_convenio`
@@ -6608,7 +6608,7 @@ ALTER TABLE `estado_renovacion`
 -- AUTO_INCREMENT de la tabla `estudiante`
 --
 ALTER TABLE `estudiante`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1265;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1266;
 
 --
 -- AUTO_INCREMENT de la tabla `evaluaciones`
@@ -6668,7 +6668,7 @@ ALTER TABLE `invitado_reunion`
 -- AUTO_INCREMENT de la tabla `matricula`
 --
 ALTER TABLE `matricula`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1261;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1262;
 
 --
 -- AUTO_INCREMENT de la tabla `medio_consecucion`
@@ -6710,7 +6710,7 @@ ALTER TABLE `participante_reunion`
 -- AUTO_INCREMENT de la tabla `practicas`
 --
 ALTER TABLE `practicas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de la tabla `prog_estudios`

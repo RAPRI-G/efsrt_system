@@ -38,7 +38,7 @@
 
             <!-- Elementos Utilitarios (buscador, notificaciones, perfil) -->
             <div class="flex items-center space-x-4">
-                <!-- 🔥 BUSCADOR AL LADO DE NOTIFICACIONES -->
+
                 <div class="header-search hidden lg:block">
                     <div class="relative">
                         <input type="text"
@@ -58,12 +58,12 @@
                 <!-- Elementos Utilitarios -->
                 <div class="flex items-center space-x-4">
                     <!-- Notificaciones -->
-                    <div class="relative">
+                    <!--<div class="relative">
                         <button class="header-icon text-white hover:text-blue-300 transition-all duration-300" title="Notificaciones">
                             <i class="fas fa-bell text-lg"></i>
                         </button>
                         <span class="notification-dot absolute -top-1 -right-1 bg-accent-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
-                    </div>
+                    </div> -->
 
                     <!-- Botón de búsqueda para móviles -->
                     <button class="header-icon text-white hover:text-blue-300 transition-all duration-300 lg:hidden" title="Buscar">
