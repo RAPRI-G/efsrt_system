@@ -1382,163 +1382,362 @@ function cerrarModalEstudiante() {
   document.getElementById("estudianteModal").classList.add("hidden");
 }
 
-// Función para ver detalles de estudiante - VERSIÓN CORREGIDA
+
 async function verEstudiante(id) {
-  mostrarCarga("Cargando detalles...");
-
-  try {
-    const response = await fetch(`index.php?c=Estudiante&a=detalle&id=${id}`);
-
-    // 🔥 CORRECCIÓN: Verificar si la respuesta es JSON válido
-    const text = await response.text();
-    let result;
-
+    mostrarCarga('Cargando detalles...');
+    
     try {
-      result = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Respuesta no es JSON:", text);
-      throw new Error("Error en el servidor: respuesta inválida");
+        const response = await fetch(`index.php?c=Estudiante&a=detalle&id=${id}`);
+        
+        // 🔥 DEBUG: Ver la respuesta cruda
+        const text = await response.text();
+        console.log('📄 Respuesta del servidor (detalle):', text);
+        
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Respuesta no es JSON:', text);
+            throw new Error('Error en el servidor: respuesta inválida');
+        }
+        
+        if (result.success) {
+            const estudiante = result.data;
+            console.log('✅ Estudiante cargado para detalles:', estudiante);
+            
+            // 🔥 DEBUG: Ver qué campos de prácticas llegan
+            console.log('📊 Campos de prácticas disponibles:');
+            console.log('- estado_practica:', estudiante.estado_practica);
+            console.log('- modulo_practica:', estudiante.modulo_practica);
+            console.log('- empresa_practica:', estudiante.empresa_practica);
+            console.log('- total_practicas:', estudiante.total_practicas);
+            console.log('- total_practicas_curso:', estudiante.total_practicas_curso);
+            
+            mostrarDetallesEstudiante(estudiante);
+        } else {
+            throw new Error(result.error || 'Error al cargar detalles del estudiante');
+        }
+    } catch (error) {
+        console.error('Error al cargar detalles:', error);
+        mostrarNotificacion('error', 'Error', error.message);
+    } finally {
+        ocultarCarga();
     }
-
-    if (result.success) {
-      const estudiante = result.data;
-      mostrarDetallesEstudiante(estudiante);
-    } else {
-      throw new Error(
-        result.error || "Error al cargar detalles del estudiante"
-      );
-    }
-  } catch (error) {
-    console.error("Error al cargar detalles:", error);
-    mostrarNotificacion("error", "Error", error.message);
-  } finally {
-    ocultarCarga();
-  }
 }
 
 // Función auxiliar para formatear fechas
 function formatearFecha(fecha) {
-  if (!fecha) return "No especificada";
-  const opciones = { year: "numeric", month: "long", day: "numeric" };
-  return new Date(fecha).toLocaleDateString("es-ES", opciones);
+    if (!fecha || fecha === '0000-00-00' || fecha === 'null') {
+        return 'No especificada';
+    }
+    
+    try {
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) {
+            return 'Fecha inválida';
+        }
+        
+        const opciones = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            timeZone: 'UTC' // Para evitar problemas de zona horaria
+        };
+        
+        return fechaObj.toLocaleDateString('es-ES', opciones);
+    } catch (error) {
+        console.error('Error formateando fecha:', fecha, error);
+        return 'Error al formatear';
+    }
 }
 
 function mostrarDetallesEstudiante(estudiante) {
-  // Llenar los detalles del estudiante
-  document.getElementById(
-    "detalleModalTitulo"
-  ).textContent = `Detalles de ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
-
-  // Configurar avatar
-  const detalleAvatar = document.getElementById("detalleAvatar");
-  detalleAvatar.textContent = `${estudiante.nom_est.charAt(
-    0
-  )}${estudiante.ap_est.charAt(0)}`;
-  detalleAvatar.className = `h-20 w-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-0 md:mr-6 mb-4 md:mb-0 shadow-lg ${
-    estudiante.sex_est == "F"
-      ? "avatar-estudiante-femenino"
-      : "avatar-estudiante-masculino"
-  }`;
-
-  // Información principal
-  document.getElementById(
-    "detalleNombre"
-  ).textContent = `${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
-  document.getElementById("detallePrograma").textContent =
-    estudiante.nom_progest || "No asignado";
-  document.getElementById("detalleProgramaNombre").textContent =
-    estudiante.nom_progest || "No asignado";
-  document.getElementById("detalleDni").textContent =
-    estudiante.dni_est || "No especificado";
-  document.getElementById("detalleNacimiento").textContent = formatearFecha(
-    estudiante.fecnac_est
-  );
-  document.getElementById("detalleCelular").textContent =
-    estudiante.cel_est || "No especificado";
-  document.getElementById("detalleEmailPersonal").textContent =
-    estudiante.mailp_est || "No especificado";
-  document.getElementById("detalleDireccion").textContent =
-    estudiante.dir_est || "No especificado";
-  document.getElementById("detallePeriodo").textContent =
-    estudiante.per_acad || "No especificado";
-  document.getElementById("detalleTurno").textContent =
-    estudiante.turno || "No especificado";
-  document.getElementById("detalleMatricula").textContent =
-    estudiante.id_matricula || "No especificado";
-
-  // 🔥 NUEVO: Información de ubicación
-  document.getElementById("detalleLugarNacimiento").textContent =
-    estudiante.ubigeonac_est || "No especificado";
-  document.getElementById("detalleLugarActual").textContent =
-    estudiante.ubigeodir_est || "No especificado";
-
-  // Estado
-  const estadoElement = document.getElementById("detalleEstado");
-  // 🔥 CORRECCIÓN: Estado (null = inactivo)
-  if (estudiante.estado === 1) {
-    estadoElement.textContent = "Activo";
-    estadoElement.className =
-      "bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full";
-  } else {
-    estadoElement.textContent = "Inactivo";
-    estadoElement.className =
-      "bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full";
-  }
-
-  // Información de prácticas
-  const practicasInfo = document.getElementById("detallePracticasInfo");
-  if (estudiante.estado_practica) {
-    let estadoClass = "";
-    if (estudiante.estado_practica === "En curso") {
-      estadoClass = "bg-blue-100 text-blue-800";
-    } else if (estudiante.estado_practica === "Finalizado") {
-      estadoClass = "bg-green-100 text-green-800";
+    console.log('🎯 Mostrando detalles COMPLETOS del estudiante:', estudiante);
+    
+    // Guardar referencia global
+    window.estudianteDetalleActual = estudiante;
+    
+    // Llenar los detalles básicos (esto se mantiene igual)
+    document.getElementById('detalleModalTitulo').textContent = `Detalles de ${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
+    
+    // Configurar avatar
+    const detalleAvatar = document.getElementById('detalleAvatar');
+    detalleAvatar.textContent = `${estudiante.nom_est.charAt(0)}${estudiante.ap_est.charAt(0)}`;
+    detalleAvatar.className = `h-20 w-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-0 md:mr-6 mb-4 md:mb-0 shadow-lg ${estudiante.sex_est == 'F' ? 'avatar-estudiante-femenino' : 'avatar-estudiante-masculino'}`;
+    
+    // Información principal (se mantiene igual)
+    document.getElementById('detalleNombre').textContent = `${estudiante.ap_est} ${estudiante.am_est}, ${estudiante.nom_est}`;
+    document.getElementById('detallePrograma').textContent = estudiante.nom_progest || 'No asignado';
+    document.getElementById('detalleProgramaNombre').textContent = estudiante.nom_progest || 'No asignado';
+    document.getElementById('detalleDni').textContent = estudiante.dni_est || 'No especificado';
+    document.getElementById('detalleNacimiento').textContent = formatearFecha(estudiante.fecnac_est);
+    document.getElementById('detalleCelular').textContent = estudiante.cel_est || 'No especificado';
+    document.getElementById('detalleEmailPersonal').textContent = estudiante.mailp_est || 'No especificado';
+    document.getElementById('detalleDireccion').textContent = estudiante.dir_est || 'No especificado';
+    document.getElementById('detallePeriodo').textContent = estudiante.per_acad || 'No especificado';
+    document.getElementById('detalleTurno').textContent = estudiante.turno || 'No especificado';
+    document.getElementById('detalleMatricula').textContent = estudiante.id_matricula || 'No especificado';
+    
+    // Información de ubicación
+    document.getElementById('detalleLugarNacimiento').textContent = estudiante.ubigeonac_est || 'No especificado';
+    document.getElementById('detalleLugarActual').textContent = estudiante.ubigeodir_est || 'No especificado';
+    
+    // Estado
+    const estadoElement = document.getElementById('detalleEstado');
+    if (estudiante.estado === 1) {
+        estadoElement.textContent = 'Activo';
+        estadoElement.className = 'bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full';
     } else {
-      estadoClass = "bg-yellow-100 text-yellow-800";
+        estadoElement.textContent = 'Inactivo';
+        estadoElement.className = 'bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full';
     }
+    
+    // 🔥 CORRECCIÓN COMPLETA: Información de TODAS las prácticas
+    const practicasInfo = document.getElementById('detallePracticasInfo');
+    let practicasHTML = '';
+    
+    console.log('📊 Datos de prácticas recibidos:', {
+        estado: estudiante.estado_practica,
+        modulo: estudiante.modulo_practica,
+        empresa: estudiante.empresa_nombre,  // 🔥 AHORA con nombre
+        todas_practicas: estudiante.todas_practicas
+    });
+    
+    // Tiene prácticas registradas
+    if (estudiante.todas_practicas && estudiante.todas_practicas.length > 0) {
+        const totalPracticas = estudiante.todas_practicas.length;
+        const practicasEnCurso = estudiante.todas_practicas.filter(p => p.estado === 'En curso').length;
+        const practicasFinalizadas = estudiante.todas_practicas.filter(p => p.estado === 'Finalizado').length;
+        
+        practicasHTML = `
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h5 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-briefcase mr-2 text-blue-500"></i>
+                        Historial de Prácticas
+                    </h5>
+                    <div class="flex space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
+                            <i class="fas fa-layer-group mr-1"></i>${totalPracticas} total
+                        </span>
+                        <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">
+                            <i class="fas fa-check mr-1"></i>${practicasFinalizadas} finalizadas
+                        </span>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full">
+                            <i class="fas fa-spinner mr-1"></i>${practicasEnCurso} en curso
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- ÚLTIMA PRÁCTICA (DESTACADA) -->
+                ${renderizarUltimaPractica(estudiante)}
+                
+                <!-- LISTA DE TODAS LAS PRÁCTICAS -->
+                <div class="mt-6">
+                    <h6 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-history mr-2 text-gray-500"></i>
+                        Todas las prácticas realizadas
+                    </h6>
+                    <div class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                        ${renderizarListaPracticas(estudiante.todas_practicas)}
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        // No tiene prácticas registradas
+        practicasHTML = `
+            <div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                <i class="fas fa-briefcase text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-600 font-medium mb-1">El estudiante no tiene prácticas registradas</p>
+                <p class="text-sm text-gray-500 mb-4">No se encontraron registros de prácticas en el sistema</p>
+            </div>
+        `;
+    }
+    
+    practicasInfo.innerHTML = practicasHTML;
+    
+    // Configurar el botón de editar
+    const editarBtn = document.getElementById('editarDesdeDetalle');
+    if (editarBtn) {
+        editarBtn.onclick = function() {
+            cerrarDetalleModalEstudiante();
+            abrirModalEditar(estudiante.id);
+        };
+    }
+    
+    document.getElementById('detalleEstudianteModal').classList.remove('hidden');
+}
 
-    practicasInfo.innerHTML = `
+// 🔥 NUEVA FUNCIÓN: Renderizar última práctica destacada
+function renderizarUltimaPractica(estudiante) {
+    const estado = estudiante.estado_practica || 'Sin estado';
+    const modulo = estudiante.modulo_practica || 'No especificado';
+    const empresa = estudiante.empresa_nombre || 'No asignada';
+    const fechaInicio = estudiante.fecha_inicio_practica ? formatearFecha(estudiante.fecha_inicio_practica) : 'No especificada';
+    const fechaFin = estudiante.fecha_fin_practica ? formatearFecha(estudiante.fecha_fin_practica) : 'En curso';
+    const horas = estudiante.horas_practica || 0;
+    
+    // Estilos según estado
+    let estadoClass = 'bg-gray-100 text-gray-800';
+    let estadoIcon = 'fa-briefcase';
+    
+    if (estado === 'En curso') {
+        estadoClass = 'bg-blue-100 text-blue-800';
+        estadoIcon = 'fa-spinner fa-pulse';
+    } else if (estado === 'Finalizado') {
+        estadoClass = 'bg-green-100 text-green-800';
+        estadoIcon = 'fa-check-circle';
+    } else if (estado === 'Pendiente') {
+        estadoClass = 'bg-yellow-100 text-yellow-800';
+        estadoIcon = 'fa-clock';
+    }
+    
+    return `
+        <div class="bg-gradient-to-r from-blue-50 to-white p-5 rounded-xl border border-blue-100 mb-4 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h6 class="font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Última Práctica Registrada
+                    </h6>
+                    <p class="text-sm text-gray-600">Información de la práctica más reciente</p>
+                </div>
+                <span class="text-sm px-3 py-1 rounded-full ${estadoClass} font-medium">
+                    <i class="fas ${estadoIcon} mr-1"></i>${estado}
+                </span>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Estado:</span>
-                    <span class="text-sm px-3 py-1 rounded-full ${estadoClass}">${
-      estudiante.estado_practica
-    }</span>
+                <div class="space-y-3">
+                    <div class="info-item">
+                        <i class="fas fa-book text-blue-500 info-icon"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Módulo</p>
+                            <p class="text-sm font-medium">${modulo}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-building text-blue-500 info-icon"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Empresa</p>
+                            <p class="text-sm font-medium">${empresa}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Módulo:</span>
-                    <span class="text-sm text-gray-600">${
-                      estudiante.modulo || "N/A"
-                    }</span>
+                
+                <div class="space-y-3">
+                    <div class="info-item">
+                        <i class="fas fa-calendar-alt text-blue-500 info-icon"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Período</p>
+                            <p class="text-sm font-medium">${fechaInicio} - ${fechaFin}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock text-blue-500 info-icon"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Horas</p>
+                            <p class="text-sm font-medium">${horas} horas programadas</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Empresa:</span>
-                    <span class="text-sm text-gray-600">${
-                      estudiante.empresa_practica || "N/A"
-                    }</span>
+            </div>
+        </div>
+    `;
+}
+
+// 🔥 NUEVA FUNCIÓN: Renderizar lista de todas las prácticas
+function renderizarListaPracticas(practicas) {
+    if (!practicas || practicas.length === 0) {
+        return '<p class="text-gray-500 text-center py-4">No hay prácticas para mostrar</p>';
+    }
+    
+    let html = '';
+    
+    practicas.forEach((practica, index) => {
+        // Determinar color según estado
+        let estadoColor = '';
+        let estadoIcon = '';
+        
+        switch(practica.estado) {
+            case 'En curso':
+                estadoColor = 'text-blue-600 bg-blue-50 border-blue-200';
+                estadoIcon = 'fa-spinner fa-pulse';
+                break;
+            case 'Finalizado':
+                estadoColor = 'text-green-600 bg-green-50 border-green-200';
+                estadoIcon = 'fa-check-circle';
+                break;
+            case 'Pendiente':
+                estadoColor = 'text-yellow-600 bg-yellow-50 border-yellow-200';
+                estadoIcon = 'fa-clock';
+                break;
+            default:
+                estadoColor = 'text-gray-600 bg-gray-50 border-gray-200';
+                estadoIcon = 'fa-question-circle';
+        }
+        
+        // Formatear fechas
+        const fechaInicio = practica.fecha_inicio ? formatearFechaCorta(practica.fecha_inicio) : 'N/A';
+        const fechaFin = practica.fecha_fin ? formatearFechaCorta(practica.fecha_fin) : 'En curso';
+        
+        html += `
+            <div class="flex items-center justify-between p-3 bg-white border ${estadoColor} rounded-lg hover:shadow transition-shadow">
+                <div class="flex-1">
+                    <div class="flex items-center mb-1">
+                        <span class="text-xs font-medium px-2 py-1 rounded-full ${estadoColor} mr-2">
+                            <i class="fas ${estadoIcon} mr-1"></i>${practica.estado || 'Sin estado'}
+                        </span>
+                        <span class="text-xs text-gray-500">${fechaInicio} → ${fechaFin}</span>
+                    </div>
+                    <p class="font-medium text-sm">${practica.modulo || 'Sin módulo'}</p>
+                    <p class="text-xs text-gray-600">
+                        <i class="fas fa-building mr-1"></i>
+                        ${practica.empresa_nombre || 'Sin empresa'} 
+                        • ${practica.total_horas || 0} horas
+                    </p>
                 </div>
             </div>
         `;
-  } else {
-    practicasInfo.innerHTML = `
-            <div class="text-center py-4">
-                <i class="fas fa-briefcase text-gray-400 text-3xl mb-2"></i>
-                <p class="text-gray-500">El estudiante no tiene prácticas registradas</p>
-            </div>
-        `;
-  }
+    });
+    
+    return html;
+}
 
-  // Configurar el botón de editar desde el modal de detalles
-  const editarBtn = document.getElementById("editarDesdeDetalle");
-  editarBtn.onclick = function () {
-    cerrarDetalleModalEstudiante();
-    abrirModalEditar(estudiante.id);
-  };
+// 🔥 NUEVA FUNCIÓN: Formatear fecha corta
+function formatearFechaCorta(fecha) {
+    if (!fecha || fecha === '0000-00-00') return 'N/A';
+    
+    try {
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) return 'Fecha inválida';
+        
+        const dia = fechaObj.getDate().toString().padStart(2, '0');
+        const mes = (fechaObj.getMonth() + 1).toString().padStart(2, '0');
+        const año = fechaObj.getFullYear();
+        
+        return `${dia}/${mes}/${año}`;
+    } catch (error) {
+        console.error('Error formateando fecha corta:', error);
+        return 'Error';
+    }
+}
 
-  document.getElementById("detalleEstudianteModal").classList.remove("hidden");
+// 🔥 FUNCIÓN AUXILIAR: Para abrir modal de nueva práctica
+function abrirModalNuevaPractica(estudianteId) {
+    console.log('Abrir modal para nueva práctica del estudiante:', estudianteId);
+    // Aquí puedes redirigir a la página de creación de prácticas
+    // o abrir un modal específico
+    window.open(`index.php?c=Practica&a=crear&estudiante_id=${estudianteId}`, '_blank');
+}
 
-  // 🔥 DEBUG: Ver datos cargados en detalles
-  console.log("Datos cargados para detalles:", estudiante);
+// 🔥 FUNCIÓN AUXILIAR: Para ver detalle de una práctica específica
+function verDetallePractica(practicaId) {
+    console.log('Ver detalle de práctica ID:', practicaId);
+    // Redirigir a la página de detalles de práctica
+    window.open(`index.php?c=Practica&a=detalle&id=${practicaId}`, '_blank');
 }
 
 function cerrarDetalleModalEstudiante() {

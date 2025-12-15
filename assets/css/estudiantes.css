@@ -641,3 +641,65 @@
 .sin-permiso-eliminar:hover {
   background: #f3f4f6 !important;
 }
+
+/* Estilos para la vista de prácticas */
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.info-icon {
+    margin-top: 2px;
+    margin-right: 10px;
+    color: #3b82f6;
+    width: 20px;
+    text-align: center;
+}
+
+/* Scroll personalizado para la lista de prácticas */
+.practicas-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.practicas-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.practicas-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.practicas-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.practicas-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Tarjetas de prácticas */
+.practica-card {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.practica-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.practica-card.en-curso {
+    border-left-color: #3b82f6;
+}
+
+.practica-card.finalizado {
+    border-left-color: #10b981;
+}
+
+.practica-card.pendiente {
+    border-left-color: #f59e0b;
+}

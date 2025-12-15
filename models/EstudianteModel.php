@@ -346,29 +346,101 @@ class EstudianteModel extends BaseModel
     }
 
     public function obtenerEstudianteCompleto($id)
-    {
-        // 🔥 CONSULTA MEJORADA para obtener TODOS los datos necesarios
-        $sql = "SELECT 
-                e.*, 
-                m.prog_estudios,
-                m.id_matricula,
-                m.per_acad,
-                m.turno,
-                p.nom_progest
-            FROM estudiante e
-            LEFT JOIN matricula m ON e.id = m.estudiante
-            LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
-            WHERE e.id = :id";
+{
+    // 🔥 CONSULTA MEJORADA: Incluir nombre de empresa y todas las prácticas
+    $sql = "SELECT 
+            e.*, 
+            m.prog_estudios,
+            m.id_matricula,
+            m.per_acad,
+            m.turno,
+            p.nom_progest,
+            -- Datos de la última práctica CON NOMBRE DE EMPRESA
+            pr.estado as estado_practica,
+            pr.modulo as modulo_practica,
+            emp.razon_social as empresa_nombre,  -- 🔥 NUEVO: Nombre de empresa
+            pr.fecha_inicio as fecha_inicio_practica,
+            pr.fecha_fin as fecha_fin_practica,    -- 🔥 NUEVO: Fecha fin
+            pr.total_horas as horas_practica,      -- 🔥 NUEVO: Horas totales
+            -- Contadores de prácticas
+            (SELECT COUNT(*) FROM practicas pr2 
+             WHERE pr2.estudiante = e.id 
+             AND pr2.estado = 'En curso') as total_practicas_curso,
+            (SELECT COUNT(*) FROM practicas pr3 
+             WHERE pr3.estudiante = e.id) as total_practicas
+        FROM estudiante e
+        LEFT JOIN matricula m ON e.id = m.estudiante
+        LEFT JOIN prog_estudios p ON m.prog_estudios = p.id
+        -- ÚLTIMA PRÁCTICA (la más reciente) CON JOIN A EMPRESA
+        LEFT JOIN (
+            SELECT estudiante, estado, modulo, empresa, fecha_inicio, fecha_fin, total_horas
+            FROM practicas
+            WHERE (estudiante, fecha_inicio) IN (
+                SELECT estudiante, MAX(fecha_inicio)
+                FROM practicas
+                GROUP BY estudiante
+            )
+        ) pr ON e.id = pr.estudiante
+        LEFT JOIN empresa emp ON pr.empresa = emp.id  -- 🔥 NUEVO: Join con empresa
+        WHERE e.id = :id";
 
+    try {
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         $result = $stmt->fetch();
 
+        // 🔥 NUEVO: Obtener TODAS las prácticas del estudiante
+        if ($result) {
+            $result['todas_practicas'] = $this->obtenerTodasPracticasEstudiante($id);
+        }
+
         // 🔥 DEBUG: Ver qué datos se obtienen
-        error_log("📊 Datos obtenidos para estudiante ID {$id}: " . print_r($result, true));
+        error_log("📊 Datos completos para estudiante ID {$id}: " . print_r([
+            'nombre' => $result['nom_est'] ?? 'N/A',
+            'empresa_nombre' => $result['empresa_nombre'] ?? 'N/A',
+            'estado_practica' => $result['estado_practica'] ?? 'N/A',
+            'modulo_practica' => $result['modulo_practica'] ?? 'N/A',
+            'total_practicas' => $result['total_practicas'] ?? 0,
+            'todas_practicas_count' => count($result['todas_practicas'] ?? [])
+        ], true));
 
         return $result;
+    } catch (Exception $e) {
+        error_log("💥 Error en obtenerEstudianteCompleto ID {$id}: " . $e->getMessage());
+        return false;
     }
+}
+
+public function obtenerTodasPracticasEstudiante($estudianteId)
+{
+    try {
+        $sql = "SELECT 
+                pr.id,
+                pr.modulo,
+                pr.estado,
+                emp.razon_social as empresa_nombre,
+                pr.fecha_inicio,
+                pr.fecha_fin,
+                pr.total_horas,
+                pr.horas_acumuladas,
+                pr.area_ejecucion,
+                pr.supervisor_empresa,
+                pr.periodo_academico,
+                DATE_FORMAT(pr.fecha_registro, '%d/%m/%Y %H:%i') as fecha_registro_formateada
+            FROM practicas pr
+            LEFT JOIN empresa emp ON pr.empresa = emp.id
+            WHERE pr.estudiante = :estudiante_id
+            ORDER BY pr.fecha_inicio DESC, pr.fecha_registro DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':estudiante_id' => $estudianteId]);
+        return $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log("💥 Error en obtenerTodasPracticasEstudiante: " . $e->getMessage());
+        return [];
+    }
+}
+
 
     public function obtenerEstadisticasEstudiantes()
     {

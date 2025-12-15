@@ -592,12 +592,9 @@ require_once 'views/layouts/header.php';
                     </div>
 
                     <!-- Información de Prácticas -->
-                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 md:col-span-2">
-                        <h4 class="text-lg font-semibold text-primary-blue mb-4 flex items-center">
-                            <i class="fas fa-briefcase mr-2"></i>
-                            Información de Prácticas
-                        </h4>
-                        <div id="detallePracticasInfo">
+                    <div class="bg-white rounded-xl p-5 border border-gray-200 md:col-span-2 practica-card">
+                        
+                        <div id="detallePracticasInfo" class="practicas-list">
                             <!-- Se llenará dinámicamente -->
                         </div>
                     </div>
