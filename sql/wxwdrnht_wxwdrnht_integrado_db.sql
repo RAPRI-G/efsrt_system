@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-12-2025 a las 16:33:35
+-- Tiempo de generación: 16-12-2025 a las 15:23:06
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -3572,7 +3572,8 @@ INSERT INTO `practicas` (`id`, `estudiante`, `empleado`, `docente_supervisor`, `
 (9, 731, 80, NULL, 2, 'Módulo 3', 'modulo3', 'VI', '2025-12-02', NULL, 128, 26, 'Área de Recursos Humanos tt', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-02 07:33:03'),
 (13, 676, 42, NULL, 6, 'Módulo 1', 'modulo1', 'VI', '2025-12-09', NULL, 128, 72, 'Área de Recursos Humanos', 'Rapri Capcha, Francis Gabriel', 'Gerente General', NULL, NULL, 'En curso', '2025-12-09 22:16:07'),
 (14, 695, 123, NULL, 7, 'Módulo 1', 'modulo1', 'VI', '2025-12-10', NULL, 128, 8, 'en su cuarto de la sam', 'samira', 'gerente general', NULL, NULL, 'En curso', '2025-12-10 01:38:15'),
-(15, 467, 105, NULL, 8, 'Módulo 1', 'modulo1', 'VI', '2025-12-10', NULL, 128, 16, 'por ahi', 'melo', 'gerente', NULL, NULL, 'En curso', '2025-12-10 02:14:09');
+(15, 467, 105, NULL, 8, 'Módulo 1', 'modulo1', 'VI', '2025-12-10', NULL, 128, 16, 'por ahi', 'melo', 'gerente', NULL, NULL, 'En curso', '2025-12-10 02:14:09'),
+(18, 323, 120, NULL, 6, 'Módulo 1', 'modulo1', 'II', '2025-12-16', NULL, 128, 0, 'Area de resursos Humanos', 'rapri capcha gabriel francis', 'gerente general', NULL, NULL, 'En curso', '2025-12-16 14:09:20');
 
 -- --------------------------------------------------------
 
@@ -6005,9 +6006,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `tipo`, `estuempleado`, `token`, `estado`, `fecha_creacion`, `ultimo_acceso`, `nivel`) VALUES
-(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, 'df33fe59ea2b589b5285488bbb12cd57bf6e8c630f90b76ab582d08a20bc2a82', 1, '2025-12-04 03:47:13', '2025-12-15 14:00:16', 1),
+(2, 'admin_efsrt', '$2y$10$E/FzKyiK9Rwq67r8KPVhzegIV9MMh9IKBaw2C9wAtjFYQj6Vl5aNi', 2, 1, NULL, 1, '2025-12-04 03:47:13', '2025-12-16 14:08:59', 1),
 (3, '72571243', '$2y$10$q4AL2.KYyAj.LFMi/jWssuFQ2mKyLTPzvCHksFHQ1NP6n0Bcr8jjy', 3, 702, NULL, 1, '2025-12-04 03:48:18', '2025-12-10 14:13:37', NULL),
-(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, NULL, 1, '2025-12-04 03:53:16', '2025-12-10 15:28:14', NULL),
+(4, '70239758', '$2y$10$JgnbumklYH/4Wq7c/0S0KOHFT7bnjyT.ZijXZvb/OiHGMsL6D0A6G', 1, 120, 'cf7261a530f63c3d4a21eba42d334a6fbccb616f6ccfcf5f1acf542c5bddd88e', 1, '2025-12-04 03:53:16', '2025-12-16 14:09:27', NULL),
 (5, '73027729', '$2y$10$jr4tjz7TdMI6lDLYA.jzs.59DGjr8c6zBaJR6n73Motd3v3lmry3i', 3, 731, NULL, 1, '2025-12-04 04:09:16', NULL, NULL),
 (7, '09986759', '$2y$10$bTxbAOp4lXBtfiII.3aC0.pg/uEne0jK1PHFen2wZRZ9uYNvyKHEy', 3, 1, NULL, 1, '2025-12-09 00:58:51', '2025-12-12 19:06:12', NULL),
 (8, '72309767', '$2y$10$OVNlg3eBMFuyjhvQJTfyteqSxTUSsHb7SOHh2R4cMmY2HlqOmL21e', 3, 676, NULL, 1, '2025-12-09 21:55:02', '2025-12-10 13:36:43', NULL),
@@ -6710,7 +6711,7 @@ ALTER TABLE `participante_reunion`
 -- AUTO_INCREMENT de la tabla `practicas`
 --
 ALTER TABLE `practicas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `prog_estudios`
