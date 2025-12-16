@@ -1,3 +1,14 @@
+<?php
+// Usa la ruta correcta desde la raíz
+require_once __DIR__ . '/../../helpers/SessionHelper.php';
+SessionHelper::init();
+
+// Verificar permisos antes de mostrar la página
+if (!SessionHelper::isLoggedIn() || (!SessionHelper::esAdministrador() && !SessionHelper::esDocente())) {
+    header('Location: index.php?c=Login&a=index');
+    exit();
+}
+?>
 <link rel="stylesheet" href="assets/css/practica.css">
 <!-- Contenido Principal -->
 
@@ -218,12 +229,16 @@
             }
         });
     </script>
-    <!-- En practica.php, después del título y antes del script -->
     <script>
-        // Pasar información del usuario al JavaScript
-        window.userInfo = {
-            rol: '<?php echo SessionHelper::getRole() ?? ""; ?>',
-            esDocente: <?php echo SessionHelper::esDocente() ? 'true' : 'false'; ?>,
-            esAdministrador: <?php echo SessionHelper::esAdministrador() ? 'true' : 'false'; ?>
-        };
-    </script>
+    // Pasar información completa del usuario al JavaScript
+    window.userInfo = {
+        rol: '<?php echo SessionHelper::getRole() ?? ""; ?>',
+        esDocente: <?php echo SessionHelper::esDocente() ? 'true' : 'false'; ?>,
+        esAdministrador: <?php echo SessionHelper::esAdministrador() ? 'true' : 'false'; ?>,
+        estuempleado_id: '<?php echo SessionHelper::getEmpleadoId() ?? "null"; ?>',
+        usuario_id: '<?php echo SessionHelper::getUsuarioId() ?? ""; ?>',
+        nombre: '<?php echo SessionHelper::getNombreCompleto() ?? ""; ?>'
+    };
+    
+    console.log("🔍 Información de sesión cargada:", window.userInfo);
+</script>

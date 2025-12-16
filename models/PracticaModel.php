@@ -121,6 +121,60 @@ public function obtenerModulosEstudiante($estudiante_id)
         return [];
     }
 }
+// En models/PracticaModel.php - REEMPLAZA el método obtenerPracticasPorDocente
+
+public function obtenerPracticasPorDocente($empleado_id)
+{
+    try {
+        $sql = "SELECT 
+                p.id,
+                p.estudiante,
+                p.empresa,
+                p.tipo_efsrt,
+                p.periodo_academico,
+                p.fecha_inicio,
+                p.fecha_fin,
+                p.total_horas,
+                p.horas_acumuladas,
+                p.area_ejecucion,
+                p.supervisor_empresa,
+                p.cargo_supervisor,
+                p.estado,
+                p.empleado,
+                COALESCE(p.horas_acumuladas, 0) as horas_acumuladas,
+                -- Datos del estudiante
+                e.dni_est,
+                e.ap_est,
+                e.am_est,
+                e.nom_est,
+                -- Datos del programa de estudios
+                m.prog_estudios as id_programa, 
+                pe.nom_progest as programa,
+                -- Datos de la empresa
+                emp.razon_social as nombre_empresa,
+                -- Datos del docente supervisor
+                em.apnom_emp as nombre_docente
+            FROM practicas p
+            LEFT JOIN estudiante e ON p.estudiante = e.id
+            LEFT JOIN matricula m ON e.id = m.estudiante
+            LEFT JOIN prog_estudios pe ON m.prog_estudios = pe.id
+            LEFT JOIN empresa emp ON p.empresa = emp.id
+            LEFT JOIN empleado em ON p.empleado = em.id
+            WHERE p.empleado = :empleado_id  -- ← FILTRAR POR EMPLEADO (docente supervisor)
+            AND p.estado IS NOT NULL
+            ORDER BY p.fecha_inicio DESC, p.id DESC";
+
+        $stmt = $this->executeQuery($sql, [':empleado_id' => $empleado_id]);
+        $resultados = $stmt->fetchAll();
+
+        error_log("📊 Docente ID {$empleado_id} tiene " . count($resultados) . " prácticas");
+
+        return $resultados;
+    } catch (Exception $e) {
+        error_log("❌ Error en obtenerPracticasPorDocente: " . $e->getMessage());
+        return [];
+    }
+}
 
     public function obtenerPracticasPorEmpresa($empresaId)
     {

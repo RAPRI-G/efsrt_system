@@ -122,21 +122,40 @@ class PracticasApp {
         }
     }
     
-     actualizarDashboard(estadisticas) {
-        if (!estadisticas) return;
+     actualizarDashboard(estadisticas, user_info = null) {
+    if (!estadisticas) return;
+    
+    // Actualizar contadores
+    document.getElementById('total-practicas').textContent = estadisticas.total_practicas || 0;
+    document.getElementById('practicas-activas').textContent = estadisticas.practicas_en_curso || 0;
+    document.getElementById('practicas-finalizadas').textContent = estadisticas.practicas_finalizadas || 0;
+    document.getElementById('horas-acumuladas').textContent = estadisticas.horas_acumuladas || 0;
+    
+    // Actualizar textos descriptivos
+    document.getElementById('practicas-texto').textContent = `${estadisticas.total_practicas || 0} registradas`;
+    document.getElementById('activas-texto').textContent = `${estadisticas.practicas_en_curso || 0} en ejecución`;
+    document.getElementById('finalizadas-texto').textContent = `${estadisticas.practicas_finalizadas || 0} completadas`;
+    document.getElementById('horas-texto').textContent = `Horas acumuladas`;
+    
+    // 🔥 Si es docente, mostrar badge informativo (opcional)
+    const userInfo = window.userInfo || user_info;
+    if (userInfo && userInfo.esDocente) {
+        console.log(`👨‍🏫 Docente ${userInfo.nombre} está viendo sus prácticas`);
         
-        // Actualizar contadores
-        document.getElementById('total-practicas').textContent = estadisticas.total_practicas || 0;
-        document.getElementById('practicas-activas').textContent = estadisticas.practicas_en_curso || 0;
-        document.getElementById('practicas-finalizadas').textContent = estadisticas.practicas_finalizadas || 0;
-        document.getElementById('horas-acumuladas').textContent = estadisticas.horas_acumuladas || 0;
-        
-        // Actualizar textos descriptivos
-        document.getElementById('practicas-texto').textContent = `${estadisticas.total_practicas || 0} registradas`;
-        document.getElementById('activas-texto').textContent = `${estadisticas.practicas_en_curso || 0} en ejecución`;
-        document.getElementById('finalizadas-texto').textContent = `${estadisticas.practicas_finalizadas || 0} completadas`;
-        document.getElementById('horas-texto').textContent = `Horas acumuladas`;
+        // Agregar badge al header si quieres
+        const existingBadge = document.querySelector('.badge-docente');
+        if (!existingBadge) {
+            const badge = document.createElement('div');
+            badge.className = 'badge-docente bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm inline-flex items-center ml-4';
+            badge.innerHTML = `<i class="fas fa-user-tie mr-1"></i> Vista docente`;
+            
+            const headerDiv = document.querySelector('.mb-8 > div:first-child');
+            if (headerDiv) {
+                headerDiv.appendChild(badge);
+            }
+        }
     }
+}
     
     inicializarGraficosPracticas(estadisticas) {
         if (!estadisticas) return;

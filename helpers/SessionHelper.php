@@ -125,4 +125,33 @@ class SessionHelper
     {
         return self::getRole() === 'estudiante';
     }
+
+    // En helpers/SessionHelper.php - Agrega estos métodos
+
+public static function getEmpleadoId()
+{
+    self::init();
+    if (isset($_SESSION['usuario'])) {
+        return $_SESSION['usuario']['estuempleado'] ?? null;
+    }
+    return null;
+}
+
+public static function getNombreCompleto()
+{
+    self::init();
+    if (isset($_SESSION['usuario'])) {
+        return $_SESSION['usuario']['nombre_completo'] ?? '';
+    }
+    return '';
+}
+
+public static function getUsuarioId()
+{
+    self::init();
+    if (isset($_SESSION['usuario'])) {
+        return $_SESSION['usuario']['id'] ?? null;
+    }
+    return null;
+}
 }

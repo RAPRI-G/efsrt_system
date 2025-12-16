@@ -24,92 +24,144 @@ class PracticaController {
     $this->db = $database->getConnection();
 }
     
-    public function index() {
-        // Verificar si hay datos, si no, insertar datos de prueba
-        if (method_exists($this->model, 'hayDatosPrueba') && !$this->model->hayDatosPrueba()) {
-            $this->model->insertarDatosPrueba();
-        }
-        
-        require_once __DIR__ . '/../views/layouts/header.php';
-        require_once __DIR__ . '/../views/practica/practica.php';
-        require_once __DIR__ . '/../views/layouts/footer.php';
+    // controllers/PracticaController.php - método index()
+public function index() {
+    // Verificar permisos
+    require_once __DIR__ . '/../helpers/SessionHelper.php'; // <- Esta ruta está bien
+    SessionHelper::init();
+    
+    if (!SessionHelper::isLoggedIn()) {
+        header('Location: index.php?c=Login&a=index');
+        exit();
     }
     
-    public function api_practicas() {
-        header('Content-Type: application/json');
+    $rol = SessionHelper::getRole();
+    if (!in_array($rol, ['administrador', 'docente'])) {
+        header('Location: index.php?c=Inicio&a=index');
+        exit();
+    }
+    
+    // Mostrar mensaje informativo según rol
+    if ($rol === 'docente') {
+        $nombre = SessionHelper::getNombreCompleto();
+        error_log("👨‍🏫 Docente {$nombre} accediendo a prácticas");
+    }
+    
+    // Verificar si hay datos, si no, insertar datos de prueba
+    if (method_exists($this->model, 'hayDatosPrueba') && !$this->model->hayDatosPrueba()) {
+        $this->model->insertarDatosPrueba();
+    }
+    
+    require_once __DIR__ . '/../views/layouts/header.php';
+    require_once __DIR__ . '/../views/practica/practica.php';
+    require_once __DIR__ . '/../views/layouts/footer.php';
+}
+    
+ // En controllers/PracticaController.php - método api_practicas()
+public function api_practicas() {
+    header('Content-Type: application/json');
+    
+    try {
+        // 🔥 Obtener información del usuario logueado
+        require_once __DIR__ . '/../helpers/SessionHelper.php';
+        SessionHelper::init();
         
-        try {
-            // Usar método existente
+        $usuario = SessionHelper::get('usuario');
+        $rol = $usuario['rol'] ?? null;
+        $estuempleado_id = $usuario['estuempleado'] ?? null; // ID del empleado/docente
+        
+        error_log("👤 Rol detectado: {$rol}, Estuempleado ID: {$estuempleado_id}");
+        
+        // Usar método existente o filtrado por docente
+        if ($rol === 'docente' && $estuempleado_id) {
+            // Si es docente, obtener solo sus prácticas
+            error_log("👨‍🏫 Cargando prácticas del docente ID: {$estuempleado_id}");
+            $practicas = method_exists($this->model, 'obtenerPracticasPorDocente') 
+                ? $this->model->obtenerPracticasPorDocente($estuempleado_id) 
+                : [];
+        } else if ($rol === 'administrador') {
+            // Si es administrador, ver todas las prácticas
             $practicas = method_exists($this->model, 'obtenerPracticasDashboard') 
                 ? $this->model->obtenerPracticasDashboard() 
                 : $this->model->obtenerPracticas();
-            
-            // Calcular estadísticas
-            $total_practicas = count($practicas);
-            $practicas_en_curso = 0;
-            $practicas_finalizadas = 0;
-            $practicas_pendientes = 0;
-            $horas_acumuladas = 0;
-            $distribucion_modulos = [
-                'Módulo 1' => 0,
-                'Módulo 2' => 0,
-                'Módulo 3' => 0
-            ];
-            
-            foreach ($practicas as $practica) {
-                // Contar por estado
-                switch ($practica['estado']) {
-                    case 'En curso':
-                        $practicas_en_curso++;
-                        break;
-                    case 'Finalizado':
-                        $practicas_finalizadas++;
-                        break;
-                    case 'Pendiente':
-                        $practicas_pendientes++;
-                        break;
-                }
-                
-                // Sumar horas (todos los módulos son 128 horas)
-                $horas_acumuladas += $practica['horas_acumuladas'] ?? 0;
-                
-                // Contar por módulo
-                if ($practica['tipo_efsrt'] == 'modulo1') {
-                    $distribucion_modulos['Módulo 1']++;
-                } elseif ($practica['tipo_efsrt'] == 'modulo2') {
-                    $distribucion_modulos['Módulo 2']++;
-                } elseif ($practica['tipo_efsrt'] == 'modulo3') {
-                    $distribucion_modulos['Módulo 3']++;
-                }
+        } else {
+            // Para otros roles o sin sesión
+            $practicas = [];
+        }
+        
+        // Calcular estadísticas
+        $total_practicas = count($practicas);
+        $practicas_en_curso = 0;
+        $practicas_finalizadas = 0;
+        $practicas_pendientes = 0;
+        $horas_acumuladas = 0;
+        $distribucion_modulos = [
+            'Módulo 1' => 0,
+            'Módulo 2' => 0,
+            'Módulo 3' => 0
+        ];
+        
+        foreach ($practicas as $practica) {
+            // Contar por estado
+            switch ($practica['estado']) {
+                case 'En curso':
+                    $practicas_en_curso++;
+                    break;
+                case 'Finalizado':
+                    $practicas_finalizadas++;
+                    break;
+                case 'Pendiente':
+                    $practicas_pendientes++;
+                    break;
             }
             
-            $estadisticas = [
-                'total_practicas' => $total_practicas,
-                'practicas_en_curso' => $practicas_en_curso,
-                'practicas_finalizadas' => $practicas_finalizadas,
-                'practicas_pendientes' => $practicas_pendientes,
-                'horas_acumuladas' => $horas_acumuladas,
-                'distribucion_estado' => [
-                    'En curso' => $practicas_en_curso,
-                    'Finalizado' => $practicas_finalizadas,
-                    'Pendiente' => $practicas_pendientes
-                ],
-                'distribucion_modulos' => $distribucion_modulos
-            ];
+            // Sumar horas
+            $horas_acumuladas += $practica['horas_acumuladas'] ?? 0;
             
-            echo json_encode([
-                'success' => true,
-                'data' => $practicas,
-                'estadisticas' => $estadisticas
-            ]);
-        } catch (Exception $e) {
-            error_log("Error en api_practicas: " . $e->getMessage());
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
+            // Contar por módulo
+            if ($practica['tipo_efsrt'] == 'modulo1') {
+                $distribucion_modulos['Módulo 1']++;
+            } elseif ($practica['tipo_efsrt'] == 'modulo2') {
+                $distribucion_modulos['Módulo 2']++;
+            } elseif ($practica['tipo_efsrt'] == 'modulo3') {
+                $distribucion_modulos['Módulo 3']++;
+            }
         }
+        
+        $estadisticas = [
+            'total_practicas' => $total_practicas,
+            'practicas_en_curso' => $practicas_en_curso,
+            'practicas_finalizadas' => $practicas_finalizadas,
+            'practicas_pendientes' => $practicas_pendientes,
+            'horas_acumuladas' => $horas_acumuladas,
+            'distribucion_estado' => [
+                'En curso' => $practicas_en_curso,
+                'Finalizado' => $practicas_finalizadas,
+                'Pendiente' => $practicas_pendientes
+            ],
+            'distribucion_modulos' => $distribucion_modulos
+        ];
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $practicas,
+            'estadisticas' => $estadisticas,
+            'user_info' => [
+                'rol' => $rol,
+                'estuempleado_id' => $estuempleado_id,
+                'esDocente' => ($rol === 'docente'),
+                'esAdministrador' => ($rol === 'administrador'),
+                'nombre' => $usuario['nombre_completo'] ?? ''
+            ]
+        ]);
+    } catch (Exception $e) {
+        error_log("Error en api_practicas: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
     }
+}
     
     public function api_estudiantes() {
         header('Content-Type: application/json');
@@ -503,6 +555,7 @@ private function obtenerPeriodoAcademicoEstudiante($estudiante_id) {
         ]);
     }
 }
+
     
     private function getNombreModulo($tipoModulo) {
         $modulos = [
